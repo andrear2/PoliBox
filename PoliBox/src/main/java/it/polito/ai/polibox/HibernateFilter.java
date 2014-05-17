@@ -1,4 +1,4 @@
-package it.polito.ai;
+package it.polito.ai.polibox;
 
 import java.io.IOException;
 

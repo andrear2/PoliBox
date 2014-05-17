@@ -2,13 +2,10 @@
 <%@ page session="false" %>
 <html>
 <head>
-	<title>Home</title>
+	<title>PoliBox</title>
 </head>
 <body>
-<h1>
-	Hello world!  
-</h1>
-
-<P>  The time on the server is ${serverTime}. </P>
+	<h1>Benvenuto su PoliBox</h1>
+	<p><a href="register">Registrati</a> o <a href="login">Accedi</a></p>
 </body>
 </html>

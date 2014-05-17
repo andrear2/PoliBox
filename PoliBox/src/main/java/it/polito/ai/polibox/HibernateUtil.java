@@ -1,4 +1,4 @@
-package it.polito.ai;
+package it.polito.ai.polibox;
 
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
