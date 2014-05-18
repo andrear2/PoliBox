@@ -1,4 +1,4 @@
-package it.polito.ai.polibox;
+package it.polito.ai.polibox.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +14,7 @@ public class HomeController {
 	 */
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home() {		
-		return "home";
+		return "index";
 	}
 	
 }

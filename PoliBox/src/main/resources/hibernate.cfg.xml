@@ -15,6 +15,6 @@
 	<property name="hibernate.show_sql">true</property> 
     <property name="hbm2ddl.auto">validate</property>
 	
-	<mapping class="it.polito.ai.polibox.Utente"/>
+	<mapping class="it.polito.ai.polibox.entity.Utente"/>
   </session-factory>
 </hibernate-configuration>

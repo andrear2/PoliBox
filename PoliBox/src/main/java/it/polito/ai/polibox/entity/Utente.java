@@ -1,8 +1,10 @@
-package it.polito.ai.polibox;
+package it.polito.ai.polibox.entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+@Entity
+@Table(name="Utenti")
 public class Utente {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -11,14 +13,14 @@ public class Utente {
 	@Size(min=1, max=20, message="Inserisci il tuo nome")
 	private String nome;
 	
-	@Size(min=1, message="Inserisci il tuo cognome")
+	@Size(min=1, max=20, message="Inserisci il tuo cognome")
 	private String cognome;
 	
 	@Size(min=1, message="Inserisci il tuo indirizzo email")
 	@Pattern(regexp="[A-Za-z0-9.+-_]+@[A-Za-z0-9.+-_]+\\.[A-Za-z]{2,4}", message="L'indirizzo email non è valido")
 	private String email;
 	
-	@Size(min=6, message="La password deve contenere almeno 6 caratteri")
+	@Size(min=6, max=20, message="La lunghezza della password deve essere compresa tra {min} e {max}")
 	private String password;
 	
 	@Override
