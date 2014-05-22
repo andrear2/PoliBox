@@ -9,9 +9,18 @@
 	<title>PoliBox - Login</title>
 	<link href="<c:url value="/resources/css/style.css" />" type="text/css" rel="stylesheet">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </head>
 <body>
+	<nav class="navbar navbar-default" role="navigation">
+	  <div class="container-fluid">
+	    <div class="navbar-header">
+	      <a class="navbar-brand" href="index">PoliBox</a>
+	    </div>
+	  </div>
+	</nav>
+	
 	<h1>Login</h1>
 	<c:if test="${error == true}">
 		<p class="error">Email o password errate</p>
@@ -30,6 +39,6 @@
 		<input class="btn btn-primary" type="submit" value="Login" />
 	</form:form>
 	<br>
-	<a href="" class="btn btn-default" role="button">Indietro</a>
+	<a href="index" class="btn btn-default" role="button">Indietro</a>
 </body>
 </html>

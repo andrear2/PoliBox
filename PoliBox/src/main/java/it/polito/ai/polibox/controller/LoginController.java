@@ -35,6 +35,6 @@ public class LoginController {
 			return "login";
 		}
 		model.addAttribute("utente", u);
-		return "loginresult";
+		return "home";
 	}
 }
