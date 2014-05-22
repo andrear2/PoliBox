@@ -33,5 +33,4 @@ public class RegistrationController {
 		model.addAttribute("utente", utente);
 		return "registrationresult";
 	}
-
 }
