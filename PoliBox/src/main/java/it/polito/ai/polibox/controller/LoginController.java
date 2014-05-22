@@ -1,9 +1,9 @@
 package it.polito.ai.polibox.controller;
 
+import javax.validation.Valid;
+
 import it.polito.ai.polibox.dao.UtenteDAO;
 import it.polito.ai.polibox.entity.Utente;
-
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,24 +14,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
-public class RegistrationController {
+public class LoginController {
 	@Autowired
 	private UtenteDAO utenteDAO;
-	
-	@RequestMapping(value = "/registration", method = RequestMethod.GET)
-	public String showRegistrationForm(Model model) {
+
+	@RequestMapping(value = "/login", method = RequestMethod.GET)
+	public String showLoginForm(Model model) {
 		model.addAttribute("utente", new Utente());
-		return "registration";
+		return "login";
 	}
 	
-	@RequestMapping(value = "/registration", method = RequestMethod.POST)
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String registrationSubmit(@ModelAttribute @Valid Utente utente, BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
-			return "registration";
+			return "login";
 		}
-		utenteDAO.addUtente(utente);
-		model.addAttribute("utente", utente);
-		return "registrationresult";
+		Utente u = utenteDAO.getUtente(utente.getEmail(), utente.getPassword());
+		if (u == null) {
+			model.addAttribute("error", true);
+			return "login";
+		}
+		model.addAttribute("utente", u);
+		return "loginresult";
 	}
-
 }

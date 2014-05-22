@@ -6,6 +6,6 @@
 </head>
 <body>
 	<h1>Benvenuto su PoliBox</h1>
-	<p><a href="register">Registrati</a> o <a href="login">Accedi</a></p>
+	<p><a href="registration">Registrati</a> o <a href="login">Accedi</a></p>
 </body>
 </html>

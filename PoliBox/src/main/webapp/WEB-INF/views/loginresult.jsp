@@ -7,9 +7,6 @@
 <title>Polibox</title>
 </head>
 <body>
-	<h2>Registrazione riuscita per ${utente.nome} ${utente.cognome}!</h2>
-	<p>La tua email è ${utente.email}<br>
-	La tua password è ${utente.password}<br>
-	<a href="login">Clicca qui</a> per eseguire il login</p>
+	<h2>Benvenuto ${utente.nome} ${utente.cognome}!</h2>
 </body>
 </html>
