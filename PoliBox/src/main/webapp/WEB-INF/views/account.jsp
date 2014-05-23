@@ -4,7 +4,7 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Polibox</title>
+	<title>Polibox - Account</title>
 	<link href='<c:url value="/resources/css/style.css" />' type="text/css" rel="stylesheet">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
@@ -39,11 +39,8 @@
 	  </div>
 	</nav>
 	
-	<div class="col-xs-3">
-		<h2>Benvenuto ${utente.nome} ${utente.cognome}!</h2>
-	</div>
-	<div class="col-xs-9">
-		<h2>Benvenuto ${utente.nome} ${utente.cognome}!</h2>
+	<div>
+		
 	</div>
 </body>
 </html>

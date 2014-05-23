@@ -1,5 +1,6 @@
 package it.polito.ai.polibox.controller;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import it.polito.ai.polibox.dao.UtenteDAO;
@@ -24,8 +25,8 @@ public class LoginController {
 		return "login";
 	}
 	
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public String registrationSubmit(@ModelAttribute @Valid Utente utente, BindingResult bindingResult, Model model) {
+	@RequestMapping(value = "/home", method = RequestMethod.POST)
+	public String loginSubmit(@ModelAttribute @Valid Utente utente, BindingResult bindingResult, Model model, HttpSession session) {
 		if (bindingResult.hasErrors()) {
 			return "login";
 		}
@@ -33,6 +34,17 @@ public class LoginController {
 		if (u == null) {
 			model.addAttribute("error", true);
 			return "login";
+		}
+		model.addAttribute("utente", u);
+		session.setAttribute("utente", u);
+		return "home";
+	}
+	
+	@RequestMapping(value = "/home", method = RequestMethod.GET)
+	public String showHome(Model model, HttpSession session) {
+		Utente u = (Utente) session.getAttribute("utente");
+		if (u == null) {
+			return "index";
 		}
 		model.addAttribute("utente", u);
 		return "home";

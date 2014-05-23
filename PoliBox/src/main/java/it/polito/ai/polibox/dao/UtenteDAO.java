@@ -9,6 +9,7 @@ public interface UtenteDAO {
 	public void addUtente(Utente utente);
 	public List<Utente> getUtenti();
 	public Utente getUtente(String email, String password);
+	public Utente getUtente(Long id);
 	public void deleteUtente(Utente utente);
 
 }
