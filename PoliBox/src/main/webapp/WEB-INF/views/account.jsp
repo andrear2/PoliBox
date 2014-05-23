@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -40,7 +42,42 @@
 	</nav>
 	
 	<div>
-		
+		<h1>Impostazioni</h1>
+		${utente.nome} ${utente.cognome}
+		<a href="#cambianomemodal" id="modaltrigger">Cambia nome</a>
 	</div>
+	
+	<div id="cambianomemodal" style="display:none;">
+		<h1>Cambia il tuo nome</h1>
+		<form:form id="cambianomeform" commandName="utente" method="post" role="form">
+			<div class="row">
+				<div class="form-group col-lg-4">
+					<label for="nome">Nome</label>
+		    		<form:input path="nome" class="form-control" id="nome" placeholder="Nome" />
+		    		<form:errors path="nome" cssClass="error"></form:errors>
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-group col-lg-4">
+					<label for="cognome">Cognome</label>
+		    		<form:input path="cognome" class="form-control" id="cognome" placeholder="Cognome" />
+		    		<form:errors path="cognome" cssClass="error"></form:errors>
+				</div>
+			</div>
+			<input class="btn btn-primary" type="submit" value="Cambia nome" />
+		</form:form>
+	</div>
+	
+	<script type="text/javascript">
+		$(function(){
+		  $('#cambianomeform').submit(function(e){
+		    return false;
+		  });
+		  
+		  $('#modaltrigger').leanModal({ top: 110, overlay: 0.45, closeButton: ".hidemodal" });
+		});
+		(function($){$.fn.extend({leanModal:function(options){var defaults={top:100,overlay:0.5,closeButton:null};var overlay=$("<div id='lean_overlay'></div>");$("body").append(overlay);options=$.extend(defaults,options);return this.each(function(){var o=options;$(this).click(function(e){var modal_id=$(this).attr("href");$("#lean_overlay").click(function(){close_modal(modal_id)});$(o.closeButton).click(function(){close_modal(modal_id)});var modal_height=$(modal_id).outerHeight();var modal_width=$(modal_id).outerWidth();
+		$("#lean_overlay").css({"display":"block",opacity:0});$("#lean_overlay").fadeTo(200,o.overlay);$(modal_id).css({"display":"block","position":"fixed","opacity":0,"z-index":11000,"left":50+"%","margin-left":-(modal_width/2)+"px","top":o.top+"px"});$(modal_id).fadeTo(200,1);e.preventDefault()})});function close_modal(modal_id){$("#lean_overlay").fadeOut(200);$(modal_id).css({"display":"none"})}}})})(jQuery);
+	</script>
 </body>
 </html>
