@@ -9,60 +9,22 @@
 	<title>Polibox - Account</title>
 	<link href='<c:url value="/resources/css/style.css" />' type="text/css" rel="stylesheet">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<script type="text/javascript">
 	$(function() {
-		var nome = $("#nome"),
-			cognome = $("#cognome"),
-			allFields = $([]).add(nome).add(cognome),
-			tips = $(".validateTips");
-		function updateTips(t) {
-		    tips.text(t)
-		        .addClass("ui-state-highlight");
-		    setTimeout(function() {
-		        tips.removeClass("ui-state-highlight", 1500);
-		    }, 500);
-		}
-		function checkLength(o, n, min, max) {
-		    if (o.val().length > max || o.val().length < min) {
-			    o.addClass("ui-state-error");
-			    updateTips("La lunghezza del campo " + n + " deve essere compresa tra " + min + " e " + max + ".");
-			    return false;
+		$('#cambianomesubmit').click(function() {
+		    if ($('#nome').val() === "") {
+		        $('#nome').next('.help-inline').show();
+		        return false;
+		    } else if ($('#cognome').val() === "") {
+		        $('#cognome').next('.help-inline').show();
+		        return false;
 		    } else {
+		        $('#cambianomeform').submit();
 		        return true;
 		    }
-	    }
-		$("#cambianomemodal").dialog({
-		    autoOpen: false,
-		    height: 300,
-		    width: 350,
-		    modal: true,
-		    buttons: {
-				"Cambia nome": function() {
-					var bValid = true;
-			        allFields.removeClass("ui-state-error");
-			        bValid = bValid && checkLength(nome, "nome", 1, 20);
-			        bValid = bValid && checkLength(cognome, "cognome", 1, 20);
-			        if (bValid) {
-						$("#nuovonome").html("Il tuo nuovo nome è " + nome.val() + " " + cognome.val());
-						$("form[name='cambianomeform']").submit();
-						$(this).dialog("close");
-			        }
-				},
-				"Annulla": function() {
-				    $(this).dialog("close");
-				}
-		    },
-		    close: function() {
-		   		allFields.val("");
-		    }
 		});
-		$("#modaltrigger").click(function() {
-	    	$("#cambianomemodal").dialog("open");
-	    });
 	});
 	</script>
 </head>
@@ -98,30 +60,32 @@
 	<div>
 		<h1>Impostazioni</h1>
 		${utente.nome} ${utente.cognome}
-		<a href="#cambianomemodal" id="modaltrigger">Cambia nome</a>
+		<a data-toggle="modal" href="#cambianomemodal">Cambia nome</a>
 	</div>
 	
-	<div id="cambianomemodal" title="Cambia nome">
-		<p class="validateTips">Tutti i campi sono obbligatori.</p>
-		<form name="cambianomeform" action="account/cambiaNome" method="post" role="form">
-			<div class="row">
-				<div class="form-group col-lg-4">
-					<label for="nome">Nome</label>
-					<input type="text" id="nome" class="text ui-widget-content ui-corner-all" />
-<%-- 		    		<form:input path="nome" class="form-control" id="nome" placeholder="Nome" /> --%>
-<%-- 		    		<form:errors path="nome" cssClass="error"></form:errors> --%>
+	<div class="modal fade" id="cambianomemodal" tabindex="-1" role="dialog" aria-labelledby="cambianomelabel" aria-hidden="true">
+		<div class="modal-dialog">
+   			<div class="modal-content">
+				<div class="modal-header">
+				    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				    <h2 id="cambianomelabel">Cambia nome</h2>
 				</div>
-			</div>
-			<div class="row">
-				<div class="form-group col-lg-4">
-					<label for="cognome">Cognome</label>
-					<input type="text" id="cognome" class="text ui-widget-content ui-corner-all" />
-<%-- 		    		<form:input path="cognome" class="form-control" id="cognome" placeholder="Cognome" /> --%>
-<%-- 		    		<form:errors path="cognome" cssClass="error"></form:errors> --%>
+				<div class="modal-body">
+					<form id="cambianomeform" action="account/cambiaNome" method="POST">
+						<label for="nome">Nome</label>
+						<input type="text" id="nome" />
+						<span class="hide help-inline">La lunghezza del campo nome deve essere compresa tra 1 e 20</span>
+						<label for="cognome">Cognome</label>
+						<input type="text" id="cognome" />
+						<span class="hide help-inline">La lunghezza del campo cognome deve essere compresa tra 1 e 20</span>
+					</form>
 				</div>
+				<div class="modal-footer">
+			    	<button class="btn" data-dismiss="modal" aria-hidden="true">Annulla</button>
+			    	<button class="btn btn-primary" data-dismiss="modal" id="cambianomesubmit">Cambia nome</button>
+			    </div>
 			</div>
-<!-- 			<input class="btn btn-primary" type="submit" value="Cambia nome" /> -->
-		</form>
+		</div>
 	</div>
 	
 	<div id="nuovonome">
