@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class AccountController {
@@ -20,6 +21,12 @@ public class AccountController {
 	public String showEditAccountForm(Model model, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		model.addAttribute("utente", utente);
+		return "account";
+	}
+	
+	@RequestMapping(value = "/account/cambiaNome", method = RequestMethod.POST)
+	public String cambiaNomeSubmit(@RequestParam(value="nome") String nome, @RequestParam(value="cognome") String cognome, Model model, HttpSession session) {
+		System.out.println(nome+cognome);
 		return "account";
 	}
 }

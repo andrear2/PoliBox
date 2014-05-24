@@ -9,8 +9,62 @@
 	<title>Polibox - Account</title>
 	<link href='<c:url value="/resources/css/style.css" />' type="text/css" rel="stylesheet">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+	$(function() {
+		var nome = $("#nome"),
+			cognome = $("#cognome"),
+			allFields = $([]).add(nome).add(cognome),
+			tips = $(".validateTips");
+		function updateTips(t) {
+		    tips.text(t)
+		        .addClass("ui-state-highlight");
+		    setTimeout(function() {
+		        tips.removeClass("ui-state-highlight", 1500);
+		    }, 500);
+		}
+		function checkLength(o, n, min, max) {
+		    if (o.val().length > max || o.val().length < min) {
+			    o.addClass("ui-state-error");
+			    updateTips("La lunghezza del campo " + n + " deve essere compresa tra " + min + " e " + max + ".");
+			    return false;
+		    } else {
+		        return true;
+		    }
+	    }
+		$("#cambianomemodal").dialog({
+		    autoOpen: false,
+		    height: 300,
+		    width: 350,
+		    modal: true,
+		    buttons: {
+				"Cambia nome": function() {
+					var bValid = true;
+			        allFields.removeClass("ui-state-error");
+			        bValid = bValid && checkLength(nome, "nome", 1, 20);
+			        bValid = bValid && checkLength(cognome, "cognome", 1, 20);
+			        if (bValid) {
+						$("#nuovonome").html("Il tuo nuovo nome è " + nome.val() + " " + cognome.val());
+						$("form[name='cambianomeform']").submit();
+						$(this).dialog("close");
+			        }
+				},
+				"Annulla": function() {
+				    $(this).dialog("close");
+				}
+		    },
+		    close: function() {
+		   		allFields.val("");
+		    }
+		});
+		$("#modaltrigger").click(function() {
+	    	$("#cambianomemodal").dialog("open");
+	    });
+	});
+	</script>
 </head>
 <body>
 	<nav class="navbar navbar-default" role="navigation">
@@ -47,37 +101,30 @@
 		<a href="#cambianomemodal" id="modaltrigger">Cambia nome</a>
 	</div>
 	
-	<div id="cambianomemodal" style="display:none;">
-		<h1>Cambia il tuo nome</h1>
-		<form:form id="cambianomeform" commandName="utente" method="post" role="form">
+	<div id="cambianomemodal" title="Cambia nome">
+		<p class="validateTips">Tutti i campi sono obbligatori.</p>
+		<form name="cambianomeform" action="account/cambiaNome" method="post" role="form">
 			<div class="row">
 				<div class="form-group col-lg-4">
 					<label for="nome">Nome</label>
-		    		<form:input path="nome" class="form-control" id="nome" placeholder="Nome" />
-		    		<form:errors path="nome" cssClass="error"></form:errors>
+					<input type="text" id="nome" class="text ui-widget-content ui-corner-all" />
+<%-- 		    		<form:input path="nome" class="form-control" id="nome" placeholder="Nome" /> --%>
+<%-- 		    		<form:errors path="nome" cssClass="error"></form:errors> --%>
 				</div>
 			</div>
 			<div class="row">
 				<div class="form-group col-lg-4">
 					<label for="cognome">Cognome</label>
-		    		<form:input path="cognome" class="form-control" id="cognome" placeholder="Cognome" />
-		    		<form:errors path="cognome" cssClass="error"></form:errors>
+					<input type="text" id="cognome" class="text ui-widget-content ui-corner-all" />
+<%-- 		    		<form:input path="cognome" class="form-control" id="cognome" placeholder="Cognome" /> --%>
+<%-- 		    		<form:errors path="cognome" cssClass="error"></form:errors> --%>
 				</div>
 			</div>
-			<input class="btn btn-primary" type="submit" value="Cambia nome" />
-		</form:form>
+<!-- 			<input class="btn btn-primary" type="submit" value="Cambia nome" /> -->
+		</form>
 	</div>
 	
-	<script type="text/javascript">
-		$(function(){
-		  $('#cambianomeform').submit(function(e){
-		    return false;
-		  });
-		  
-		  $('#modaltrigger').leanModal({ top: 110, overlay: 0.45, closeButton: ".hidemodal" });
-		});
-		(function($){$.fn.extend({leanModal:function(options){var defaults={top:100,overlay:0.5,closeButton:null};var overlay=$("<div id='lean_overlay'></div>");$("body").append(overlay);options=$.extend(defaults,options);return this.each(function(){var o=options;$(this).click(function(e){var modal_id=$(this).attr("href");$("#lean_overlay").click(function(){close_modal(modal_id)});$(o.closeButton).click(function(){close_modal(modal_id)});var modal_height=$(modal_id).outerHeight();var modal_width=$(modal_id).outerWidth();
-		$("#lean_overlay").css({"display":"block",opacity:0});$("#lean_overlay").fadeTo(200,o.overlay);$(modal_id).css({"display":"block","position":"fixed","opacity":0,"z-index":11000,"left":50+"%","margin-left":-(modal_width/2)+"px","top":o.top+"px"});$(modal_id).fadeTo(200,1);e.preventDefault()})});function close_modal(modal_id){$("#lean_overlay").fadeOut(200);$(modal_id).css({"display":"none"})}}})})(jQuery);
-	</script>
+	<div id="nuovonome">
+	</div>
 </body>
 </html>
