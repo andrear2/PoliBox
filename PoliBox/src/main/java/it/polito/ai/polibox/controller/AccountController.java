@@ -20,6 +20,9 @@ public class AccountController {
 	@RequestMapping(value = "/account", method = RequestMethod.GET)
 	public String showEditAccountForm(Model model, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
+		if (utente == null || utente.getEmail() == null) {
+			return "index";
+		}
 		model.addAttribute("utente", utente);
 		return "account";
 	}
@@ -32,6 +35,16 @@ public class AccountController {
 		utente.setCognome(cognome);
 		session.setAttribute("utente", utente);
 		utenteDAO.updateUtente(utente);
+		model.addAttribute("utente", utente);
+		return "account";
+	}
+	
+	@RequestMapping(value = "/cambiaNome", method = RequestMethod.GET)
+	public String cambiaNomeGet(Model model, HttpSession session) {
+		Utente utente = (Utente) session.getAttribute("utente");
+		if (utente == null || utente.getEmail() == null) {
+			return "index";
+		}
 		model.addAttribute("utente", utente);
 		return "account";
 	}

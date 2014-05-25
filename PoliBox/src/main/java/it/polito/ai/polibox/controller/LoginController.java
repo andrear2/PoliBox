@@ -43,10 +43,9 @@ public class LoginController {
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
 	public String showHome(Model model, HttpSession session) {
 		Utente u = (Utente) session.getAttribute("utente");
-		if (u == null) {
+		if (u == null || u.getEmail() == null) {
 			return "index";
 		}
-		System.out.println(u.getNome());
 		model.addAttribute("utente", u);
 		return "home";
 	}
