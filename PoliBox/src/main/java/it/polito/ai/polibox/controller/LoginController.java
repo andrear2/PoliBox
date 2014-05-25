@@ -31,7 +31,7 @@ public class LoginController {
 			return "login";
 		}
 		Utente u = utenteDAO.getUtente(utente.getEmail(), utente.getPassword());
-		if (u == null) {
+		if (u == null || u.getEmail() == null) {
 			model.addAttribute("error", true);
 			return "login";
 		}
@@ -46,6 +46,7 @@ public class LoginController {
 		if (u == null) {
 			return "index";
 		}
+		System.out.println(u.getNome());
 		model.addAttribute("utente", u);
 		return "home";
 	}

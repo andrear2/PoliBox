@@ -24,9 +24,15 @@ public class AccountController {
 		return "account";
 	}
 	
-	@RequestMapping(value = "/account/cambiaNome", method = RequestMethod.POST)
+	@RequestMapping(value = "/cambiaNome", method = RequestMethod.POST)
 	public String cambiaNomeSubmit(@RequestParam(value="nome") String nome, @RequestParam(value="cognome") String cognome, Model model, HttpSession session) {
 		System.out.println(nome+cognome);
+		Utente utente = (Utente) session.getAttribute("utente");
+		utente.setNome(nome);
+		utente.setCognome(cognome);
+		session.setAttribute("utente", utente);
+		utenteDAO.updateUtente(utente);
+		model.addAttribute("utente", utente);
 		return "account";
 	}
 }

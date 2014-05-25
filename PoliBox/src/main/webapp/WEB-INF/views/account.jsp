@@ -11,22 +11,6 @@
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-	<script type="text/javascript">
-	$(function() {
-		$('#cambianomesubmit').click(function() {
-		    if ($('#nome').val() === "") {
-		        $('#nome').next('.help-inline').show();
-		        return false;
-		    } else if ($('#cognome').val() === "") {
-		        $('#cognome').next('.help-inline').show();
-		        return false;
-		    } else {
-		        $('#cambianomeform').submit();
-		        return true;
-		    }
-		});
-	});
-	</script>
 </head>
 <body>
 	<nav class="navbar navbar-default" role="navigation">
@@ -38,7 +22,7 @@
 	        <span class="icon-bar"></span>
 	        <span class="icon-bar"></span>
 	      </button>
-	      <a class="navbar-brand" href="index">PoliBox</a>
+	      <a class="navbar-brand" href="home">PoliBox</a>
 	    </div>
 	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 	      <ul class="nav navbar-nav navbar-right">
@@ -60,30 +44,33 @@
 	<div>
 		<h1>Impostazioni</h1>
 		${utente.nome} ${utente.cognome}
-		<a data-toggle="modal" href="#cambianomemodal">Cambia nome</a>
+		<a data-toggle="modal" href="#divFormModal">Cambia nome</a>
 	</div>
 	
-	<div class="modal fade" id="cambianomemodal" tabindex="-1" role="dialog" aria-labelledby="cambianomelabel" aria-hidden="true">
-		<div class="modal-dialog">
+	<div class="modal fade" id="divFormModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
    			<div class="modal-content">
 				<div class="modal-header">
 				    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				    <h2 id="cambianomelabel">Cambia nome</h2>
+				    <h2 id="modalLabel">Cambia nome</h2>
 				</div>
 				<div class="modal-body">
-					<form id="cambianomeform" action="account/cambiaNome" method="POST">
-						<label for="nome">Nome</label>
-						<input type="text" id="nome" />
-						<span class="hide help-inline">La lunghezza del campo nome deve essere compresa tra 1 e 20</span>
-						<label for="cognome">Cognome</label>
-						<input type="text" id="cognome" />
-						<span class="hide help-inline">La lunghezza del campo cognome deve essere compresa tra 1 e 20</span>
+					<form id="formModal" class="form-horizontal" data-toggle="validator" action="cambiaNome" method="post">
+						<div class="row">
+							<div class="form-group col-lg-9">
+								<label for="nome" class="control-label">Nome</label>
+								<input type="text" id="nome" name="nome" data-toggle="validator" class="form-control" placeholder="Nome" maxlength="20" required />
+							</div>
+						</div>
+						<div class="row">
+							<div class="form-group col-lg-9">
+								<label for="cognome" class="control-label">Cognome</label>
+								<input type="text" id="cognome" name="cognome" class="form-control" placeholder="Cognome" maxlength="20" required />
+							</div>
+						</div>
+						<input class="btn btn-primary" type="submit" value="Cambia nome" />
 					</form>
 				</div>
-				<div class="modal-footer">
-			    	<button class="btn" data-dismiss="modal" aria-hidden="true">Annulla</button>
-			    	<button class="btn btn-primary" data-dismiss="modal" id="cambianomesubmit">Cambia nome</button>
-			    </div>
 			</div>
 		</div>
 	</div>

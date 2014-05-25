@@ -10,6 +10,7 @@ public interface UtenteDAO {
 	public List<Utente> getUtenti();
 	public Utente getUtente(String email, String password);
 	public Utente getUtente(Long id);
+	public void updateUtente(Utente utente);
 	public void deleteUtente(Utente utente);
 
 }

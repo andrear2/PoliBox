@@ -12,7 +12,7 @@
 	<nav class="navbar navbar-default" role="navigation">
 	  <div class="container-fluid">
 	    <div class="navbar-header">
-	      <a class="navbar-brand" href="index">PoliBox</a>
+	      <a class="navbar-brand" href="home">PoliBox</a>
 	    </div>
 	  </div>
 	</nav>

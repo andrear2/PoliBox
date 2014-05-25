@@ -56,4 +56,10 @@ public class UtenteDAOImpl implements UtenteDAO {
 		}
 		return null;
 	}
+
+	@Override
+	public void updateUtente(Utente utente) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		session.update(utente);
+	}
 }
