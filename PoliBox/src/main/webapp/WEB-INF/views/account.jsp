@@ -44,6 +44,30 @@
 		    	}
 		    }
 		});
+		$("#formPasswordModal").validate({
+			rules: {
+				vecchiaPassword: {
+		            required: true,
+		            minlength: 6,
+		            passwordCheck: true
+		        },
+				nuovaPassword: {
+		            required: true,
+		            minlength: 6,
+		        }
+			},
+		    messages: {
+		        vecchiaPassword: {
+		        	required: "Questo campo è obbligatorio",
+		        	minlength: "La password deve contenere almeno 6 caratteri",
+		        	passwordCheck: "La password inserita è errata"
+		    	},
+		        nuovaPassword: {
+		        	required: "Questo campo è obbligatorio",
+		        	minlength: "La password deve contenere almeno 6 caratteri"
+		    	}
+		    }
+		});
 	});
 	jQuery.validator.addMethod('passwordCheck', function(password) {
 		if (password != '${utente.password}') {
@@ -83,81 +107,129 @@
 	</nav>
 	
 	<h1>Impostazioni</h1>
-	<c:if test="${error == true}">
-		<p class="error">${errorMsg}</p>
+	<c:if test="${msgBool == true}">
+		<p class="${msgClass}">${msg}</p>
 	</c:if>
-	<p>
-		${utente.nome} ${utente.cognome}
-		<a data-toggle="modal" href="#divFormNomeModal">Cambia nome</a>
-	</p>
-	<p>
-		${utente.email}
-		<a data-toggle="modal" href="#divFormEmailModal">Modifica email</a>
-	</p>
 	
-	<!-- Modal form per il cambio nome -->
-	<div class="modal fade" id="divFormNomeModal" tabindex="-1" role="dialog" aria-labelledby="modalNomeLabel" aria-hidden="true">
-		<div class="modal-dialog modal-sm">
-   			<div class="modal-content">
-				<div class="modal-header">
-				    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				    <h2 id="modalNomeLabel">Cambia nome</h2>
-				</div>
-				<div class="modal-body">
-					<form id="formNomeModal" data-toggle="validator" action="cambiaNome" method="post">
-						<div class="row">
-							<div class="form-group col-lg-9">
-								<label for="nome" class="control-label">Nome</label>
-								<input type="text" id="nome" name="nome" class="form-control" placeholder="Nome" maxlength="20" required />
-							</div>
+	<!-- Nav tabs -->
+	<ul class="nav nav-tabs">
+		<li class="active"><a href="#profilo" data-toggle="tab">Profilo</a></li>
+	    <li><a href="#sicurezza" data-toggle="tab">Sicurezza</a></li>
+	</ul>
+	
+	<!-- Tab panes -->
+	<div class="tab-content">
+		<div class="tab-pane active" id="profilo">
+			<p>
+				${utente.nome} ${utente.cognome}
+				<a data-toggle="modal" href="#divFormNomeModal">Cambia nome</a>
+			</p>
+			<p>
+				${utente.email}
+				<a data-toggle="modal" href="#divFormEmailModal">Modifica email</a>
+			</p>
+			
+			<!-- Modal form per il cambio nome -->
+			<div class="modal fade" id="divFormNomeModal" tabindex="-1" role="dialog" aria-labelledby="modalNomeLabel" aria-hidden="true">
+				<div class="modal-dialog modal-sm">
+		   			<div class="modal-content">
+						<div class="modal-header">
+						    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						    <h2 id="modalNomeLabel">Cambia nome</h2>
 						</div>
-						<div class="row">
-							<div class="form-group col-lg-9">
-								<label for="cognome" class="control-label">Cognome</label>
-								<input type="text" id="cognome" name="cognome" class="form-control" placeholder="Cognome" maxlength="20" required />
-							</div>
+						<div class="modal-body">
+							<form id="formNomeModal" data-toggle="validator" action="cambiaNome" method="post">
+								<div class="row">
+									<div class="form-group col-lg-9">
+										<label for="nome" class="control-label">Nome</label>
+										<input type="text" id="nome" name="nome" class="form-control" placeholder="Nome" maxlength="20" required />
+									</div>
+								</div>
+								<div class="row">
+									<div class="form-group col-lg-9">
+										<label for="cognome" class="control-label">Cognome</label>
+										<input type="text" id="cognome" name="cognome" class="form-control" placeholder="Cognome" maxlength="20" required />
+									</div>
+								</div>
+								<input class="btn btn-primary" type="submit" value="Cambia nome" />
+							</form>
 						</div>
-						<input class="btn btn-primary" type="submit" value="Cambia nome" />
-					</form>
+					</div>
 				</div>
 			</div>
-		</div>
-	</div>
-	
-	<!-- Modal form per il cambio email -->
-	<div class="modal fade" id="divFormEmailModal" tabindex="-1" role="dialog" aria-labelledby="modalEmailLabel" aria-hidden="true">
-		<div class="modal-dialog modal-sm">
-   			<div class="modal-content">
-				<div class="modal-header">
-				    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				    <h2 id="modalEmailLabel">Modifica email</h2>
-				</div>
-				<div class="modal-body">
-					<form id="formEmailModal" data-toggle="validator" action="cambiaEmail" method="post">
-						<div class="row">
-							<div class="form-group col-lg-9">
-								<label for="email" class="control-label">Email</label>
-								<input type="email" id="email" name="email" class="form-control" placeholder="Nuova email" maxlength="50" required />
-							</div>
+			
+			<!-- Modal form per la modifica dell'email -->
+			<div class="modal fade" id="divFormEmailModal" tabindex="-1" role="dialog" aria-labelledby="modalEmailLabel" aria-hidden="true">
+				<div class="modal-dialog modal-sm">
+		   			<div class="modal-content">
+						<div class="modal-header">
+						    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						    <h2 id="modalEmailLabel">Modifica email</h2>
 						</div>
-						<div class="row">
-							<div class="form-group col-lg-9">
-								<label for="confermaEmail" class="control-label">Conferma email</label>
-								<input type="email" id="confermaEmail" name="confermaEmail" class="form-control" placeholder="Conferma email" maxlength="50" required />
-								<div class="help-block with-errors"></div>
-							</div>
+						<div class="modal-body">
+							<form id="formEmailModal" data-toggle="validator" action="cambiaEmail" method="post">
+								<div class="row">
+									<div class="form-group col-lg-9">
+										<label for="email" class="control-label">Email</label>
+										<input type="email" id="email" name="email" class="form-control" placeholder="Nuova email" maxlength="50" required />
+									</div>
+								</div>
+								<div class="row">
+									<div class="form-group col-lg-9">
+										<label for="confermaEmail" class="control-label">Conferma email</label>
+										<input type="email" id="confermaEmail" name="confermaEmail" class="form-control" placeholder="Conferma email" maxlength="50" required />
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="form-group col-lg-9">
+										<label for="password" class="control-label">Password</label>
+										<input type="password" id="password" name="password" class="form-control" placeholder="Password di PoliBox" maxlength="20" required />
+									</div>
+								</div>
+								<input class="btn btn-primary" type="submit" id="submitFormEmail" value="Modifica email" />
+							</form>
 						</div>
-						<div class="row">
-							<div class="form-group col-lg-9">
-								<label for="password" class="control-label">Password</label>
-								<input type="password" id="password" name="password" class="form-control" placeholder="Password di PoliBox" maxlength="20" required />
-							</div>
-						</div>
-						<input class="btn btn-primary" type="submit" id="submitFormEmail" value="Modifica email" />
-					</form>
+					</div>
 				</div>
 			</div>
-		</div>
-	</div>
+		</div> <!-- tab-pane profilo -->
+		
+		<div class="tab-pane" id="sicurezza">
+			<p>
+				Password
+				<a data-toggle="modal" href="#divFormPasswordModal">Modifica password</a>
+			</p>
+			
+			<!-- Modal form per la modifica della password -->
+			<div class="modal fade" id="divFormPasswordModal" tabindex="-1" role="dialog" aria-labelledby="modalPasswordLabel" aria-hidden="true">
+				<div class="modal-dialog modal-sm">
+		   			<div class="modal-content">
+						<div class="modal-header">
+						    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						    <h2 id="modalPasswordLabel">Modifica password</h2>
+						</div>
+						<div class="modal-body">
+							<form id="formPasswordModal" data-toggle="validator" action="cambiaPassword" method="post">
+								<div class="row">
+									<div class="form-group col-lg-9">
+										<label for="vecchiaPassword" class="control-label">Vecchia password</label>
+										<input type="password" id="vecchiaPassword" name="vecchiaPassword" class="form-control" placeholder="Vecchia password" maxlength="20" required />
+									</div>
+								</div>
+								<div class="row">
+									<div class="form-group col-lg-9">
+										<label for="nuovaPassword" class="control-label">Nuova password</label>
+										<input type="password" id="nuovaPassword" name="nuovaPassword" class="form-control" placeholder="Nuova password" maxlength="20" required />
+									</div>
+								</div>
+								<input class="btn btn-primary" type="submit" value="Modifica password" />
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> <!-- tab-pane sicurezza -->
+	</div> <!-- tab-content -->
 </body>
 </html>

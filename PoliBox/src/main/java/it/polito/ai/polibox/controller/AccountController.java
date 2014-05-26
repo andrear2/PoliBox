@@ -30,11 +30,17 @@ public class AccountController {
 	@RequestMapping(value = "/cambiaNome", method = RequestMethod.POST)
 	public String cambiaNomeSubmit(@RequestParam(value="nome") String nome, @RequestParam(value="cognome") String cognome, Model model, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
+		if (utente == null || utente.getEmail() == null) {
+			return "index";
+		}
 		utente.setNome(nome);
 		utente.setCognome(cognome);
 		session.setAttribute("utente", utente);
 		utenteDAO.updateUtente(utente);
 		model.addAttribute("utente", utente);
+		model.addAttribute("msgBool", true);
+		model.addAttribute("msg", "Nome aggiornato con successo");
+		model.addAttribute("msgClass", "success");
 		return "account";
 	}
 	
@@ -51,10 +57,14 @@ public class AccountController {
 	@RequestMapping(value = "/cambiaEmail", method = RequestMethod.POST)
 	public String cambiaEmailSubmit(@RequestParam(value="email") String email, @RequestParam(value="confermaEmail") String confermaEmail, @RequestParam(value="password") String password, Model model, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
+		if (utente == null || utente.getEmail() == null) {
+			return "index";
+		}
 		for (Utente u: utenteDAO.getUtenti()) {
 			if (u.getEmail().equals(email)) {
-				model.addAttribute("error", true);
-				model.addAttribute("errorMsg", "L'email inserita è già associata ad un account PoliBox");
+				model.addAttribute("msgBool", true);
+				model.addAttribute("msg", "L'email inserita è già associata ad un account PoliBox");
+				model.addAttribute("msgClass", "error");
 				return "account";
 			}
 		}
@@ -62,6 +72,9 @@ public class AccountController {
 			utente.setEmail(email);
 			session.setAttribute("utente", utente);
 			utenteDAO.updateUtente(utente);
+			model.addAttribute("msgBool", true);
+			model.addAttribute("msg", "Email aggiornata con successo");
+			model.addAttribute("msgClass", "success");
 		}
 		model.addAttribute("utente", utente);
 		return "account";
@@ -69,6 +82,34 @@ public class AccountController {
 	
 	@RequestMapping(value = "/cambiaEmail", method = RequestMethod.GET)
 	public String cambiaEmailGet(Model model, HttpSession session) {
+		Utente utente = (Utente) session.getAttribute("utente");
+		if (utente == null || utente.getEmail() == null) {
+			return "index";
+		}
+		model.addAttribute("utente", utente);
+		return "account";
+	}
+	
+	@RequestMapping(value = "/cambiaPassword", method = RequestMethod.POST)
+	public String cambiaPasswordSubmit(@RequestParam(value="vecchiaPassword") String vecchiaPassword, @RequestParam(value="nuovaPassword") String nuovaPassword, Model model, HttpSession session) {
+		Utente utente = (Utente) session.getAttribute("utente");
+		if (utente == null || utente.getEmail() == null) {
+			return "index";
+		}
+		if (vecchiaPassword.equals(utente.getPassword())) {
+			utente.setPassword(nuovaPassword);
+			session.setAttribute("utente", utente);
+			utenteDAO.updateUtente(utente);
+			model.addAttribute("msgBool", true);
+			model.addAttribute("msg", "Password aggiornata con successo");
+			model.addAttribute("msgClass", "success");
+		}
+		model.addAttribute("utente", utente);
+		return "account";
+	}
+	
+	@RequestMapping(value = "/cambiaPassword", method = RequestMethod.GET)
+	public String cambiaPasswordGet(Model model, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
