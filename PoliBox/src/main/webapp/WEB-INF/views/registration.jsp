@@ -22,6 +22,9 @@
 	</nav>
 	
 	<h1>Registrazione</h1>
+	<c:if test="${error == true}">
+		<p class="error">${errorMsg}</p>
+	</c:if>
 	<form:form commandName="utente" method="post" role="form">
 		<div class="row">
 			<div class="form-group col-lg-4">

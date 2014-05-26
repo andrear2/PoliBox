@@ -51,9 +51,14 @@ public class AccountController {
 	@RequestMapping(value = "/cambiaEmail", method = RequestMethod.POST)
 	public String cambiaEmailSubmit(@RequestParam(value="email") String email, @RequestParam(value="confermaEmail") String confermaEmail, @RequestParam(value="password") String password, Model model, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
-		System.out.println(email);
-		if (email == confermaEmail && password == utente.getPassword()) {
-			System.out.println(email);
+		for (Utente u: utenteDAO.getUtenti()) {
+			if (u.getEmail().equals(email)) {
+				model.addAttribute("error", true);
+				model.addAttribute("errorMsg", "L'email inserita è già associata ad un account PoliBox");
+				return "account";
+			}
+		}
+		if (email.equals(confermaEmail) && password.equals(utente.getPassword())) {
 			utente.setEmail(email);
 			session.setAttribute("utente", utente);
 			utenteDAO.updateUtente(utente);

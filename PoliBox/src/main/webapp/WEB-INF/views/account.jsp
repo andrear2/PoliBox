@@ -82,18 +82,18 @@
 	  </div>
 	</nav>
 	
-	<div>
-		<h1>Impostazioni</h1>
-		<p>
-			${utente.nome} ${utente.cognome}
-			<a data-toggle="modal" href="#divFormNomeModal">Cambia nome</a>
-		</p>
-		<p>
-			${utente.email}
-			<a data-toggle="modal" href="#divFormEmailModal">Modifica email</a>
-		</p>
-		
-	</div>
+	<h1>Impostazioni</h1>
+	<c:if test="${error == true}">
+		<p class="error">${errorMsg}</p>
+	</c:if>
+	<p>
+		${utente.nome} ${utente.cognome}
+		<a data-toggle="modal" href="#divFormNomeModal">Cambia nome</a>
+	</p>
+	<p>
+		${utente.email}
+		<a data-toggle="modal" href="#divFormEmailModal">Modifica email</a>
+	</p>
 	
 	<!-- Modal form per il cambio nome -->
 	<div class="modal fade" id="divFormNomeModal" tabindex="-1" role="dialog" aria-labelledby="modalNomeLabel" aria-hidden="true">
