@@ -13,25 +13,43 @@
 	<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.min.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<script type="text/javascript">
-	$("#formEmailModal").validate({
-		rules: {
-			email: {
-	            required: true
-	        },
-	        confermaEmail: {
-	            required: true,
-	            equalTo: "#email"
-	        }
-	    },
-	    messages: {
-	    	email: {
-	            required: "Please provide a password"
-	        },
-	        confermaEmail: {
-	            required: "Please provide a password",
-	            equalTo: "Please enter the same password as above"
-	        }
-	    }
+	$().ready(function() {
+		$("#formEmailModal").validate({
+			rules: {
+				email: {
+		            required: true
+		        },
+		        confermaEmail: {
+		            required: true,
+		            equalTo: "#email"
+		        },
+		        password: {
+		            required: true,
+		            minlength: 6,
+		            passwordCheck: true
+		        }
+		    },
+		    messages: {
+		    	email: {
+		        	required: "Questo campo è obbligatorio"
+		    	},
+		        confermaEmail: {
+		        	required: "Questo campo è obbligatorio",
+		            equalTo: "Gli indirizzi email non corrispondono"
+		        },
+		        password: {
+		        	required: "Questo campo è obbligatorio",
+		        	minlength: "La password deve contenere almeno 6 caratteri",
+		        	passwordCheck: "La password inserita è errata"
+		    	}
+		    }
+		});
+	});
+	jQuery.validator.addMethod('passwordCheck', function(password) {
+		if (password != '${utente.password}') {
+			return false;
+		}
+		return true;
 	});
 	</script>
 </head>
@@ -135,7 +153,7 @@
 								<input type="password" id="password" name="password" class="form-control" placeholder="Password di PoliBox" maxlength="20" required />
 							</div>
 						</div>
-						<input class="btn btn-primary" type="submit" value="Modifica email" />
+						<input class="btn btn-primary" type="submit" id="submitFormEmail" value="Modifica email" />
 					</form>
 				</div>
 			</div>

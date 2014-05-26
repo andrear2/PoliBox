@@ -29,7 +29,6 @@ public class AccountController {
 	
 	@RequestMapping(value = "/cambiaNome", method = RequestMethod.POST)
 	public String cambiaNomeSubmit(@RequestParam(value="nome") String nome, @RequestParam(value="cognome") String cognome, Model model, HttpSession session) {
-		System.out.println(nome+cognome);
 		Utente utente = (Utente) session.getAttribute("utente");
 		utente.setNome(nome);
 		utente.setCognome(cognome);
@@ -41,6 +40,30 @@ public class AccountController {
 	
 	@RequestMapping(value = "/cambiaNome", method = RequestMethod.GET)
 	public String cambiaNomeGet(Model model, HttpSession session) {
+		Utente utente = (Utente) session.getAttribute("utente");
+		if (utente == null || utente.getEmail() == null) {
+			return "index";
+		}
+		model.addAttribute("utente", utente);
+		return "account";
+	}
+	
+	@RequestMapping(value = "/cambiaEmail", method = RequestMethod.POST)
+	public String cambiaEmailSubmit(@RequestParam(value="email") String email, @RequestParam(value="confermaEmail") String confermaEmail, @RequestParam(value="password") String password, Model model, HttpSession session) {
+		Utente utente = (Utente) session.getAttribute("utente");
+		System.out.println(email);
+		if (email == confermaEmail && password == utente.getPassword()) {
+			System.out.println(email);
+			utente.setEmail(email);
+			session.setAttribute("utente", utente);
+			utenteDAO.updateUtente(utente);
+		}
+		model.addAttribute("utente", utente);
+		return "account";
+	}
+	
+	@RequestMapping(value = "/cambiaEmail", method = RequestMethod.GET)
+	public String cambiaEmailGet(Model model, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
