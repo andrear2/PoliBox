@@ -1,5 +1,13 @@
+body {
+	padding-left: 15px;
+	padding-right: 15px;
+}
 .error {
-	border: 1px solid;
-	color: #D63301;
-	background-color: #FFCCBA;
+	color: red;
+}
+.success {
+	color: green;
+}
+.tab-content {
+	padding-top: 15px;
 }

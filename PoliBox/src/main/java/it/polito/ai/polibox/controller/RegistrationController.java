@@ -18,20 +18,26 @@ public class RegistrationController {
 	@Autowired
 	private UtenteDAO utenteDAO;
 	
-	@RequestMapping(value = "/register", method = RequestMethod.GET)
+	@RequestMapping(value = "/registration", method = RequestMethod.GET)
 	public String showRegistrationForm(Model model) {
 		model.addAttribute("utente", new Utente());
 		return "registration";
 	}
 	
-	@RequestMapping(value = "/register", method = RequestMethod.POST)
+	@RequestMapping(value = "/registration", method = RequestMethod.POST)
 	public String registrationSubmit(@ModelAttribute @Valid Utente utente, BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
 			return "registration";
+		}
+		for (Utente u: utenteDAO.getUtenti()) {
+			if (u.getEmail().equals(utente.getEmail())) {
+				model.addAttribute("error", true);
+				model.addAttribute("errorMsg", "L'email inserita è già associata ad un account PoliBox");
+				return "registration";
+			}
 		}
 		utenteDAO.addUtente(utente);
 		model.addAttribute("utente", utente);
 		return "registrationresult";
 	}
-
 }

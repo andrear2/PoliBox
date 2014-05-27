@@ -6,7 +6,7 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html">
-	<title>PoliBox - Registrazione</title>
+	<title>PoliBox - Login</title>
 	<link href='<c:url value="/resources/css/style.css" />' type="text/css" rel="stylesheet">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
@@ -21,25 +21,11 @@
 	  </div>
 	</nav>
 	
-	<h1>Registrazione</h1>
+	<h1>Login</h1>
 	<c:if test="${error == true}">
-		<p class="error">${errorMsg}</p>
+		<p class="error">Email o password errate</p>
 	</c:if>
-	<form:form commandName="utente" method="post" role="form">
-		<div class="row">
-			<div class="form-group col-lg-4">
-				<label for="nome">Nome</label>
-	    		<form:input path="nome" class="form-control" id="nome" placeholder="Inserisci il tuo nome" />
-	    		<form:errors path="nome" cssClass="error"></form:errors>
-			</div>
-		</div>
-		<div class="row">
-			<div class="form-group col-lg-4">
-				<label for="cognome">Cognome</label>
-	    		<form:input path="cognome" class="form-control" id="cognome" placeholder="Inserisci il tuo cognome" />
-	    		<form:errors path="cognome" cssClass="error"></form:errors>
-			</div>
-		</div>
+	<form:form commandName="utente" method="post" role="form" action="home">
 		<div class="row">
 			<div class="form-group col-lg-4">
 				<label for="email">Email</label>
@@ -54,7 +40,7 @@
 	    		<form:errors path="password" cssClass="error"></form:errors>
 			</div>
 		</div>
-		<input class="btn btn-primary" type="submit" value="Registrati" />
+		<input class="btn btn-primary" type="submit" value="Login" />
 	</form:form>
 	<br>
 	<a href="index" class="btn btn-default" role="button">Indietro</a>
