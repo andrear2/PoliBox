@@ -1,3 +1,4 @@
+<%@page import="it.polito.ai.polibox.entity.Utente"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -50,6 +51,24 @@
 		</c:if>
 		
 		<a href="fileUpload">Carica un file</a>
+		
+		<table>
+			<tr><th>Nome</th></tr>
+			<%
+			Utente utente = (Utente) request.getAttribute("utente");
+			java.io.File file;
+			java.io.File dir = new java.io.File(utente.getHome_dir());
+			String[] list = dir.list();
+			if (list.length > 0) {
+				for (int i = 0; i < list.length; i++) {
+					file = new java.io.File(utente.getHome_dir() + "\\" + list[i]);
+			%>
+			<tr><td><%= list[i] %></td></tr>
+			<%
+				}
+			}
+			%>
+		</table>
 	</div>
 </body>
 </html>
