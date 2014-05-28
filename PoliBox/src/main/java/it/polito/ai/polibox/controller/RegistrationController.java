@@ -40,7 +40,7 @@ public class RegistrationController {
 			}
 		}
 		utenteDAO.addUtente(utente);
-		String homePath = "C:\\Users\\Andrea\\Desktop\\Polibox uploaded files\\" + utente.getId() + "_" + utente.getCognome() + "_" + utente.getNome();
+		String homePath = "C:\\Polibox uploaded files\\" + utente.getId() + "_" + utente.getCognome() + "_" + utente.getNome();
 		File homeDir = new File(homePath);
 		homeDir.mkdir();
 		utente.setHome_dir(homePath);
