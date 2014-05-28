@@ -8,6 +8,7 @@ import javax.validation.constraints.*;
 public class Utente {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="u_id")
 	private Long id;
 	
 	@Size(min=1, max=20, message="Il campo nome non può essere vuoto")
@@ -21,6 +22,8 @@ public class Utente {
 	
 	@Size(min=6, max=20, message="La lunghezza della password deve essere compresa tra {min} e {max}")
 	private String password;
+	
+	private String home_dir;
 	
 	@Override
 	public int hashCode() {
@@ -85,5 +88,13 @@ public class Utente {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getHome_dir() {
+		return home_dir;
+	}
+
+	public void setHome_dir(String home_dir) {
+		this.home_dir = home_dir;
 	}
 }

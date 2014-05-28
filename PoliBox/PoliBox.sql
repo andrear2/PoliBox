@@ -17,16 +17,16 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `polibox`
+-- Database: `PoliBox`
 --
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `condivisioni`
+-- Struttura della tabella `Condivisioni`
 --
 
-CREATE TABLE IF NOT EXISTS `condivisioni` (
+CREATE TABLE IF NOT EXISTS `Condivisioni` (
   `c_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `owner_id` bigint(20) NOT NULL,
   `u_id` bigint(20) NOT NULL,
@@ -41,10 +41,10 @@ CREATE TABLE IF NOT EXISTS `condivisioni` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `dispositivi`
+-- Struttura della tabella `Dispositivi`
 --
 
-CREATE TABLE IF NOT EXISTS `dispositivi` (
+CREATE TABLE IF NOT EXISTS `Dispositivi` (
   `d_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `u_id` bigint(20) NOT NULL,
   `last_sync` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -55,10 +55,10 @@ CREATE TABLE IF NOT EXISTS `dispositivi` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `utenti`
+-- Struttura della tabella `Utenti`
 --
 
-CREATE TABLE IF NOT EXISTS `utenti` (
+CREATE TABLE IF NOT EXISTS `Utenti` (
   `u_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `nome` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `cognome` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
@@ -69,10 +69,10 @@ CREATE TABLE IF NOT EXISTS `utenti` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
 
 --
--- Dump dei dati per la tabella `utenti`
+-- Dump dei dati per la tabella `Utenti`
 --
 
-INSERT INTO `utenti` (`u_id`, `nome`, `cognome`, `email`, `password`, `home_dir`) VALUES
+INSERT INTO `Utenti` (`u_id`, `nome`, `cognome`, `email`, `password`, `home_dir`) VALUES
 (1, 'Andrea', 'Rigoni', 'andrear2.ar@gmail.com', 'andrea', '');
 
 --
@@ -80,17 +80,17 @@ INSERT INTO `utenti` (`u_id`, `nome`, `cognome`, `email`, `password`, `home_dir`
 --
 
 --
--- Limiti per la tabella `condivisioni`
+-- Limiti per la tabella `Condivisioni`
 --
-ALTER TABLE `condivisioni`
-  ADD CONSTRAINT `fk02_condivisioni_utenti` FOREIGN KEY (`u_id`) REFERENCES `utenti` (`u_id`),
-  ADD CONSTRAINT `fk01_condivisioni_utenti` FOREIGN KEY (`owner_id`) REFERENCES `utenti` (`u_id`);
+ALTER TABLE `Condivisioni`
+  ADD CONSTRAINT `fk02_Condivisioni_Utenti` FOREIGN KEY (`u_id`) REFERENCES `Utenti` (`u_id`),
+  ADD CONSTRAINT `fk01_Condivisioni_Utenti` FOREIGN KEY (`owner_id`) REFERENCES `Utenti` (`u_id`);
 
 --
--- Limiti per la tabella `dispositivi`
+-- Limiti per la tabella `Dispositivi`
 --
-ALTER TABLE `dispositivi`
-  ADD CONSTRAINT `fk01_dispositivi_utenti` FOREIGN KEY (`u_id`) REFERENCES `utenti` (`u_id`);
+ALTER TABLE `Dispositivi`
+  ADD CONSTRAINT `fk01_Dispositivi_Utenti` FOREIGN KEY (`u_id`) REFERENCES `Utenti` (`u_id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

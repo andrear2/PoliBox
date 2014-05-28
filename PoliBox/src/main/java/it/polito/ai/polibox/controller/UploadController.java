@@ -46,7 +46,6 @@ public class UploadController {
 		
 		InputStream inputStream = null;
 		OutputStream outputStream = null;
-		MultipartFile file = uploadedFile.getFile();
 		fileValidator.validate(uploadedFile, bindingResult);
 		  
 		if (bindingResult.hasErrors()) {
@@ -54,28 +53,23 @@ public class UploadController {
 			return "upload";
 		}
 		
+		MultipartFile file = uploadedFile.getFile();
 		String fileName = file.getOriginalFilename();
+		File dest = new File(utente.getHome_dir() + "\\" + fileName);
 		try {
-			inputStream = file.getInputStream();  
-		    File newFile = new File("C:\\Users\\Andrea\\Desktop\\file\\" + fileName);  
-		    if (!newFile.exists()) {  
-		    	newFile.createNewFile();  
-		    }  
-		    outputStream = new FileOutputStream(newFile);
-		    int read = 0;
-		    byte[] bytes = new byte[1024];
-		    while ((read = inputStream.read(bytes)) != -1) {
-		    	outputStream.write(bytes, 0, read);
-		    }
-		    outputStream.close();
-		} catch (IOException e) {
-		    e.printStackTrace();
-		    model.addAttribute("utente", utente);
+			file.transferTo(dest);
+		} catch (IllegalStateException ise) {
+			ise.printStackTrace();
+			model.addAttribute("utente", utente);
+			return "upload";
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+			model.addAttribute("utente", utente);
 			return "upload";
 		}
 		model.addAttribute("utente", utente);
 		model.addAttribute("msgBool", true);
-		model.addAttribute("msg", "Il file " + fileName + " è stato caricato con successo");
+		model.addAttribute("msg", "Il file \"" + fileName + "\" è stato caricato con successo");
 		model.addAttribute("msgClass", "success");  
 		return "home";
 	}

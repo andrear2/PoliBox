@@ -1,8 +1,11 @@
 package it.polito.ai.polibox.controller;
 
+import java.io.File;
+
 import it.polito.ai.polibox.dao.UtenteDAO;
 import it.polito.ai.polibox.entity.Utente;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +28,7 @@ public class RegistrationController {
 	}
 	
 	@RequestMapping(value = "/registration", method = RequestMethod.POST)
-	public String registrationSubmit(@ModelAttribute @Valid Utente utente, BindingResult bindingResult, Model model) {
+	public String registrationSubmit(@ModelAttribute @Valid Utente utente, BindingResult bindingResult, Model model, HttpSession session) {
 		if (bindingResult.hasErrors()) {
 			return "registration";
 		}
@@ -37,6 +40,11 @@ public class RegistrationController {
 			}
 		}
 		utenteDAO.addUtente(utente);
+		String homePath = "C:\\Users\\Andrea\\Desktop\\Polibox uploaded files\\" + utente.getId() + "_" + utente.getCognome() + "_" + utente.getNome();
+		File homeDir = new File(homePath);
+		homeDir.mkdir();
+		utente.setHome_dir(homePath);
+		utenteDAO.updateUtente(utente);
 		model.addAttribute("utente", utente);
 		return "registrationresult";
 	}
