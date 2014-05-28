@@ -5,5 +5,7 @@
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<bean name="utenteDAO" class="it.polito.ai.polibox.dao.UtenteDAOImpl"></bean>
+	<bean name="fileValidator" class="it.polito.ai.polibox.validator.FileValidator"></bean>
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
 		
 </beans>

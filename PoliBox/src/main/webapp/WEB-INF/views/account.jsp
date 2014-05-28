@@ -120,14 +120,16 @@
 	<!-- Tab panes -->
 	<div class="tab-content">
 		<div class="tab-pane active" id="profilo">
-			<p>
-				${utente.nome} ${utente.cognome}
-				<a data-toggle="modal" href="#divFormNomeModal">Cambia nome</a>
-			</p>
-			<p>
-				${utente.email}
-				<a data-toggle="modal" href="#divFormEmailModal">Modifica email</a>
-			</p>
+			<table>
+				<tr>
+					<td>${utente.nome} ${utente.cognome}</td>
+					<td><a data-toggle="modal" href="#divFormNomeModal">Cambia nome</a></td>
+				</tr>
+				<tr>
+					<td>${utente.email}</td>
+					<td><a data-toggle="modal" href="#divFormEmailModal">Modifica email</a></td>
+				</tr>
+			</table>
 			
 			<!-- Modal form per il cambio nome -->
 			<div class="modal fade" id="divFormNomeModal" tabindex="-1" role="dialog" aria-labelledby="modalNomeLabel" aria-hidden="true">
@@ -199,6 +201,7 @@
 			<p>
 				Password
 				<a data-toggle="modal" href="#divFormPasswordModal">Modifica password</a>
+				<a href="passwordDimenticata">Password dimenticata?</a>
 			</p>
 			
 			<!-- Modal form per la modifica della password -->
