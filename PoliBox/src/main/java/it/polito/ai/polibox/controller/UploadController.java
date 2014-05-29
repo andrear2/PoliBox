@@ -1,10 +1,7 @@
 package it.polito.ai.polibox.controller;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -44,8 +41,6 @@ public class UploadController {
 			return "index";
 		}
 		
-		InputStream inputStream = null;
-		OutputStream outputStream = null;
 		fileValidator.validate(uploadedFile, bindingResult);
 		  
 		if (bindingResult.hasErrors()) {

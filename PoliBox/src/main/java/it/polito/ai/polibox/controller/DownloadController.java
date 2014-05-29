@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@Controller
+/*@Controller
 public class DownloadController {
 	@RequestMapping(value = "/{file_name}", method = RequestMethod.GET)
 	public String getFile(@PathVariable("file_name") String fileName, Model model, HttpSession session) {
@@ -29,4 +29,4 @@ public class DownloadController {
 		model.addAttribute("utente", utente);
 		return "home";
 	}
-}
+}*/

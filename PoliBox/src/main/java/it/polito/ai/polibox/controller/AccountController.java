@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AccountController {
@@ -28,7 +29,7 @@ public class AccountController {
 	}
 	
 	@RequestMapping(value = "/cambiaNome", method = RequestMethod.POST)
-	public String cambiaNomeSubmit(@RequestParam(value="nome") String nome, @RequestParam(value="cognome") String cognome, Model model, HttpSession session) {
+	public String cambiaNomeSubmit(@RequestParam(value="nome") String nome, @RequestParam(value="cognome") String cognome, RedirectAttributes redirectAttrs, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
@@ -37,61 +38,41 @@ public class AccountController {
 		utente.setCognome(cognome);
 		session.setAttribute("utente", utente);
 		utenteDAO.updateUtente(utente);
-		model.addAttribute("utente", utente);
-		model.addAttribute("msgBool", true);
-		model.addAttribute("msg", "Nome aggiornato con successo");
-		model.addAttribute("msgClass", "success");
-		return "account";
-	}
-	
-	@RequestMapping(value = "/cambiaNome", method = RequestMethod.GET)
-	public String cambiaNomeGet(Model model, HttpSession session) {
-		Utente utente = (Utente) session.getAttribute("utente");
-		if (utente == null || utente.getEmail() == null) {
-			return "index";
-		}
-		model.addAttribute("utente", utente);
-		return "account";
+		redirectAttrs.addFlashAttribute("utente", utente);
+		redirectAttrs.addFlashAttribute("msgBool", true);
+		redirectAttrs.addFlashAttribute("msg", "Nome aggiornato con successo");
+		redirectAttrs.addFlashAttribute("msgClass", "success");
+		return "redirect:account";
 	}
 	
 	@RequestMapping(value = "/cambiaEmail", method = RequestMethod.POST)
-	public String cambiaEmailSubmit(@RequestParam(value="email") String email, @RequestParam(value="confermaEmail") String confermaEmail, @RequestParam(value="password") String password, Model model, HttpSession session) {
+	public String cambiaEmailSubmit(@RequestParam(value="email") String email, @RequestParam(value="confermaEmail") String confermaEmail, @RequestParam(value="password") String password, RedirectAttributes redirectAttrs, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
 		}
 		for (Utente u: utenteDAO.getUtenti()) {
 			if (u.getEmail().equals(email)) {
-				model.addAttribute("msgBool", true);
-				model.addAttribute("msg", "L'email inserita è già associata ad un account PoliBox");
-				model.addAttribute("msgClass", "error");
-				return "account";
+				redirectAttrs.addFlashAttribute("msgBool", true);
+				redirectAttrs.addFlashAttribute("msg", "L'email inserita è già associata ad un account PoliBox");
+				redirectAttrs.addFlashAttribute("msgClass", "error");
+				return "redirect:account";
 			}
 		}
 		if (email.equals(confermaEmail) && password.equals(utente.getPassword())) {
 			utente.setEmail(email);
 			session.setAttribute("utente", utente);
 			utenteDAO.updateUtente(utente);
-			model.addAttribute("msgBool", true);
-			model.addAttribute("msg", "Email aggiornata con successo");
-			model.addAttribute("msgClass", "success");
+			redirectAttrs.addFlashAttribute("msgBool", true);
+			redirectAttrs.addFlashAttribute("msg", "Email aggiornata con successo");
+			redirectAttrs.addFlashAttribute("msgClass", "success");
 		}
-		model.addAttribute("utente", utente);
-		return "account";
-	}
-	
-	@RequestMapping(value = "/cambiaEmail", method = RequestMethod.GET)
-	public String cambiaEmailGet(Model model, HttpSession session) {
-		Utente utente = (Utente) session.getAttribute("utente");
-		if (utente == null || utente.getEmail() == null) {
-			return "index";
-		}
-		model.addAttribute("utente", utente);
-		return "account";
+		redirectAttrs.addFlashAttribute("utente", utente);
+		return "redirect:account";
 	}
 	
 	@RequestMapping(value = "/cambiaPassword", method = RequestMethod.POST)
-	public String cambiaPasswordSubmit(@RequestParam(value="vecchiaPassword") String vecchiaPassword, @RequestParam(value="nuovaPassword") String nuovaPassword, Model model, HttpSession session) {
+	public String cambiaPasswordSubmit(@RequestParam(value="vecchiaPassword") String vecchiaPassword, @RequestParam(value="nuovaPassword") String nuovaPassword, RedirectAttributes redirectAttrs, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
@@ -100,21 +81,11 @@ public class AccountController {
 			utente.setPassword(nuovaPassword);
 			session.setAttribute("utente", utente);
 			utenteDAO.updateUtente(utente);
-			model.addAttribute("msgBool", true);
-			model.addAttribute("msg", "Password aggiornata con successo");
-			model.addAttribute("msgClass", "success");
+			redirectAttrs.addFlashAttribute("msgBool", true);
+			redirectAttrs.addFlashAttribute("msg", "Password aggiornata con successo");
+			redirectAttrs.addFlashAttribute("msgClass", "success");
 		}
-		model.addAttribute("utente", utente);
-		return "account";
-	}
-	
-	@RequestMapping(value = "/cambiaPassword", method = RequestMethod.GET)
-	public String cambiaPasswordGet(Model model, HttpSession session) {
-		Utente utente = (Utente) session.getAttribute("utente");
-		if (utente == null || utente.getEmail() == null) {
-			return "index";
-		}
-		model.addAttribute("utente", utente);
-		return "account";
+		redirectAttrs.addFlashAttribute("utente", utente);
+		return "redirect:account";
 	}
 }

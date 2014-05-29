@@ -25,7 +25,7 @@
 	<c:if test="${error == true}">
 		<p class="error">Email o password errate</p>
 	</c:if>
-	<form:form commandName="utente" method="post" role="form" action="home">
+	<form:form commandName="utente" method="post" role="form" action="login">
 		<div class="row">
 			<div class="form-group col-lg-4">
 				<label for="email">Email</label>

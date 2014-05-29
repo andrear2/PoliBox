@@ -25,7 +25,7 @@ public class LoginController {
 		return "login";
 	}
 	
-	@RequestMapping(value = "/home", method = RequestMethod.POST)
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String loginSubmit(@ModelAttribute @Valid Utente utente, BindingResult bindingResult, Model model, HttpSession session) {
 		if (bindingResult.hasErrors()) {
 			return "login";
@@ -37,16 +37,6 @@ public class LoginController {
 		}
 		model.addAttribute("utente", u);
 		session.setAttribute("utente", u);
-		return "home";
-	}
-	
-	@RequestMapping(value = "/home", method = RequestMethod.GET)
-	public String showHome(Model model, HttpSession session) {
-		Utente u = (Utente) session.getAttribute("utente");
-		if (u == null || u.getEmail() == null) {
-			return "index";
-		}
-		model.addAttribute("utente", u);
-		return "home";
+		return "redirect:home";
 	}
 }
