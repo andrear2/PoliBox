@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class UploadController {
@@ -35,7 +36,7 @@ public class UploadController {
 	}
 	
 	@RequestMapping(value = "/fileUpload", method = RequestMethod.POST)
-	public String fileUploadSubmit(@ModelAttribute @Valid UploadedFile uploadedFile, BindingResult bindingResult, Model model, HttpSession session) {
+	public String fileUploadSubmit(@ModelAttribute @Valid UploadedFile uploadedFile, BindingResult bindingResult, RedirectAttributes redirectAttrs, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
@@ -44,7 +45,7 @@ public class UploadController {
 		fileValidator.validate(uploadedFile, bindingResult);
 		  
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("utente", utente);
+			redirectAttrs.addFlashAttribute("utente", utente);
 			return "upload";
 		}
 		
@@ -55,17 +56,17 @@ public class UploadController {
 			file.transferTo(dest);
 		} catch (IllegalStateException ise) {
 			ise.printStackTrace();
-			model.addAttribute("utente", utente);
+			redirectAttrs.addFlashAttribute("utente", utente);
 			return "upload";
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
-			model.addAttribute("utente", utente);
+			redirectAttrs.addFlashAttribute("utente", utente);
 			return "upload";
 		}
-		model.addAttribute("utente", utente);
-		model.addAttribute("msgBool", true);
-		model.addAttribute("msg", "Il file \"" + fileName + "\" è stato caricato con successo");
-		model.addAttribute("msgClass", "success");  
-		return "home";
+		redirectAttrs.addFlashAttribute("utente", utente);
+		redirectAttrs.addFlashAttribute("msgBool", true);
+		redirectAttrs.addFlashAttribute("msg", "Il file \"" + fileName + "\" è stato caricato con successo");
+		redirectAttrs.addFlashAttribute("msgClass", "success");
+		return "redirect:home";
 	}
 }

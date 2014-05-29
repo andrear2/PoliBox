@@ -1,3 +1,6 @@
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.text.DateFormat"%>
+<%@page import="java.util.Date"%>
 <%@page import="it.polito.ai.polibox.entity.Utente"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
@@ -9,8 +12,22 @@
 	<title>Polibox</title>
 	<link href="<c:url value='/resources/css/style.css' />" type="text/css" rel="stylesheet">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//cdn.datatables.net/1.10.0/css/jquery.dataTables.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="//cdn.datatables.net/1.10.0/js/jquery.dataTables.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function() {
+	    $('.sortable').dataTable({
+	    	paging: false,
+	    	"bInfo": false,
+	    	"order": [[0, "asc"]],
+	    	"language": {
+	    		"search": "Cerca:"
+	    	}
+	    });
+	});
+	</script>
 </head>
 <body>
 	<nav class="navbar navbar-default" role="navigation">
@@ -52,10 +69,14 @@
 		
 		<a href="fileUpload">Carica un file</a>
 		
-		<table>
-			<tr><th>Nome</th></tr>
+		<table class="sortable">
+		<thead>
+			<tr><th>Nome</th><th>Ultima modifica</th></tr>
+		</thead>
+		<tbody>
 			<%
 			Utente utente = (Utente) request.getAttribute("utente");
+			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 			java.io.File file;
 			java.io.File dir = new java.io.File(utente.getHome_dir());
 			String[] list = dir.list();
@@ -63,11 +84,12 @@
 				for (int i = 0; i < list.length; i++) {
 					file = new java.io.File(utente.getHome_dir() + "\\" + list[i]);
 			%>
-			<tr><td><a href="<%= list[i] %>"><%= list[i] %></a></td></tr>
+			<tr><td><a href="<%= list[i] %>"><%= list[i] %></a></td><td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td></tr>
 			<%
 				}
 			}
 			%>
+		</tbody>
 		</table>
 	</div>
 </body>

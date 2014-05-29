@@ -11,7 +11,6 @@ body {
 .tab-content {
 	padding-top: 15px;
 }
-td {
-	padding-left: 10px;
-	padding-right: 10px;
+table td, table th {
+	padding: 10px;
 }
