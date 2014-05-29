@@ -1,6 +1,6 @@
 package it.polito.ai.polibox.validator;
 
-import it.polito.ai.polibox.entity.UploadedFile;
+import it.polito.ai.polibox.entity.UploadedFiles;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -14,9 +14,9 @@ public class FileValidator implements Validator {
 	}
 
 	@Override
-	public void validate(Object uploadedFile, Errors errors) {
-		UploadedFile file = (UploadedFile) uploadedFile;
-		if (file.getFile().getSize() == 0) {
+	public void validate(Object uploadedFiles, Errors errors) {
+		UploadedFiles files = (UploadedFiles) uploadedFiles;
+		if (files.getFiles().size() == 0) {
 			errors.rejectValue("file", "uploadForm.selectFile", "Nessun file selezionato");  
 		}
 	}

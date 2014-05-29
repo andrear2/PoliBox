@@ -45,9 +45,9 @@
 	<form:form commandName="uploadedFile" method="post" enctype="multipart/form-data" role="form">
 		<div class="row">
 			<div class="form-group col-lg-4">
-				<label for="file">File</label>
-				<form:input path="file" type="file" class="form-control" id="file" />
-	    		<form:errors path="file" cssClass="error"></form:errors>
+				<label for="files">File</label>
+				<form:input path="files" type="file" class="form-control" id="files" multiple="true" />
+	    		<form:errors path="files" cssClass="error"></form:errors>
 			</div>
 		</div>
 		<input class="btn btn-primary" type="submit" value="Carica" />
