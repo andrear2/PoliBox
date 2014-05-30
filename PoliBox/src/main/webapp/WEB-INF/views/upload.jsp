@@ -42,6 +42,9 @@
 	</nav>
 	
 	<h1>Seleziona il file da caricare</h1>
+	<c:if test="${msgBool == true}">
+		<p class="${msgClass}">${msg}</p>
+	</c:if>
 	<form:form commandName="uploadedFile" method="post" enctype="multipart/form-data" role="form">
 		<div class="row">
 			<div class="form-group col-lg-4">
