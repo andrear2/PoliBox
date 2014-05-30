@@ -20,6 +20,7 @@ public class AccountController {
 	
 	
 	//prova Andrea
+	//pr
 	@RequestMapping(value = "/account", method = RequestMethod.GET)
 	public String showEditAccountForm(Model model, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
