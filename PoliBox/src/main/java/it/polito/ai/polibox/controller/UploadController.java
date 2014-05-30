@@ -36,7 +36,7 @@ public class UploadController {
 	}
 	
 	@RequestMapping(value = "/fileUpload", method = RequestMethod.POST)
-	public String fileUploadSubmit(@ModelAttribute @Valid UploadedFiles uploadedFiles, BindingResult bindingResult, RedirectAttributes redirectAttrs, HttpSession session) {
+	public String fileUploadSubmit(@ModelAttribute("uploadedFile") @Valid UploadedFiles uploadedFiles, BindingResult bindingResult, RedirectAttributes redirectAttrs, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";

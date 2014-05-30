@@ -84,7 +84,7 @@
 				for (int i = 0; i < list.length; i++) {
 					file = new java.io.File(utente.getHome_dir() + "\\" + list[i]);
 			%>
-			<tr><td><a href="<%= list[i] %>"><%= list[i] %></a></td><td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td></tr>
+			<tr><td><a href="home/<%= list[i] %>"><%= list[i] %></a></td><td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td></tr>
 			<%
 				}
 			}
