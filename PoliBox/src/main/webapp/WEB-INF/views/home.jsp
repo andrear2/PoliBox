@@ -68,6 +68,7 @@
 		</c:if>
 		
 		<a href="fileUpload">Carica un file</a>
+		<a data-toggle="modal" href="#divFormCartellaModal">Crea cartella</a>
 		
 		<table class="sortable">
 		<thead>
@@ -91,6 +92,33 @@
 			%>
 		</tbody>
 		</table>
+		
+		<!-- Modal form per la creazione di una cartella -->
+			<div class="modal fade" id="divFormCartellaModal" tabindex="-1" role="dialog" aria-labelledby="modalCartellaLabel" aria-hidden="true">
+				<div class="modal-dialog modal-sm">
+		   			<div class="modal-content">
+						<div class="modal-header">
+						    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						    <h2 id="modalCartellaLabel">Crea cartella</h2>
+						</div>
+						<div class="modal-body">
+							<form id="formCartellaModal" data-toggle="validator" action="creaCartella" method="post">
+								<div class="row">
+									<div class="form-group col-lg-9">
+										<label for="nome" class="control-label">Nome</label>
+										<input type="text" id="nome" name="nome" class="form-control" placeholder="Nome cartella" required />
+									</div>
+								</div>
+								<input type="hidden" name="path" id="path" />
+								<input class="btn btn-primary" type="submit" value="Crea cartella" />
+							</form>
+							<script type="text/javascript">
+								document.getElementById("path").value = document.URL;
+							</script>
+						</div>
+					</div>
+				</div>
+			</div>
 	</div>
 </body>
 </html>

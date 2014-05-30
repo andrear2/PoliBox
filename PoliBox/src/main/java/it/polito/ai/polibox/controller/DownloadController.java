@@ -12,7 +12,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.crsh.shell.impl.command.system.repl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,14 +24,14 @@ public class DownloadController {
 	@Autowired
 	ServletContext servletContext;
 	
-	@RequestMapping(value = "/home/{file_name}", method = RequestMethod.GET)
-	public String getFile(@PathVariable("file_name") String fileName, Model model, HttpSession session, HttpServletResponse response) {
+	@RequestMapping(value = "/home/{file_name}.{file_extension}", method = RequestMethod.GET)
+	public String getFile(@PathVariable("file_name") String fileName, @PathVariable("file_extension") String fileExtension, Model model, HttpSession session, HttpServletResponse response) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
 		}
 		
-		String path = utente.getHome_dir() + "\\" + fileName;
+		String path = utente.getHome_dir() + "\\" + fileName + "." + fileExtension;
 		File file = new File(path);
 		try {
 			FileInputStream input = new FileInputStream(file);
