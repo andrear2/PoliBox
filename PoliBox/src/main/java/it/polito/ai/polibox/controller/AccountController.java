@@ -18,8 +18,6 @@ public class AccountController {
 	@Autowired
 	private UtenteDAO utenteDAO;
 	
-	
-	//prova Andrea
 	@RequestMapping(value = "/account", method = RequestMethod.GET)
 	public String showEditAccountForm(Model model, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
