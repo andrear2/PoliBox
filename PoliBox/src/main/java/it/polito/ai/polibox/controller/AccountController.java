@@ -19,7 +19,7 @@ public class AccountController {
 	private UtenteDAO utenteDAO;
 	
 	
-	//prova committamento
+	//prova
 	@RequestMapping(value = "/account", method = RequestMethod.GET)
 	public String showEditAccountForm(Model model, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
