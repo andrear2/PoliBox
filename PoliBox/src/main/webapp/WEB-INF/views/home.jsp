@@ -64,7 +64,20 @@
 		<h2>Benvenuto ${utente.nome} ${utente.cognome}!</h2>
 	</div>
 	<div class="col-xs-9">
-		<h2>Benvenuto ${utente.nome} ${utente.cognome}!</h2>
+		<!-- Breadcrumbs -->
+		<ol class="breadcrumb">
+			<%
+			String pathBreadcrumb = (String) request.getAttribute("javax.servlet.forward.request_uri");
+			String[] pathElementsBreadcrumb = pathBreadcrumb.split("/");
+			String pathUrlBreadcrumb = new String();
+			for (int i=2; i<pathElementsBreadcrumb.length-1; i++) {
+				pathUrlBreadcrumb += "/" + pathElementsBreadcrumb[i];
+				out.print("<li><a href='/ai" + pathUrlBreadcrumb + "'>" + pathElementsBreadcrumb[i] + "</a></li>");
+			}
+			out.print("<li class='active'>" + pathElementsBreadcrumb[pathElementsBreadcrumb.length-1] + "</li>");
+			%>
+		</ol>
+		
 		<c:if test="${msgBool == true}">
 			<div class="${msgClass}">
 				<p>${msg}</p>
