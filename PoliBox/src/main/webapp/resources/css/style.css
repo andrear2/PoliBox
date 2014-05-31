@@ -14,10 +14,3 @@ body {
 table td, table th {
 	padding: 10px;
 }
-.submitLink {
-	background-color: transparent;
-	text-decoration: underline;
-	border: none;
-	color: blue;
-	cursor: pointer;
-}
