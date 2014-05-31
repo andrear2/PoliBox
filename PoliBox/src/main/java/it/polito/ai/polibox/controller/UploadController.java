@@ -19,12 +19,26 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class UploadController {
 	@RequestMapping(value = "/fileUpload", method = RequestMethod.POST)
-	public String fileUploadSubmit(@RequestParam(value="files") List<MultipartFile> uploadedFiles, RedirectAttributes redirectAttrs, HttpSession session) {
+	public String fileUploadSubmit(@RequestParam(value="files") List<MultipartFile> uploadedFiles, @RequestParam(value="pathFile") String path, RedirectAttributes redirectAttrs, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
 		}
 		
+		System.out.println(path);
+		String[] pathElements = path.split("/");
+		String pathDir = utente.getHome_dir();
+		String pathUrl = new String();
+		for (int i=5; i<pathElements.length; i++) {
+			System.out.println(pathElements[i]);
+			if (i==5) {
+				pathUrl += pathElements[i];
+			} else {
+				pathUrl += "\\" + pathElements[i];
+			}
+		}
+		pathDir += "\\" + pathUrl;
+		System.out.println(pathUrl + "; " + pathDir);
 		List<String> fileNames = new ArrayList<String>();
 		  
 		if (uploadedFiles == null || uploadedFiles.size() == 0 || uploadedFiles.get(0).getOriginalFilename() == "") {
@@ -32,13 +46,16 @@ public class UploadController {
 			redirectAttrs.addFlashAttribute("msgBool", true);
 			redirectAttrs.addFlashAttribute("msg", "Nessun file selezionato");
 			redirectAttrs.addFlashAttribute("msgClass", "error");
-			return "redirect:home";
+			if (pathUrl.isEmpty()) {
+				return "redirect:home";
+			}
+			return "redirect:home/" + pathUrl;
 		}
 		
 		for (MultipartFile file: uploadedFiles) {
 			String fileName = file.getOriginalFilename();
 			fileNames.add(fileName);
-			File dest = new File(utente.getHome_dir() + "\\" + fileName);
+			File dest = new File(pathDir + "\\" + fileName);
 			try {
 				file.transferTo(dest);
 			} catch (IllegalStateException ise) {
@@ -47,14 +64,20 @@ public class UploadController {
 				redirectAttrs.addFlashAttribute("msgBool", true);
 				redirectAttrs.addFlashAttribute("msg", "Errore nel caricamento del file");
 				redirectAttrs.addFlashAttribute("msgClass", "error");
-				return "redirect:home";
+				if (pathUrl.isEmpty()) {
+					return "redirect:home";
+				}
+				return "redirect:home/" + pathUrl;
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 				redirectAttrs.addFlashAttribute("utente", utente);
 				redirectAttrs.addFlashAttribute("msgBool", true);
 				redirectAttrs.addFlashAttribute("msg", "Errore nel caricamento del file");
 				redirectAttrs.addFlashAttribute("msgClass", "error");
-				return "redirect:home";
+				if (pathUrl.isEmpty()) {
+					return "redirect:home";
+				}
+				return "redirect:home/" + pathUrl;
 			}
 		}
 		String msg = new String();
@@ -71,6 +94,9 @@ public class UploadController {
 		}
 		redirectAttrs.addFlashAttribute("msg", msg);
 		redirectAttrs.addFlashAttribute("msgClass", "success");
-		return "redirect:home";
+		if (pathUrl.isEmpty()) {
+			return "redirect:home";
+		}
+		return "redirect:home/" + pathUrl;
 	}
 }

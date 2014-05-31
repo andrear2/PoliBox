@@ -24,7 +24,8 @@
 	    	"bInfo": false,
 	    	"order": [[0, "asc"]],
 	    	"language": {
-	    		"search": "Cerca:"
+	    		"search": "Cerca:",
+	    		"zeroRecords": "Questa cartella è vuota"
 	    	}
 	    });
 	});
@@ -40,7 +41,7 @@
 	        <span class="icon-bar"></span>
 	        <span class="icon-bar"></span>
 	      </button>
-	      <a class="navbar-brand" href="home">PoliBox</a>
+	      <a class="navbar-brand" href="/ai/home">PoliBox</a>
 	    </div>
 	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 	      <ul class="nav navbar-nav navbar-right">
@@ -77,20 +78,31 @@
 		
 		<table class="sortable">
 			<thead>
-				<tr><th>Nome</th><th>Ultima modifica</th></tr>
+				<tr>
+					<th>Nome</th>
+					<th>Ultima modifica</th>
+				</tr>
 			</thead>
 			<tbody>
 				<%
 				Utente utente = (Utente) request.getAttribute("utente");
+				String pathDir = (String) request.getAttribute("pathDir");
+				String pathUrl = (String) request.getAttribute("pathUrl");
+				if (pathDir == null) {
+					pathDir = utente.getHome_dir();
+				}
 				DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 				java.io.File file;
-				java.io.File dir = new java.io.File(utente.getHome_dir());
+				java.io.File dir = new java.io.File(pathDir);
 				String[] list = dir.list();
 				if (list.length > 0) {
-					for (int i = 0; i < list.length; i++) {
-						file = new java.io.File(utente.getHome_dir() + "\\" + list[i]);
+					for (int i=0; i<list.length; i++) {
+						file = new java.io.File(pathDir + "\\" + list[i]);
 				%>
-				<tr><td><a href="home/<%= list[i] %>"><%= list[i] %></a></td><td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td></tr>
+				<tr>
+					<td><a href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>"><%= list[i] %></a></td>
+					<td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
+				</tr>
 				<%
 					}
 				}
@@ -107,18 +119,18 @@
 					    <h2 id="modalCartellaLabel">Crea cartella</h2>
 					</div>
 					<div class="modal-body">
-						<form id="formCartellaModal" data-toggle="validator" action="creaCartella" method="post">
+						<form id="formCartellaModal" data-toggle="validator" action="/ai/creaCartella" method="post">
 							<div class="row">
 								<div class="form-group col-lg-9">
 									<label for="nome" class="control-label">Nome</label>
 									<input type="text" id="nome" name="nome" class="form-control" placeholder="Nome cartella" required />
 								</div>
 							</div>
-							<input type="hidden" name="path" id="path" />
+							<input type="hidden" name="pathCartella" id="pathCartella" />
 							<input class="btn btn-primary" type="submit" value="Crea cartella" />
 						</form>
 						<script type="text/javascript">
-							document.getElementById("path").value = document.URL;
+							document.getElementById("pathCartella").value = document.URL;
 						</script>
 					</div>
 				</div>
@@ -134,15 +146,19 @@
 					    <h2 id="modalFileLabel">Carica file</h2>
 					</div>
 					<div class="modal-body">
-						<form id="formFileModal" data-toggle="validator" action="fileUpload" method="post" enctype="multipart/form-data" role="form">
+						<form id="formFileModal" data-toggle="validator" action="/ai/fileUpload" method="post" enctype="multipart/form-data" role="form">
 							<div class="row">
 								<div class="form-group col-lg-12">
 									<label for="files" class="control-label">File</label>
 									<input name="files" type="file" class="form-control" id="files" multiple="true" />
 								</div>
 							</div>
+							<input type="hidden" name="pathFile" id="pathFile" />
 							<input class="btn btn-primary" type="submit" value="Carica" />
 						</form>
+						<script type="text/javascript">
+							document.getElementById("pathFile").value = document.URL;
+						</script>
 					</div>
 				</div>
 			</div>

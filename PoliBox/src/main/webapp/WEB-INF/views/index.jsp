@@ -12,12 +12,12 @@
 	<nav class="navbar navbar-default" role="navigation">
 	  <div class="container-fluid">
 	    <div class="navbar-header">
-	      <a class="navbar-brand" href="home">PoliBox</a>
+	      <a class="navbar-brand" href="/ai/home">PoliBox</a>
 	    </div>
 	  </div>
 	</nav>
 	<h1>Benvenuto su PoliBox</h1>
-	<p><a class="btn btn-primary" href="registration">Registrati</a><br>
-	oppure <a href="login">Accedi</a></p>
+	<p><a class="btn btn-primary" href="/ai/registration">Registrati</a><br>
+	oppure <a href="/ai/login">Accedi</a></p>
 </body>
 </html>

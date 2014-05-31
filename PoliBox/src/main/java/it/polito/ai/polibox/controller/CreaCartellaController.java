@@ -15,17 +15,23 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class CreaCartellaController {
 	@RequestMapping(value = "/creaCartella", method = RequestMethod.POST)
-	public String creaCartellaSubmit(@RequestParam(value="nome") String nome, @RequestParam(value="path") String path, RedirectAttributes redirectAttrs, HttpSession session) {
+	public String creaCartellaSubmit(@RequestParam(value="nome") String nome, @RequestParam(value="pathCartella") String path, RedirectAttributes redirectAttrs, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
 		}
+		
 		String[] pathElements = path.split("/");
 		String pathDir = utente.getHome_dir();
+		String pathUrl = new String();
 		for (int i=5; i<pathElements.length; i++) {
-			System.out.println(pathElements[i]);
-			pathDir += "\\" + pathElements[i];
+			if (i==5) {
+				pathUrl += pathElements[i];
+			} else {
+				pathUrl += "\\" + pathElements[i];
+			}
 		}
+		pathDir += "\\" + pathUrl;
 		File dir = new File(pathDir + "\\" + nome);
 		if (!dir.isDirectory()) {
 			dir.mkdir();
@@ -41,8 +47,11 @@ public class CreaCartellaController {
 		
 		redirectAttrs.addFlashAttribute("utente", utente);
 		redirectAttrs.addFlashAttribute("msgBool", true);
-		redirectAttrs.addFlashAttribute("msg", "Cartella " + dir.getName() + " creata con successo");
+		redirectAttrs.addFlashAttribute("msg", "Cartella \"" + dir.getName() + "\" creata con successo");
 		redirectAttrs.addFlashAttribute("msgClass", "success");
-		return "redirect:home";
+		if (pathUrl.isEmpty()) {
+			return "redirect:home";
+		}
+		return "redirect:home/" + pathUrl;
 	}
 }
