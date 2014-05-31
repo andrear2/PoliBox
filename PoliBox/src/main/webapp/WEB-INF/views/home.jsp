@@ -68,13 +68,15 @@
 		<ol class="breadcrumb">
 			<%
 			String pathBreadcrumb = (String) request.getAttribute("javax.servlet.forward.request_uri");
-			String[] pathElementsBreadcrumb = pathBreadcrumb.split("/");
-			String pathUrlBreadcrumb = new String();
-			for (int i=2; i<pathElementsBreadcrumb.length-1; i++) {
-				pathUrlBreadcrumb += "/" + pathElementsBreadcrumb[i];
-				out.print("<li><a href='/ai" + pathUrlBreadcrumb + "'>" + pathElementsBreadcrumb[i] + "</a></li>");
+			if (pathBreadcrumb != null) {
+				String[] pathElementsBreadcrumb = pathBreadcrumb.split("/");
+				String pathUrlBreadcrumb = new String();
+				for (int i=2; i<pathElementsBreadcrumb.length-1; i++) {
+					pathUrlBreadcrumb += "/" + pathElementsBreadcrumb[i];
+					out.print("<li><a href='/ai" + pathUrlBreadcrumb + "'>" + pathElementsBreadcrumb[i] + "</a></li>");
+				}
+				out.print("<li class='active'>" + pathElementsBreadcrumb[pathElementsBreadcrumb.length-1] + "</li>");
 			}
-			out.print("<li class='active'>" + pathElementsBreadcrumb[pathElementsBreadcrumb.length-1] + "</li>");
 			%>
 		</ol>
 		
@@ -108,7 +110,7 @@
 				java.io.File file;
 				java.io.File dir = new java.io.File(pathDir);
 				String[] list = dir.list();
-				if (list.length > 0) {
+				if (list != null && list.length > 0) {
 					for (int i=0; i<list.length; i++) {
 						file = new java.io.File(pathDir + "\\" + list[i]);
 				%>
