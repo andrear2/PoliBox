@@ -30,7 +30,6 @@ public class UploadController {
 		String pathDir = utente.getHome_dir();
 		String pathUrl = new String();
 		for (int i=5; i<pathElements.length; i++) {
-			System.out.println(pathElements[i]);
 			if (i==5) {
 				pathUrl += pathElements[i];
 			} else {
@@ -38,7 +37,6 @@ public class UploadController {
 			}
 		}
 		pathDir += "\\" + pathUrl;
-		System.out.println(pathUrl + "; " + pathDir);
 		List<String> fileNames = new ArrayList<String>();
 		  
 		if (uploadedFiles == null || uploadedFiles.size() == 0 || uploadedFiles.get(0).getOriginalFilename() == "") {

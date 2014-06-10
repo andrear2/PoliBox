@@ -28,6 +28,78 @@
 	    		"zeroRecords": "Questa cartella è vuota"
 	    	}
 	    });
+	    
+		$('tr').each(function() {
+			var $a = $(this).find("a");
+			
+			var menu = new Array();
+			menu[0] = ["Opzioni cartella condivisa", "#"];
+			menu[1] = ["Invita alla cartella", "#"];
+			menu[2] = ["Condividi link", "#"];
+			menu[3] = ["Scarica", "http://localhost:8080/ai/" + $a.attr('href')];
+			menu[4] = ["Elimina", "#divFormElimina"];
+			menu[5] = ["Rinomina", "#"];
+			menu[6] = ["Sposta", "#"];
+			menu[7] = ["Copia", "#"];
+			menu[8] = ["Crea album", "#"];
+			menu[9] = ["Versioni precedenti", "#"];
+
+        	var id = $a.attr('id');
+        	var isFile = /^file/.test(id);
+        	
+        	var contextMenu = '<div class="context-menu">';
+        	for(var i = 0; i < menu.length; i++){
+        		if(isFile && (i == 0 || i == 1 || i == 8)) continue;
+        		if(!isFile && (i == 0 || i == 9)) continue;
+        		contextMenu += '<div><a data-toggle="modal" href="' + menu[i][1] + '">' + menu[i][0] + '</a></div>';
+        	}
+        	contextMenu += '</div>';
+        
+        	$(contextMenu).insertAfter($a).hide();
+        });
+		
+		$('tr').bind('contextmenu', function(e) {
+		    
+		    //alert("pippo");
+		    var $a = $(this).find("a");
+		    var contextMenu = $a.next();
+		    
+			document.getElementById("nomefile").value = $a.html();
+			document.getElementById("fileDeleted").innerHTML = $a.html();
+
+		    
+		    $(this).parent().find('.context-menu').each( function() {
+		    	$(this).css("display", "none");		
+		    });
+		    
+		    contextMenu.css("display", "table");
+		    
+		    /*
+		    contextMenu.find("div").each( function() {
+		    		var $div = $(this);
+		    		$div.css("display", "row");
+		    		
+		    		$div.find("a").each( function() {
+		    			$(this).css("display", "table-cell");
+		    		});
+		    
+		    });
+		    */
+
+		    e.preventDefault();
+		});
+		
+		/*$('.context-menu').bind('click', function(e) {
+			alert("pippo");
+			var nomeFile = $(this).parent();
+			alert(nomeFile);
+		});*/
+		$('html').bind('click', function(e) {
+			$(this).find(".context-menu").each( function() {
+				$(this).css("display", "none");		
+			});	
+		});
+		
 	});
 	</script>
 </head>
@@ -91,7 +163,7 @@
 			<a data-toggle="modal" href="#divFormCartellaModal">Crea cartella</a>
 		</p>
 		
-		<table class="sortable">
+		<table class="sortable" id="list">
 			<thead>
 				<tr>
 					<th>Nome</th>
@@ -115,9 +187,10 @@
 						file = new java.io.File(pathDir + "\\" + list[i]);
 				%>
 				<tr>
-					<td><a href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>"><%= list[i] %></a></td>
+					<td><a id=<% if (file.isFile()) out.print("file" + i); else out.print("directory" + i); %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
 					<td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
 				</tr>
+				
 				<%
 					}
 				}
@@ -178,6 +251,33 @@
 				</div>
 			</div>
 		</div>
+		
+		<!-- Modal form per l'eliminazione di un file o una directory -->
+		<div class="modal fade" id="divFormElimina" tabindex="-1" role="dialog" aria-labelledby="modalCartellaLabel" aria-hidden="true">
+			<div class="modal-dialog modal-sm">
+	   			<div class="modal-content">
+					<div class="modal-header">
+					    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					    <h2 id="modalCartellaLabel">Eliminare il file?</h2>
+					</div>
+					<div class="modal-body">
+						<form data-toggle="validator" action="/ai/elimina" method="post">
+							<div class="row">
+								<div class="form-group col-lg-9">
+									Eliminare il file <b id="fileDeleted"></b> selezionato? 
+								</div>
+							</div>
+							<input type="hidden" name="path" id="path" />
+							<input type="hidden" name="nomefile" id="nomefile" />
+							<input class="btn btn-primary" type="submit" value="Elimina" />
+							<button class="btn btn-primary" type="button" aria-hidden="true" data-dismiss="modal">Annulla</button>
+						</form>
+						<script type="text/javascript">
+							document.getElementById("path").value = document.URL;
+						</script>
+					</div>
+				</div>
+			</div>
 	</div>
 </body>
 </html>
