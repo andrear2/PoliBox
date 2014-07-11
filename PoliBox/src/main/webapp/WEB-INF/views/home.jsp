@@ -163,7 +163,7 @@
 			<a data-toggle="modal" href="#divFormCartellaModal">Crea cartella</a>
 		</p>
 		
-		<table class="sortable" id="list">
+		<table class="sortable table-striped table-hover" id="list">
 			<thead>
 				<tr>
 					<th>Nome</th>
