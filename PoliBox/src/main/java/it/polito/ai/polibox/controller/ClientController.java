@@ -11,6 +11,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -29,7 +30,27 @@ public class ClientController {
 		System.out.println("RICEVUTO! " + msg);
 		String[] s = msg.split(":");
 		if (s[0].equals("DIR")) {
-			File f = new File("C:\\Polibox uploaded files\\" + s[1]);
+			File f = new File("C:\\Polibox uploaded files" + s[1]);
+			f.mkdir();
+		} else if (s[0].equals("DELETE_FILE")) {
+			File f = new File("C:\\Polibox uploaded files" + s[1]);
+			f.delete();
+		} else if (s[0].equals("DELETE_DIR")) {
+			File f = new File("C:\\Polibox uploaded files" + s[1]);
+			try {
+				FileUtils.deleteDirectory(f);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if (s[0].equals("EMPTY_FILE")) {
+			File f = new File("C:\\Polibox uploaded files" + s[1]);
+			try {
+				f.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else {
 			fileName = msg;
 			firstRequest = true;
@@ -39,7 +60,7 @@ public class ClientController {
 	@OnMessage
 	public void onBinaryMessage(Session session, ByteBuffer buf) {
 		try {
-			File f = new File("C:\\Polibox uploaded files\\" + fileName);
+			File f = new File("C:\\Polibox uploaded files" + fileName);
 			FileOutputStream fos;
 			if (firstRequest) {
 				fos = new FileOutputStream(f);
