@@ -46,6 +46,6 @@ public class RegistrationController {
 		utente.setHome_dir(homePath);
 		utenteDAO.updateUtente(utente);
 		model.addAttribute("utente", utente);
-		return "redirect:registrationresult";
+		return "redirect:login";
 	}
 }

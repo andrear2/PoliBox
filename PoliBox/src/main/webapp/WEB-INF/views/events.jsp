@@ -104,6 +104,7 @@
 				</tr>
 				<%
 				}
+				lnr.close();
 				%>
 			</tbody>
 		</table>
