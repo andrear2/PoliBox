@@ -9,15 +9,13 @@
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<bean name="utenteDAO" class="it.polito.ai.polibox.dao.UtenteDAOImpl"></bean>
 	
-	
-
-	
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+	
 
-
-<security:http auto-config="true">
-	<security:intercept-url pattern="/**" requires-channel="https" />
-</security:http>
+	
+<!-- 	<security:http auto-config="true"> -->
+<!-- 		<security:intercept-url pattern="/**" requires-channel="https" /> -->
+<!-- 	</security:http> -->
 
 
   

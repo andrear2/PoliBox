@@ -8,8 +8,9 @@
 	http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 	
 <http auto-config="true">
-	<intercept-url pattern="/**" requires-channel="https" />
-</http>
-				
+	<intercept-url pattern="/**" requires-channel="https"/>
+</http>		
+
+<authentication-manager></authentication-manager>
 		
 </beans:beans>
