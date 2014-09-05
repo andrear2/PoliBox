@@ -16,5 +16,6 @@
     <property name="hbm2ddl.auto">validate</property>
 	
 	<mapping class="it.polito.ai.polibox.entity.Utente"/>
+	<mapping class="it.polito.ai.polibox.entity.Condivisione"/>
   </session-factory>
 </hibernate-configuration>

@@ -17,91 +17,9 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 	<script src="//cdn.datatables.net/1.10.0/js/jquery.dataTables.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-	<script type="text/javascript">
-	$(document).ready(function() {
-	    $('.sortable').dataTable({
-	    	paging: false,
-	    	"bInfo": false,
-	    	"order": [[0, "asc"]],
-	    	"language": {
-	    		"search": "Cerca:",
-	    		"zeroRecords": "Questa cartella è vuota"
-	    	}
-	    });
-	    
-		$('tr').each(function() {
-			var $a = $(this).find("a");
-			
-			var menu = new Array();
-			menu[0] = ["Opzioni cartella condivisa", "#"];
-			menu[1] = ["Invita alla cartella", "#"];
-			menu[2] = ["Condividi link", "#"];
-			menu[3] = ["Scarica", "http://localhost:8080/ai/" + $a.attr('href')];
-			menu[4] = ["Elimina", "#divFormElimina"];
-			menu[5] = ["Rinomina", "#"];
-			menu[6] = ["Sposta", "#"];
-			menu[7] = ["Copia", "#"];
-			menu[8] = ["Crea album", "#"];
-			menu[9] = ["Versioni precedenti", "#"];
-
-        	var id = $a.attr('id');
-        	var isFile = /^file/.test(id);
-        	
-        	var contextMenu = '<div class="context-menu">';
-        	for(var i = 0; i < menu.length; i++){
-        		if(isFile && (i == 0 || i == 1 || i == 8)) continue;
-        		if(!isFile && (i == 0 || i == 9)) continue;
-        		contextMenu += '<div><a data-toggle="modal" href="' + menu[i][1] + '">' + menu[i][0] + '</a></div>';
-        	}
-        	contextMenu += '</div>';
-        
-        	$(contextMenu).insertAfter($a).hide();
-        });
-		
-		$('tr').bind('contextmenu', function(e) {
-		    
-		    //alert("pippo");
-		    var $a = $(this).find("a");
-		    var contextMenu = $a.next();
-		    
-			document.getElementById("nomefile").value = $a.html();
-			document.getElementById("fileDeleted").innerHTML = $a.html();
-
-		    
-		    $(this).parent().find('.context-menu').each( function() {
-		    	$(this).css("display", "none");		
-		    });
-		    
-		    contextMenu.css("display", "table");
-		    
-		    /*
-		    contextMenu.find("div").each( function() {
-		    		var $div = $(this);
-		    		$div.css("display", "row");
-		    		
-		    		$div.find("a").each( function() {
-		    			$(this).css("display", "table-cell");
-		    		});
-		    
-		    });
-		    */
-
-		    e.preventDefault();
-		});
-		
-		/*$('.context-menu').bind('click', function(e) {
-			alert("pippo");
-			var nomeFile = $(this).parent();
-			alert(nomeFile);
-		});*/
-		$('html').bind('click', function(e) {
-			$(this).find(".context-menu").each( function() {
-				$(this).css("display", "none");		
-			});	
-		});
-		
-	});
-	</script>
+	<script type="text/javascript" src="<c:url value='/resources/javascript/pageContext.js' />" ></script>
+	<script type="text/javascript" src="<c:url value='/resources/javascript/websocket.js' />" ></script>
+	
 </head>
 <body>
 	<nav class="navbar navbar-default" role="navigation">
@@ -120,8 +38,8 @@
 	        <li class="dropdown">
 	          <a href="#" class="dropdown-toggle" data-toggle="dropdown">${utente.nome} ${utente.cognome} <b class="caret"></b></a>
 	          <ul class="dropdown-menu">
-	            <li>${utente.nome} ${utente.cognome}</li>
-	            <li>${utente.email}</li>
+	            <li id="nome">${utente.nome} ${utente.cognome}</li>
+	            <li id="email">${utente.email}</li>
 	            <li class="divider"></li>
 	            <li><a href="account">Profilo</a></li>
 	            <li><a href="logout">Logout</a></li>
@@ -133,7 +51,7 @@
 	</nav>
 	
 	<div class="col-xs-3">
-		<h2>Benvenuto ${utente.nome} ${utente.cognome}!</h2>
+		<h2>Ciao ${utente.nome}!</h2>
 	</div>
 	<div class="col-xs-9">
 		<!-- Breadcrumbs -->
@@ -157,6 +75,9 @@
 				<p>${msg}</p>
 			</div>
 		</c:if>
+		<div id="msg">
+			
+		</div>
 		
 		<p>
 			<a data-toggle="modal" href="#divFormFileModal">Carica un file</a><br>
@@ -171,6 +92,14 @@
 				</tr>
 			</thead>
 			<tbody>
+				<c:forEach var="dir" items="${sd_list}" varStatus="i">
+				<form action="/ai/home/${dir.value}" method="post">				
+					<tr>
+						<td><input type="submit" class="filename_link link_button" value="${dir.value }" draggable="true"></td>
+						<td><input type="hidden" name="c_id" value="${dir.key}"/></td>
+					</tr>
+				</form>
+				</c:forEach>
 				<%
 				Utente utente = (Utente) request.getAttribute("utente");
 				String pathDir = (String) request.getAttribute("pathDir");
@@ -272,12 +201,46 @@
 							<input class="btn btn-primary" type="submit" value="Elimina" />
 							<button class="btn btn-primary" type="button" aria-hidden="true" data-dismiss="modal">Annulla</button>
 						</form>
-						<script type="text/javascript">
-							document.getElementById("path").value = document.URL;
-						</script>
 					</div>
 				</div>
 			</div>
-	</div>
+		</div>
+		
+		<!-- Modal form per la condivisione di una direcotry -->
+		<div class="modal fade" id="divFormCondividi" tabindex="-1" role="dialog" aria-labelledby="modalCartellaLabel" aria-hidden="true">
+			<div class="modal-dialog modal-md">
+	   			<div class="modal-content">
+					<div class="modal-header">
+					    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					    <h2 id="modalCartellaLabel">Condividi "<b id="fileSelected"></b>" con altre persone</h2>
+					</div>
+					<div class="modal-body">
+						<form data-toggle="validator">
+<!-- 							<div class="form-group col-lg-9"> -->
+<!-- 								<input type="checkbox" id="allowInvitations" name="allowInvitations" value="true" checked onclick="changeValueCheckbox(this)"/> -->
+<!-- 								<label for="allowInvitations">Consenti ai membri di invitare altre persone</label> -->
+<!-- 							</div> -->
+							<div class="form-group col-lg-9">
+								<input type="checkbox" type="checkbox" id="allowChanges" name="allowChanges" checked/>
+								<label for="allowChanges">Consenti ai membri di modificare la risorsa</label>
+							</div>
+	
+							<table>
+								<tr><input type="text" name="usersList" id="usersList" size="40" value="Invita membri a questa cartella" onfocus="clearText(this)" onblur="clearText(this)" style="padding: 7px; width: 558px"/></tr>
+								<tr><textarea name="messsage" id="message" rows="3" cols="42" onfocus="clearText(this)" onblur="clearText(this)" style="padding: 7px; width: 558px">Aggiungi un messaggio</textarea></tr>
+							</table>
+							
+							<input type="hidden" name="path" id="path" />
+							<input type="hidden" name="nomefile" id="nomefile" />
+							
+							<button class="btn btn-primary" type="button" aria-hidden="true" data-dismiss="modal" onclick="forwardForm()">Condividi cartella</button>
+							<button class="btn btn-primary" type="button" aria-hidden="true" data-dismiss="modal">Annulla</button>
+							
+						</form>
+					</div>
+				</div>
+			</div>	
+		</div>
+		
 </body>
 </html>

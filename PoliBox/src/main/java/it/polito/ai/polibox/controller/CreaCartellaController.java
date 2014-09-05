@@ -1,6 +1,16 @@
 package it.polito.ai.polibox.controller;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.PrintStream;
+import java.io.RandomAccessFile;
+import java.util.Date;
 
 import it.polito.ai.polibox.entity.Utente;
 
@@ -35,11 +45,64 @@ public class CreaCartellaController {
 		File dir = new File(pathDir + "\\" + nome);
 		if (!dir.isDirectory()) {
 			dir.mkdir();
+			//aggiorno il log file con l'azione appena compiuta
+			String logpath = utente.getHome_dir()+"\\log.txt";
+			try {
+				File file = new File(logpath);
+				long len = file.length();
+				FileReader fr = new FileReader(logpath);
+				LineNumberReader lnr = new LineNumberReader (fr);
+				lnr.skip(len);
+				int ln = lnr.getLineNumber()+1;
+				System.out.println(len+":"+lnr.getLineNumber());
+				lnr.close();
+			    long now = new Date().getTime();
+			    System.out.println(ln+":"+utente.getId()+":ND:"+dir.getName()+":WEB:"+now+"\n");
+			    RandomAccessFile logFile = new RandomAccessFile(logpath,"rw");
+    			FileOutputStream fos = new FileOutputStream(logFile.getFD());
+	    		PrintStream log = new PrintStream(fos);
+	    		logFile.seek(logFile.length());
+	    		log.println(ln+":"+utente.getId()+":ND:"+dir.getName()+":WEB:"+now);
+	    		log.close();
+	    		logFile.close();
+
+
+		    } catch (IOException e) {
+		    	// TODO Auto-generated catch block
+		    	e.printStackTrace();
+		    }
 		} else {
 			for (int i=1; ;i++) {
 				dir = new File(pathDir + "\\" + nome + "(" + i + ")");
 				if (!dir.isDirectory()) {
 					dir.mkdir();
+					//aggiorno il log file con l'azione appena compiuta
+					String logpath = utente.getHome_dir()+"\\log.txt";
+					try {
+						File file = new File(logpath);
+						long len = file.length();
+						FileReader fr = new FileReader(logpath);
+						LineNumberReader lnr = new LineNumberReader (fr);
+						lnr.skip(len);
+						int ln = lnr.getLineNumber()+1;
+						System.out.println(len+":"+lnr.getLineNumber());
+						lnr.close();
+					    long now = new Date().getTime();
+					    System.out.println(ln+":"+utente.getId()+":ND:"+dir.getName()+":WEB:"+now+"\n");
+					    RandomAccessFile logFile = new RandomAccessFile(logpath,"rw");
+		    			FileOutputStream fos = new FileOutputStream(logFile.getFD());
+			    		PrintStream log = new PrintStream(fos);
+			    		logFile.seek(logFile.length());
+			    		log.println(ln+":"+utente.getId()+":ND:"+dir.getName()+":WEB:"+now);
+			    		log.close();
+			    		logFile.close();
+
+
+				    } catch (IOException e) {
+				    	// TODO Auto-generated catch block
+				    	e.printStackTrace();
+				    }
+					
 					break;
 				}
 			}

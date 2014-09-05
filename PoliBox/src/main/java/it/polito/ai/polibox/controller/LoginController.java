@@ -30,6 +30,7 @@ public class LoginController {
 		if (bindingResult.hasErrors()) {
 			return "login";
 		}
+		
 		Utente u = utenteDAO.getUtente(utente.getEmail(), utente.getPassword());
 		if (u == null || u.getEmail() == null) {
 			model.addAttribute("error", true);

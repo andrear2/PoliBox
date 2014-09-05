@@ -8,7 +8,8 @@
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<bean name="utenteDAO" class="it.polito.ai.polibox.dao.UtenteDAOImpl"></bean>
-	
+	<bean name="condivisioneDAO" class="it.polito.ai.polibox.dao.CondivisioneDAOImpl"></bean>
+	<bean id="applicationContextProvder" class="it.polito.ai.polibox.controller.AppCtxProv"/>
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
 	
 

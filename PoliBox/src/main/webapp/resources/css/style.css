@@ -48,3 +48,12 @@ div.context-menu div {
 }
 
 div.context-menu div:hover {background: #FFE4E1;}
+
+.link_button {
+	background:none!important;
+	border: none;
+	padding: 0!important;
+	cursor: pointer;
+	color: #069;
+}
+.link_button:hover {text-decoration: underline;}

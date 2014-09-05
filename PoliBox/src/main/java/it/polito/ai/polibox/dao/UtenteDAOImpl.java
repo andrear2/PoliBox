@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 public class UtenteDAOImpl implements UtenteDAO {
 	
@@ -61,5 +62,21 @@ public class UtenteDAOImpl implements UtenteDAO {
 	public void updateUtente(Utente utente) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.update(utente);
+	}
+
+	@Override
+	public Utente getUtente(String email) {
+		System.out.println("getUtente: "+email);
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		Transaction tx = (Transaction) session.beginTransaction();
+		Query query = session.createQuery("from Utente where email = :email");
+		query.setString("email", email);
+		List<Utente> utenti = new ArrayList<Utente>();
+		utenti = query.list();
+		tx.commit();
+		if (utenti.size() > 0) {
+			return utenti.get(0);
+		}
+		return null;
 	}
 }
