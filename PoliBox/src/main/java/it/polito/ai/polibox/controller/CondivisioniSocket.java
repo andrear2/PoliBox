@@ -119,7 +119,7 @@ public class CondivisioniSocket {
 				Condivisione cond = new Condivisione();
 				cond.setOwnerId(owner.getId());
 				cond.setUserId(u.getId());
-				cond.setDirPath(pathDir + "\\Polibox\\" + filename);
+				cond.setDirPath(pathDir + "\\" + filename);
 				cond.setReadOnly(!allowChanges);
 				cond.setState(0);  //stato = 0 => condivisione non ancora accettata dall'utente
 				condivisioneDAO.addCondivisione(cond);
@@ -181,9 +181,11 @@ public class CondivisioniSocket {
 			String pp = new String ("http://localhost:8080/ai/home");;
 			for (int i=0;i<p.length;i++) {
 				if (flag==1) pp+= "/"+p[i];
-				if (p[i].equals("Polibox")) flag=1;
+				else if (p[i].equals("Polibox")) 
+					flag=1;
 			}
 			log.addLine(u.getId(), "RCA","http://localhost:8080/ai/home/"+p[p.length-1] , 0, owner.getId());
+			System.out.println("------pp:"+pp);
 			owner_log.addLine(owner.getId(), "RCA",pp , 0, u.getId());
 		} else if (type.equals("REF")) {
 			System.out.println("sto rifiutando una condivisione");
