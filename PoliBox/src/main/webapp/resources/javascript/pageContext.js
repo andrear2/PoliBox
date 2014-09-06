@@ -29,9 +29,13 @@ $(document).ready(function() {
         	
         	var contextMenu = '<div class="context-menu">';
         	for(var i = 0; i < menu.length; i++){
-        		if(isFile && (i == 0 || i == 1 || i == 8)) continue;
-        		if(!isFile && (i == 0 || i == 9)) continue;
-        		contextMenu += '<div><a data-toggle="modal" href="' + menu[i][1] + '">' + menu[i][0] + '</a></div>';
+        		if ($a.hasClass("not_editable")) {
+        			if (i==0 || i==1 || i==4 || i==5 || i==6) continue;
+        		} else {
+	        		if(isFile && (i == 0 || i == 1 || i == 8)) continue;
+	        		if(!isFile && (i == 0 || i == 9)) continue;
+        		}
+	        		contextMenu += '<div><a data-toggle="modal" href="' + menu[i][1] + '">' + menu[i][0] + '</a></div>';
         	}
         	contextMenu += '</div>';
         

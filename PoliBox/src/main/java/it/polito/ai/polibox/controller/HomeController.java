@@ -24,6 +24,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.HandlerMapping;
 
 /**
@@ -71,32 +72,34 @@ public class HomeController {
 		return "redirect:home";
 	}
 	
-	@RequestMapping(value = "/Home/{sharedDir}", method = RequestMethod.GET)
-	public String showSharedDirectory(Model model, HttpSession session, @PathVariable String sharedDir, HttpServletRequest request, HttpServletResponse response) {
-		Utente u = (Utente) session.getAttribute("utente");
-		if (u == null || u.getEmail() == null) {
-			return "index";
-		}
-
-		Condivisione condivisione = condivisioneDAO.getCondivisioneWithoutTrans((Long) session.getAttribute("cId"));
-		Utente owner = utenteDAO.getUtente(condivisione.getOwnerId());
-		session.setAttribute("readOnly", condivisione.getReadOnly());
-		
-		String filePath = owner.getHome_dir() + "\\Polibox\\" + sharedDir;
-		
-		HashMap<Long,String> pending_sd_list = new HashMap<Long,String>();
-		for (Condivisione c: condivisioneDAO.getCondivisioni(u.getId())) {
-			String dirPath = c.getDirPath().substring(c.getDirPath().lastIndexOf("\\") + 1);
-			if (c.getState() == 0)
-				pending_sd_list.put(c.getId(), dirPath);
-		}
-		model.addAttribute("pending_sd_list", pending_sd_list);
-		
-		// aggiorna il path
-		model.addAttribute("pathDir", filePath);
-		model.addAttribute("pathUrl", sharedDir);
-		
-		return "homeCond";
+	@RequestMapping(value = "/Home/{sharedDir}", method = RequestMethod.POST)
+	public String showSharedDirectory(Model model, HttpSession session, @PathVariable String sharedDir, @RequestParam("cId") Long cId, HttpServletRequest request, HttpServletResponse response) {
+//		Utente u = (Utente) session.getAttribute("utente");
+//		if (u == null || u.getEmail() == null) {
+//			return "index";
+//		}
+//
+//		Condivisione condivisione = condivisioneDAO.getCondivisioneWithoutTrans((Long) session.getAttribute("cId"));
+//		Utente owner = utenteDAO.getUtenteWithoutTrans(condivisione.getOwnerId());
+//		session.setAttribute("cId", cId);
+//		
+//		String filePath = owner.getHome_dir() + "\\Polibox\\" + sharedDir;
+//		
+//		HashMap<Long,String> pending_sd_list = new HashMap<Long,String>();
+//		for (Condivisione c: condivisioneDAO.getCondivisioni(u.getId())) {
+//			String dirPath = c.getDirPath().substring(c.getDirPath().lastIndexOf("\\") + 1);
+//			if (c.getState() == 0)
+//				pending_sd_list.put(c.getId(), dirPath);
+//		}
+//		model.addAttribute("pending_sd_list", pending_sd_list);
+//		
+//		// aggiorna il path
+//		model.addAttribute("pathDir", filePath);
+//		model.addAttribute("pathUrl", sharedDir);
+//		
+//		return "homeCond";
+		session.setAttribute("cId", cId);
+		return "redirect:" + sharedDir;
 	}
 	
 	@RequestMapping(value = "/Home/**", method = RequestMethod.GET)
@@ -107,7 +110,8 @@ public class HomeController {
 		}
 		
 		Condivisione condivisione = condivisioneDAO.getCondivisioneWithoutTrans((Long) session.getAttribute("cId"));
-		Utente owner = utenteDAO.getUtente(condivisione.getOwnerId());
+		Utente owner = utenteDAO.getUtenteWithoutTrans(condivisione.getOwnerId());
+		session.setAttribute("condivisione", condivisione);
 		
 		String pattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);  
 		String path = new AntPathMatcher().extractPathWithinPattern(pattern, request.getServletPath());

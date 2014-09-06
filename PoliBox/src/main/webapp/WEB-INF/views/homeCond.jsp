@@ -1,3 +1,4 @@
+<%@page import="it.polito.ai.polibox.entity.Condivisione"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.text.DateFormat"%>
 <%@page import="java.util.Date"%>
@@ -11,7 +12,7 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Polibox cond</title>
+	<title>Polibox</title>
 	<link href="<c:url value='/resources/css/style.css' />" type="text/css" rel="stylesheet">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
@@ -84,9 +85,7 @@
 		<div id="msg">
 			
 		</div>
-		<% 
-		//out.print((Boolean) session.getAttribute("readOnly"));
-		if (!(Boolean) session.getAttribute("readOnly")) { %>
+		<% if (!((Condivisione) session.getAttribute("condivisione")).getReadOnly()) { %>
 		<p>
 			<a data-toggle="modal" href="#divFormFileModal">Carica un file</a><br>
 			<a data-toggle="modal" href="#divFormCartellaModal">Crea cartella</a>
@@ -118,7 +117,11 @@
 						file = new java.io.File(pathDir + "\\" + list[i]);
 				%>
 				<tr>
-					<td><a id=<% if (file.isFile()) out.print("file" + i); else out.print("directory" + i); %> class="filename_link" href="/ai/Home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+					<% if (!((Condivisione) session.getAttribute("condivisione")).getReadOnly()) { %>
+						<td><a id=<% if (file.isFile()) out.print("file" + i); else out.print("directory" + i); %> class="filename_link" href="/ai/Home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+					<% } else { %>
+						<td><a id=<% if (file.isFile()) out.print("file" + i); else out.print("directory" + i); %> class="filename_link not_editable" href="/ai/Home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+					<% } %>
 					<td><% if (file.isFile()) out.print("File"); else out.print("Cartella"); %></td>
 					<td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
 				</tr>

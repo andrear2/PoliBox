@@ -11,6 +11,7 @@ public interface UtenteDAO {
 	public Utente getUtente(String email, String password);
 	public Utente getUtente(String email);
 	public Utente getUtente(Long id);
+	public Utente getUtenteWithoutTrans(Long id);
 	public void updateUtente(Utente utente);
 	public void deleteUtente(Utente utente);
 

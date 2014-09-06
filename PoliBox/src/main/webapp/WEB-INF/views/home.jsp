@@ -98,10 +98,11 @@
 			<tbody>
 				<c:forEach var="dir" items="${sd_list}" varStatus="i">
 						<tr>
-							<td><form action="/ai/Home/${dir.value}" method="get">
+							<td><form action="/ai/Home/${dir.value}" method="post">
 									<input type="submit" class="filename_link link_button" value="${dir.value}" draggable="true">
-									<c:set var="cond" value="${dir.key}" />
-									<% session.setAttribute("cId", pageContext.getAttribute("cond")); %>
+									<input type="hidden" name="cId" value="${dir.key}" />
+<%-- 									<c:set var="cond" value="${dir.key}" /> --%>
+<%-- 									<% session.setAttribute("cId", pageContext.getAttribute("cond")); %> --%>
 								</form>
 							</td>
 							<td>Cartella condivisa</td>

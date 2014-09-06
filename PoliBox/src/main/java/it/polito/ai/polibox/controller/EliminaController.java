@@ -35,7 +35,7 @@ public class EliminaController {
 		if (cond == 1) {
 			// creazione in una cartella condivisa
 			Condivisione condivisione = condivisioneDAO.getCondivisioneWithoutTrans((Long) session.getAttribute("cId"));
-			Utente owner = utenteDAO.getUtente(condivisione.getOwnerId());
+			Utente owner = utenteDAO.getUtenteWithoutTrans(condivisione.getOwnerId());
 			pathDir = owner.getHome_dir();
 		} else {
 			pathDir = utente.getHome_dir();
