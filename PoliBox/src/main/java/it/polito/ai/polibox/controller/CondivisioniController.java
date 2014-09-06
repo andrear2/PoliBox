@@ -34,9 +34,9 @@ public class CondivisioniController {
 		for (Condivisione c: condivisioneDAO.getCondivisioni(utente.getId())) {
 			//String dirPath = c.getDirPath().substring(c.getDirPath().lastIndexOf("\\") + 1);
 			if (c.getState() == 1)
-				sd_list.put(c, utenteDAO.getUtente(c.getOwnerId()));
+				sd_list.put(c, utenteDAO.getUtenteWithoutTrans(c.getOwnerId()));
 			else if (c.getState() == 0)
-				pending_sd_list.put(c, utenteDAO.getUtente(c.getOwnerId()));
+				pending_sd_list.put(c, utenteDAO.getUtenteWithoutTrans(c.getOwnerId()));
 		}
 		model.addAttribute("sd_list", sd_list);
 		model.addAttribute("pending_sd_list", pending_sd_list);
