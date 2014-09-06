@@ -1,21 +1,15 @@
 package it.polito.ai.polibox.controller;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.PrintStream;
-import java.io.RandomAccessFile;
-import java.util.Date;
 
+import it.polito.ai.polibox.dao.CondivisioneDAO;
+import it.polito.ai.polibox.dao.UtenteDAO;
+import it.polito.ai.polibox.entity.Condivisione;
 import it.polito.ai.polibox.entity.Utente;
 
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,15 +18,28 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class CreaCartellaController {
+	@Autowired
+	CondivisioneDAO condivisioneDAO;
+	@Autowired
+	UtenteDAO utenteDAO;
+	
 	@RequestMapping(value = "/creaCartella", method = RequestMethod.POST)
-	public String creaCartellaSubmit(@RequestParam(value="nome") String nome, @RequestParam(value="pathCartella") String path, RedirectAttributes redirectAttrs, HttpSession session) {
+	public String creaCartellaSubmit(@RequestParam(value="nome") String nome, @RequestParam(value="pathCartella") String path, @RequestParam(value="cond") Integer cond, RedirectAttributes redirectAttrs, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
 		}
 		
 		String[] pathElements = path.split("/");
-		String pathDir = utente.getHome_dir();
+		String pathDir = new String();
+		if (cond == 1) {
+			// creazione in una cartella condivisa
+			Condivisione condivisione = condivisioneDAO.getCondivisioneWithoutTrans((Long) session.getAttribute("cId"));
+			Utente owner = utenteDAO.getUtente(condivisione.getOwnerId());
+			pathDir = owner.getHome_dir();
+		} else {
+			pathDir = utente.getHome_dir();
+		}
 		String pathUrl = new String();
 		for (int i=5; i<pathElements.length; i++) {
 			if (i==5) {
@@ -41,67 +48,20 @@ public class CreaCartellaController {
 				pathUrl += "\\" + pathElements[i];
 			}
 		}
-		pathDir += "\\" + pathUrl;
+		pathDir += "\\Polibox\\" + pathUrl;
 		File dir = new File(pathDir + "\\" + nome);
+		Log log = new Log(utente.getHome_dir());
 		if (!dir.isDirectory()) {
 			dir.mkdir();
 			//aggiorno il log file con l'azione appena compiuta
-			String logpath = utente.getHome_dir()+"\\log.txt";
-			try {
-				File file = new File(logpath);
-				long len = file.length();
-				FileReader fr = new FileReader(logpath);
-				LineNumberReader lnr = new LineNumberReader (fr);
-				lnr.skip(len);
-				int ln = lnr.getLineNumber()+1;
-				System.out.println(len+":"+lnr.getLineNumber());
-				lnr.close();
-			    long now = new Date().getTime();
-			    System.out.println(ln+":"+utente.getId()+":ND:"+dir.getName()+":WEB:"+now+"\n");
-			    RandomAccessFile logFile = new RandomAccessFile(logpath,"rw");
-    			FileOutputStream fos = new FileOutputStream(logFile.getFD());
-	    		PrintStream log = new PrintStream(fos);
-	    		logFile.seek(logFile.length());
-	    		log.println(ln+":"+utente.getId()+":ND:"+dir.getName()+":WEB:"+now);
-	    		log.close();
-	    		logFile.close();
-
-
-		    } catch (IOException e) {
-		    	// TODO Auto-generated catch block
-		    	e.printStackTrace();
-		    }
+			log.addLine(utente.getId(), "ND", path+"/"+nome, 0);
 		} else {
 			for (int i=1; ;i++) {
 				dir = new File(pathDir + "\\" + nome + "(" + i + ")");
 				if (!dir.isDirectory()) {
 					dir.mkdir();
 					//aggiorno il log file con l'azione appena compiuta
-					String logpath = utente.getHome_dir()+"\\log.txt";
-					try {
-						File file = new File(logpath);
-						long len = file.length();
-						FileReader fr = new FileReader(logpath);
-						LineNumberReader lnr = new LineNumberReader (fr);
-						lnr.skip(len);
-						int ln = lnr.getLineNumber()+1;
-						System.out.println(len+":"+lnr.getLineNumber());
-						lnr.close();
-					    long now = new Date().getTime();
-					    System.out.println(ln+":"+utente.getId()+":ND:"+dir.getName()+":WEB:"+now+"\n");
-					    RandomAccessFile logFile = new RandomAccessFile(logpath,"rw");
-		    			FileOutputStream fos = new FileOutputStream(logFile.getFD());
-			    		PrintStream log = new PrintStream(fos);
-			    		logFile.seek(logFile.length());
-			    		log.println(ln+":"+utente.getId()+":ND:"+dir.getName()+":WEB:"+now);
-			    		log.close();
-			    		logFile.close();
-
-
-				    } catch (IOException e) {
-				    	// TODO Auto-generated catch block
-				    	e.printStackTrace();
-				    }
+					log.addLine(utente.getId(), "ND", path+"/"+nome, 0);
 					
 					break;
 				}
@@ -115,6 +75,10 @@ public class CreaCartellaController {
 		if (pathUrl.isEmpty()) {
 			return "redirect:home";
 		}
-		return "redirect:home/" + pathUrl;
+		if (cond == 1) {
+			return "redirect:Home/" + pathUrl.replace("\\", "/");
+		} else {
+			return "redirect:home/" + pathUrl.replace("\\", "/");
+		}
 	}
 }

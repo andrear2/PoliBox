@@ -77,4 +77,17 @@ public class CondivisioneDAOImpl implements CondivisioneDAO {
 		return null;
 	}
 
+	@Override
+	public Condivisione getCondivisioneWithoutTrans(Long id) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		Query query = session.createQuery("from Condivisione where id = :id");
+		query.setLong("id", id);
+		List<Condivisione> condivisioni = new ArrayList<Condivisione>();
+		condivisioni = query.list();
+		if (condivisioni.size() > 0) {
+			return condivisioni.get(0);
+		}
+		return null;
+	}
+
 }

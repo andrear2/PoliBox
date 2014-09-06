@@ -54,8 +54,8 @@
 	            <li>${utente.nome} ${utente.cognome}</li>
 	            <li>${utente.email}</li>
 	            <li class="divider"></li>
-	            <li><a href="account">Profilo</a></li>
-	            <li><a href="logout">Logout</a></li>
+	            <li><a href="/ai/account">Profilo</a></li>
+	            <li><a href="/ai/logout">Logout</a></li>
 	          </ul>
 	        </li>
 	      </ul>
@@ -100,7 +100,8 @@
 				<tr>
 					<td><%out.print(sub[2]); %></td>
 					<td><a href="/ai/home/<%  out.print(sub[3] + "/"); %>"><%= sub[3] %></a></td>
-					<td><%out.print(dateFormat.format(new Date(Long.parseLong(sub[5])*1000))); %></td>
+					<td><%out.print(dateFormat.format(new Date(Long.parseLong(sub[5])))); %></td>
+<%-- 					<td><%out.print(dateFormat.format(new Date(Long.parseLong(sub[5])*1000))); %></td> --%>
 				</tr>
 				<%
 				}

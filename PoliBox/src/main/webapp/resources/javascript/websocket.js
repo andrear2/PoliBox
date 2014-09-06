@@ -46,8 +46,17 @@ function forwardForm() {
 	usersList = document.getElementById("usersList").value;
 	message = document.getElementById("message").value;
 	
+	if (usersList == "") {
+		alert("Devi inserire almeno un indirizzo email");
+		return false;
+	}
+	
 	path = document.getElementById("path").value;
 	nomefile = document.getElementById("nomefile").value;
+	
+	if (message == "") {
+		message = "Sei stato invitato alla cartella condivisa " + nomefile;
+	}
 	
 	if(socket != null && socket.readyState === WebSocket.OPEN){
 //		var msg = "allowInvit: " + allowInvitations + "; allowChanges: " + allowChanges + "; usersList: " + usersList + "; message: " + message + "; path: " + path + "; nomefile: " + nomefile;     
@@ -66,6 +75,7 @@ function accept_cond () {
 		socket.send(msg);
 		console.log("Ho inviato: " + msg);
 		document.getElementById("msg").innerHTML="";
+		location.reload(true);
 	}
 }
 
@@ -76,15 +86,36 @@ function refuse_cond () {
 		socket.send(msg);
 		console.log("Ho inviato: " + msg);
 		document.getElementById("msg").innerHTML="";
-		//TODO:fare in modo che si aggiorni la tabella dopo aver accettato
+		location.reload(true);
 	}
 }
 
+function accept_cond2 () {
+	var c_id = document.getElementById("c_id").textContent;
+	if(socket != null && socket.readyState === WebSocket.OPEN){
+		var msg = "ACC; c_id: "+c_id;
+		socket.send(msg);
+		console.log("Ho inviato: " + msg);
+		location.reload(true);
+	}
+}
 
+function refuse_cond2 () {
+	var c_id = document.getElementById("c_id").textContent;
+	if(socket != null && socket.readyState === WebSocket.OPEN){
+		var msg = "REF; c_id: "+c_id;
+		socket.send(msg);
+		console.log("Ho inviato: " + msg);
+		location.reload(true);
+	}
+}
 
-
-
-
-
-
-
+function refuse_cond3 () {
+	var c_id = document.getElementById("c_id").textContent;
+	if(socket != null && socket.readyState === WebSocket.OPEN){
+		var msg = "REF; c_id: "+c_id;
+		socket.send(msg);
+		console.log("Ho inviato: " + msg);
+		location.reload(true);
+	}
+}

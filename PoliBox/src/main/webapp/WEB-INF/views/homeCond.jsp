@@ -1,4 +1,3 @@
-<%@page import="it.polito.ai.polibox.entity.Condivisione"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.text.DateFormat"%>
 <%@page import="java.util.Date"%>
@@ -12,7 +11,7 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Polibox</title>
+	<title>Polibox cond</title>
 	<link href="<c:url value='/resources/css/style.css' />" type="text/css" rel="stylesheet">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
@@ -66,7 +65,11 @@
 				String pathUrlBreadcrumb = new String();
 				for (int i=2; i<pathElementsBreadcrumb.length-1; i++) {
 					pathUrlBreadcrumb += "/" + pathElementsBreadcrumb[i];
-					out.print("<li><a href='/ai" + pathUrlBreadcrumb + "'>" + pathElementsBreadcrumb[i] + "</a></li>");
+					if (pathElementsBreadcrumb[i].equals("Home")) {
+						out.print("<li><a href='/ai/home'>home</a></li>");
+					} else {
+						out.print("<li><a href='/ai" + pathUrlBreadcrumb + "'>" + pathElementsBreadcrumb[i] + "</a></li>");
+					}
 				}
 				out.print("<li class='active'>" + pathElementsBreadcrumb[pathElementsBreadcrumb.length-1] + "</li>");
 			}
@@ -81,11 +84,14 @@
 		<div id="msg">
 			
 		</div>
-		
+		<% 
+		//out.print((Boolean) session.getAttribute("readOnly"));
+		if (!(Boolean) session.getAttribute("readOnly")) { %>
 		<p>
 			<a data-toggle="modal" href="#divFormFileModal">Carica un file</a><br>
 			<a data-toggle="modal" href="#divFormCartellaModal">Crea cartella</a>
 		</p>
+		<% } %>
 		
 		<table class="sortable table-striped table-hover" id="list">
 			<thead>
@@ -96,24 +102,12 @@
 				</tr>
 			</thead>
 			<tbody>
-				<c:forEach var="dir" items="${sd_list}" varStatus="i">
-						<tr>
-							<td><form action="/ai/Home/${dir.value}" method="get">
-									<input type="submit" class="filename_link link_button" value="${dir.value}" draggable="true">
-									<c:set var="cond" value="${dir.key}" />
-									<% session.setAttribute("cId", pageContext.getAttribute("cond")); %>
-								</form>
-							</td>
-							<td>Cartella condivisa</td>
-							<td></td>
-						</tr>
-				</c:forEach>
 				<%
 				Utente utente = (Utente) request.getAttribute("utente");
 				String pathDir = (String) request.getAttribute("pathDir");
 				String pathUrl = (String) request.getAttribute("pathUrl");
 				if (pathDir == null) {
-					pathDir = utente.getHome_dir()+"\\Polibox";
+					pathDir = utente.getHome_dir();
 				}
 				DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 				java.io.File file;
@@ -124,7 +118,7 @@
 						file = new java.io.File(pathDir + "\\" + list[i]);
 				%>
 				<tr>
-					<td><a id=<% if (file.isFile()) out.print("file" + i); else out.print("directory" + i); %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+					<td><a id=<% if (file.isFile()) out.print("file" + i); else out.print("directory" + i); %> class="filename_link" href="/ai/Home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
 					<td><% if (file.isFile()) out.print("File"); else out.print("Cartella"); %></td>
 					<td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
 				</tr>
@@ -145,7 +139,7 @@
 					    <h2 id="modalCartellaLabel">Crea cartella</h2>
 					</div>
 					<div class="modal-body">
-						<form id="formCartellaModal" data-toggle="validator" action="/ai/creaCartella?cond=0" method="post">
+						<form id="formCartellaModal" data-toggle="validator" action="/ai/creaCartella?cond=1" method="post">
 							<div class="row">
 								<div class="form-group col-lg-9">
 									<label for="nome" class="control-label">Nome</label>
@@ -172,7 +166,7 @@
 					    <h2 id="modalFileLabel">Carica file</h2>
 					</div>
 					<div class="modal-body">
-						<form id="formFileModal" data-toggle="validator" action="/ai/fileUpload?cond=0" method="post" enctype="multipart/form-data" role="form">
+						<form id="formFileModal" data-toggle="validator" action="/ai/fileUpload?cond=1" method="post" enctype="multipart/form-data" role="form">
 							<div class="row">
 								<div class="form-group col-lg-12">
 									<label for="files" class="control-label">File</label>
@@ -199,7 +193,7 @@
 					    <h2 id="modalCartellaLabel">Eliminare il file/la cartella?</h2>
 					</div>
 					<div class="modal-body">
-						<form data-toggle="validator" action="/ai/elimina?cond=0" method="post">
+						<form data-toggle="validator" action="/ai/elimina?cond=1" method="post">
 							<div class="row">
 								<div class="form-group col-lg-9">
 									Eliminare il file/la cartella <b id="fileDeleted"></b> selezionato/a? 

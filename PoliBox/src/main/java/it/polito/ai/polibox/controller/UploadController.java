@@ -7,8 +7,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
+import it.polito.ai.polibox.dao.CondivisioneDAO;
+import it.polito.ai.polibox.dao.UtenteDAO;
+import it.polito.ai.polibox.entity.Condivisione;
 import it.polito.ai.polibox.entity.Utente;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,8 +22,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class UploadController {
+	@Autowired
+	CondivisioneDAO condivisioneDAO;
+	@Autowired
+	UtenteDAO utenteDAO;
+	
 	@RequestMapping(value = "/fileUpload", method = RequestMethod.POST)
-	public String fileUploadSubmit(@RequestParam(value="files") List<MultipartFile> uploadedFiles, @RequestParam(value="pathFile") String path, RedirectAttributes redirectAttrs, HttpSession session) {
+	public String fileUploadSubmit(@RequestParam(value="files") List<MultipartFile> uploadedFiles, @RequestParam(value="pathFile") String path, @RequestParam(value="cond") Integer cond, RedirectAttributes redirectAttrs, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
@@ -27,7 +36,15 @@ public class UploadController {
 		
 		System.out.println(path);
 		String[] pathElements = path.split("/");
-		String pathDir = utente.getHome_dir();
+		String pathDir = new String();
+		if (cond == 1) {
+			// creazione in una cartella condivisa
+			Condivisione condivisione = condivisioneDAO.getCondivisioneWithoutTrans((Long) session.getAttribute("cId"));
+			Utente owner = utenteDAO.getUtente(condivisione.getOwnerId());
+			pathDir = owner.getHome_dir();
+		} else {
+			pathDir = utente.getHome_dir();
+		}
 		String pathUrl = new String();
 		for (int i=5; i<pathElements.length; i++) {
 			if (i==5) {
@@ -36,7 +53,7 @@ public class UploadController {
 				pathUrl += "\\" + pathElements[i];
 			}
 		}
-		pathDir += "\\" + pathUrl;
+		pathDir += "\\Polibox\\" + pathUrl;
 		List<String> fileNames = new ArrayList<String>();
 		  
 		if (uploadedFiles == null || uploadedFiles.size() == 0 || uploadedFiles.get(0).getOriginalFilename() == "") {
@@ -47,15 +64,21 @@ public class UploadController {
 			if (pathUrl.isEmpty()) {
 				return "redirect:home";
 			}
-			return "redirect:home/" + pathUrl;
+			if (cond == 1) {
+				return "redirect:Home/" + pathUrl.replace("\\", "/");
+			} else {
+				return "redirect:home/" + pathUrl.replace("\\", "/");
+			}
 		}
 		
+		Log log = new Log(utente.getHome_dir());
 		for (MultipartFile file: uploadedFiles) {
 			String fileName = file.getOriginalFilename();
 			fileNames.add(fileName);
 			File dest = new File(pathDir + "\\" + fileName);
 			try {
 				file.transferTo(dest);
+				log.addLine(utente.getId(), "NF", path+"/"+fileName, 0);
 			} catch (IllegalStateException ise) {
 				ise.printStackTrace();
 				redirectAttrs.addFlashAttribute("utente", utente);
@@ -65,7 +88,11 @@ public class UploadController {
 				if (pathUrl.isEmpty()) {
 					return "redirect:home";
 				}
-				return "redirect:home/" + pathUrl;
+				if (cond == 1) {
+					return "redirect:Home/" + pathUrl.replace("\\", "/");
+				} else {
+					return "redirect:home/" + pathUrl.replace("\\", "/");
+				}
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 				redirectAttrs.addFlashAttribute("utente", utente);
@@ -75,7 +102,11 @@ public class UploadController {
 				if (pathUrl.isEmpty()) {
 					return "redirect:home";
 				}
-				return "redirect:home/" + pathUrl;
+				if (cond == 1) {
+					return "redirect:Home/" + pathUrl.replace("\\", "/");
+				} else {
+					return "redirect:home/" + pathUrl.replace("\\", "/");
+				}
 			}
 		}
 		String msg = new String();
@@ -95,6 +126,10 @@ public class UploadController {
 		if (pathUrl.isEmpty()) {
 			return "redirect:home";
 		}
-		return "redirect:home/" + pathUrl;
+		if (cond == 1) {
+			return "redirect:Home/" + pathUrl.replace("\\", "/");
+		} else {
+			return "redirect:home/" + pathUrl.replace("\\", "/");
+		}
 	}
 }

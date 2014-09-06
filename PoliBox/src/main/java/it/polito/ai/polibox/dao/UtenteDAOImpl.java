@@ -48,10 +48,12 @@ public class UtenteDAOImpl implements UtenteDAO {
 	@Override
 	public Utente getUtente(Long id) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		Transaction tx = (Transaction) session.beginTransaction();
 		Query query = session.createQuery("from Utente where id = :id");
 		query.setLong("id", id);
 		List<Utente> utenti = new ArrayList<Utente>();
 		utenti = query.list();
+		tx.commit();
 		if (utenti.size() > 0) {
 			return utenti.get(0);
 		}

@@ -13,7 +13,7 @@
 	<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.min.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<script type="text/javascript">
-	$().ready(function() {
+	$(document).ready(function() {
 		$("#formEmailModal").validate({
 			rules: {
 				email: {
@@ -97,8 +97,8 @@
 	            <li>${utente.nome} ${utente.cognome}</li>
 	            <li>${utente.email}</li>
 	            <li class="divider"></li>
-	            <li><a href="account">Profilo</a></li>
-	            <li><a href="logout">Logout</a></li>
+	            <li><a href="/ai/account">Profilo</a></li>
+	            <li><a href="/ai/logout">Logout</a></li>
 	          </ul>
 	        </li>
 	      </ul>
@@ -201,7 +201,6 @@
 			<p>
 				Password
 				<a data-toggle="modal" href="#divFormPasswordModal">Modifica password</a>
-				<a href="passwordDimenticata">Password dimenticata?</a>
 			</p>
 			
 			<!-- Modal form per la modifica della password -->

@@ -5,7 +5,7 @@ $(document).ready(function() {
 	    	"order": [[0, "asc"]],
 	    	"language": {
 	    		"search": "Cerca:",
-	    		"zeroRecords": "Questa cartella Ã¨ vuota"
+	    		"zeroRecords": "Questa cartella è vuota"
 	    	}
 	    });
 	    
@@ -16,7 +16,7 @@ $(document).ready(function() {
 			menu[0] = ["Opzioni cartella condivisa", "#"];
 			menu[1] = ["Invita alla cartella", "#divFormCondividi"];
 			menu[2] = ["Condividi link", "#"];
-			menu[3] = ["Scarica", "http://localhost:8080/ai/" + $a.attr('href')];
+			menu[3] = ["Scarica", "http://localhost:8080" + $a.attr('href')];
 			menu[4] = ["Elimina", "#divFormElimina"];
 			menu[5] = ["Rinomina", "#"];
 			menu[6] = ["Sposta", "#"];

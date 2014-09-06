@@ -5,7 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 
+import it.polito.ai.polibox.dao.CondivisioneDAO;
+import it.polito.ai.polibox.entity.Condivisione;
 import it.polito.ai.polibox.entity.Utente;
 
 import javax.servlet.ServletContext;
@@ -28,6 +31,8 @@ import org.springframework.web.servlet.HandlerMapping;
 public class DownloadController {
 	@Autowired
 	ServletContext servletContext;
+	@Autowired
+	CondivisioneDAO condivisioneDAO;
 	
 	@RequestMapping(value = "/home/**", method = RequestMethod.GET)
 	public String getFile(Model model, HttpSession session, HttpServletRequest request, HttpServletResponse response) {
@@ -38,7 +43,7 @@ public class DownloadController {
 		
 		String pattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);  
 		String path = new AntPathMatcher().extractPathWithinPattern(pattern, request.getServletPath());
-		String filePath = utente.getHome_dir() + "\\" + path.replace("/", "\\");
+		String filePath = utente.getHome_dir() + "\\Polibox\\" + path.replace("/", "\\");
 		File file = new File(filePath);
 		
 		if (file.isFile()) {
@@ -93,6 +98,14 @@ public class DownloadController {
 			}
 			return null;
 		}
+		
+		HashMap<Long,String> pending_sd_list = new HashMap<Long,String>();
+		for (Condivisione c: condivisioneDAO.getCondivisioni(utente.getId())) {
+			String dirPath = c.getDirPath().substring(c.getDirPath().lastIndexOf("\\") + 1);
+			if (c.getState() == 0)
+				pending_sd_list.put(c.getId(), dirPath);
+		}
+		model.addAttribute("pending_sd_list", pending_sd_list);
 		
 		// aggiorna il path
 		model.addAttribute("pathDir", filePath);

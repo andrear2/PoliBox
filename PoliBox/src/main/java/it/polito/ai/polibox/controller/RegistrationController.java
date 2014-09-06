@@ -1,6 +1,7 @@
 package it.polito.ai.polibox.controller;
 
 import java.io.File;
+import java.io.IOException;
 
 import it.polito.ai.polibox.dao.UtenteDAO;
 import it.polito.ai.polibox.entity.Utente;
@@ -43,6 +44,17 @@ public class RegistrationController {
 		String homePath = "C:\\Polibox uploaded files\\" + utente.getId() + "_" + utente.getCognome() + "_" + utente.getNome();
 		File homeDir = new File(homePath);
 		homeDir.mkdir();
+		homeDir = new File(homePath+"\\Polibox");
+		homeDir.mkdir();
+		File logFile = new File(homePath+"\\log.txt");
+		Log log = new Log(utente.getHome_dir());
+		log.addLine(utente.getId(), "RU", "", 0);
+		try {
+			logFile.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		utente.setHome_dir(homePath);
 		utenteDAO.updateUtente(utente);
 		model.addAttribute("utente", utente);
