@@ -54,7 +54,7 @@
 	
 	<div class="col-xs-3">
 		<h2>Ciao ${utente.nome}!</h2>
-		<a href="/ai/condivisioni">Condivisioni <c:if test="${fn:length(pending_sd_list) > 0}">(${fn:length(pending_sd_list)})</c:if></a>
+		<a href="/ai/condivisioni">Condivisioni <c:if test="${fn:length(pending_sd_list) > 0}">(${fn:length(pending_sd_list)})</c:if></a><br>
 		<a href="/ai/events">Eventi</a>
 	</div>
 	<div class="col-xs-9">

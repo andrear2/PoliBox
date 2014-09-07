@@ -56,7 +56,7 @@
 	
 	<div class="col-xs-3">
 		<h2>Ciao ${utente.nome}!</h2>
-		<a href="/ai/condivisioni">Condivisioni <c:if test="${fn:length(pending_sd_list) > 0}">(${fn:length(pending_sd_list)})</c:if></a>
+		<a href="/ai/condivisioni">Condivisioni <c:if test="${fn:length(pending_sd_list) > 0}">(${fn:length(pending_sd_list)})</c:if></a><br>
 		<a href="/ai/events">Eventi</a>
 	</div>
 	<div class="col-xs-9">
@@ -69,7 +69,7 @@
 				String pathUrlBreadcrumb = new String();
 				for (int i=2; i<pathElementsBreadcrumb.length-1; i++) {
 					pathUrlBreadcrumb += "/" + pathElementsBreadcrumb[i];
-					out.print("<li><a href='/ai" + pathUrlBreadcrumb + "'>" + pathElementsBreadcrumb[i] + "</a></li>");
+					out.print("<li class='droppable'><a href='/ai" + pathUrlBreadcrumb + "'>" + pathElementsBreadcrumb[i] + "</a></li>");
 				}
 				out.print("<li class='active'>" + pathElementsBreadcrumb[pathElementsBreadcrumb.length-1] + "</li>");
 			}
@@ -96,7 +96,6 @@
 					<th>Nome</th>
 					<th>Tipo</th>
 					<th>Ultima modifica</th>
-					<th class="hidden"></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -111,7 +110,6 @@
 							</td>
 							<td>Cartella condivisa</td>
 							<td></td>
-							<td class="hidden"></td>
 						</tr>
 				</c:forEach>
 				<%
@@ -134,7 +132,6 @@
 					<td><a id=<% if (file.isFile()) out.print("file" + i); else out.print("directory" + i); %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
 					<td><% if (file.isFile()) out.print("File"); else if (owner_sd_list.contains(file.getAbsolutePath())) out.print("Cartella condivisa"); else out.print("Cartella"); %></td>
 					<td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
-					<td class="hidden"></td>
 				</tr>
 				
 				<%

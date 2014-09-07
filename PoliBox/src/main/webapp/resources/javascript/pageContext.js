@@ -91,13 +91,13 @@ $(document).ready(function() {
 	
 	$(".draggable").draggable({
 		revert: "invalid",
-		containment: "parent",
 		helper: "clone",
 	    cursor: "move"
 	});
 	$(".droppable").droppable({
+		activeClass: "ui-state-default",
+        hoverClass: "ui-drop-hover",
 		drop: function( event, ui ) {
-			//alert(ui.draggable.find("a").attr("id"));
 			document.location.href = "/ai/sposta?cond=0&path=" + ui.draggable.find("a").attr("href") + "&newPath=" + $(this).find("a").attr("href");
 		}
 	});
