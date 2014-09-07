@@ -18,7 +18,7 @@ $(document).ready(function() {
 			menu[2] = ["Condividi link", "#"];
 			menu[3] = ["Scarica", "http://localhost:8080" + $a.attr('href')];
 			menu[4] = ["Elimina", "#divFormElimina"];
-			menu[5] = ["Rinomina", "#"];
+			menu[5] = ["Rinomina", "#divFormRinomina"];
 			menu[6] = ["Sposta", "#"];
 			menu[7] = ["Copia", "#"];
 			menu[8] = ["Crea album", "#"];
@@ -49,9 +49,12 @@ $(document).ready(function() {
 		    var contextMenu = $a.next();
 		    
 		    document.getElementById("nomefile").value = $a.html();
+		    document.getElementById("nomefile2").value = $a.html();
+		    document.getElementById("newName").value = $a.html();
 			document.getElementById("fileDeleted").innerHTML = $a.html();
 			document.getElementById("fileSelected").innerHTML = $a.html();
 			document.getElementById("path").value = document.URL;
+			document.getElementById("path2").value = document.URL;
 
 		    
 		    $(this).parent().find('.context-menu').each( function() {

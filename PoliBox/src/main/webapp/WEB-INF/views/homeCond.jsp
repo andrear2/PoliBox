@@ -212,6 +212,32 @@
 			</div>
 		</div>
 		
+		<!-- Modal form per la rinomina di un file o una directory -->
+		<div class="modal fade" id="divFormRinomina" tabindex="-1" role="dialog" aria-labelledby="modalCartellaLabel" aria-hidden="true">
+			<div class="modal-dialog modal-sm">
+	   			<div class="modal-content">
+					<div class="modal-header">
+					    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					    <h2 id="modalCartellaLabel">Rinomina file/cartella</h2>
+					</div>
+					<div class="modal-body">
+						<form data-toggle="validator" action="/ai/rinomina?cond=1" method="post">
+							<div class="row">
+								<div class="form-group col-lg-12">
+									<label for="newName" class="control-label">Rinomina in</label>
+									<input name="newName" id="newName" type="text" required="true" />
+								</div>
+							</div>
+							<input type="hidden" name="path" id="path2" />
+							<input type="hidden" name="nomefile" id="nomefile2" />
+							<input class="btn btn-primary" type="submit" value="Rinomina" />
+							<button class="btn btn-primary" type="button" aria-hidden="true" data-dismiss="modal">Annulla</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
 		<!-- Modal form per la condivisione di una direcotry -->
 		<div class="modal fade" id="divFormCondividi" tabindex="-1" role="dialog" aria-labelledby="modalCartellaLabel" aria-hidden="true">
 			<div class="modal-dialog modal-md">
