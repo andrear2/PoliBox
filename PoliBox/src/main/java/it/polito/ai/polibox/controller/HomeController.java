@@ -115,7 +115,17 @@ public class HomeController {
 		
 		String pattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);  
 		String path = new AntPathMatcher().extractPathWithinPattern(pattern, request.getServletPath());
-		String filePath = owner.getHome_dir() + "\\Polibox\\" + path.replace("/", "\\");
+		
+		String[] pp = path.split("/");
+		String p = new String();
+		for (int i=1;i<pp.length;i++) {
+			if (i==1)
+				p+= pp[i];
+			else
+				p += "\\"+pp[i];
+		}
+		String filePath = condivisione.getDirPath()+ "\\"+p;
+		System.out.println(condivisione.getDirPath()+ p+"----------------path:"+path);
 		File file = new File(filePath);
 		
 		if (file.isFile()) {

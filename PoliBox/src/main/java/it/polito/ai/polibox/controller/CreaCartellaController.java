@@ -32,29 +32,53 @@ public class CreaCartellaController {
 		
 		String[] pathElements = path.split("/");
 		String pathDir = new String();
+		Utente owner = new Utente();
+		Condivisione condivisione = new Condivisione ();
+		String pathUrl = new String();
+		String pathLog = new String();
+		String condName = new String();
 		if (cond == 1) {
 			// creazione in una cartella condivisa
-			Condivisione condivisione = condivisioneDAO.getCondivisioneWithoutTrans((Long) session.getAttribute("cId"));
-			Utente owner = utenteDAO.getUtenteWithoutTrans(condivisione.getOwnerId());
-			pathDir = owner.getHome_dir();
+			condivisione = condivisioneDAO.getCondivisioneWithoutTrans((Long) session.getAttribute("cId"));
+			owner = utenteDAO.getUtenteWithoutTrans(condivisione.getOwnerId());
+			pathDir = condivisione.getDirPath();
+			condName = pathElements[5];
+			for (int i=6; i<pathElements.length; i++) {
+				pathUrl += "\\" + pathElements[i];
+				pathLog += "/"+pathElements[i];
+			}
+			pathDir += pathUrl;
 		} else {
 			pathDir = utente.getHome_dir();
-		}
-		String pathUrl = new String();
-		for (int i=5; i<pathElements.length; i++) {
-			if (i==5) {
-				pathUrl += pathElements[i];
-			} else {
-				pathUrl += "\\" + pathElements[i];
+			for (int i=5; i<pathElements.length; i++) {
+				if (i==5) {
+					pathUrl += pathElements[i];
+				} else {
+					pathUrl += "\\" + pathElements[i];
+				}
 			}
+			pathDir += "\\Polibox\\" + pathUrl;
 		}
-		pathDir += "\\Polibox\\" + pathUrl;
+		System.out.println(pathDir + "\\" + nome);
 		File dir = new File(pathDir + "\\" + nome);
 		Log log = new Log(utente.getHome_dir());
 		if (!dir.isDirectory()) {
 			dir.mkdir();
 			//aggiorno il log file con l'azione appena compiuta
-			log.addLine(utente.getId(), "ND", path+"/"+nome, 0);
+			if (cond == 1) {
+				Log owner_log = new Log(owner.getHome_dir());
+				String[] p = condivisione.getDirPath().split("\\\\");
+				int flag=0;
+				String pp = new String("http://localhost:8080/ai/home");
+				for (int i=0;i<p.length;i++) {
+					if (flag==1) pp += "/"+p[i];
+					if (p[i].equals("Polibox")) flag=1;
+				}
+				log.addLine(utente.getId(), "ND","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, owner.getId());
+				owner_log.addLine(owner.getId(), "ND",pp+pathLog+"/"+nome , 0, utente.getId());
+				
+			} else
+				log.addLine(utente.getId(), "ND", path+"/"+nome, 0);
 		} else {
 			for (int i=1; ;i++) {
 				dir = new File(pathDir + "\\" + nome + "(" + i + ")");
@@ -76,7 +100,7 @@ public class CreaCartellaController {
 			return "redirect:home";
 		}
 		if (cond == 1) {
-			return "redirect:Home/" + pathUrl.replace("\\", "/");
+			return "redirect:Home/" + condName +pathLog;
 		} else {
 			return "redirect:home/" + pathUrl.replace("\\", "/");
 		}
