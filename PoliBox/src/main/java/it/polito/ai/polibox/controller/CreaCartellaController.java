@@ -96,7 +96,7 @@ public class CreaCartellaController {
 		redirectAttrs.addFlashAttribute("msgBool", true);
 		redirectAttrs.addFlashAttribute("msg", "Cartella \"" + dir.getName() + "\" creata con successo");
 		redirectAttrs.addFlashAttribute("msgClass", "success");
-		if (pathUrl.isEmpty()) {
+		if (pathUrl.isEmpty() && cond != 1) {
 			return "redirect:home";
 		}
 		if (cond == 1) {
