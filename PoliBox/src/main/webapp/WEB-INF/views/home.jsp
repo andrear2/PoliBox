@@ -19,6 +19,7 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
 	<link rel="stylesheet" href="//cdn.datatables.net/1.10.0/css/jquery.dataTables.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
 	<script src="//cdn.datatables.net/1.10.0/js/jquery.dataTables.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="<c:url value='/resources/javascript/pageContext.js' />" ></script>
@@ -56,6 +57,7 @@
 	<div class="col-xs-3">
 		<h2>Ciao ${utente.nome}!</h2>
 		<a href="/ai/condivisioni">Condivisioni <c:if test="${fn:length(pending_sd_list) > 0}">(${fn:length(pending_sd_list)})</c:if></a>
+		<a href="/ai/events">Eventi</a>
 	</div>
 	<div class="col-xs-9">
 		<!-- Breadcrumbs -->
@@ -94,6 +96,7 @@
 					<th>Nome</th>
 					<th>Tipo</th>
 					<th>Ultima modifica</th>
+					<th class="hidden"></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -108,6 +111,7 @@
 							</td>
 							<td>Cartella condivisa</td>
 							<td></td>
+							<td class="hidden"></td>
 						</tr>
 				</c:forEach>
 				<%
@@ -126,10 +130,11 @@
 					for (int i=0; i<list.length; i++) {
 						file = new java.io.File(pathDir + "\\" + list[i]);
 				%>
-				<tr>
+				<tr class="draggable <% if (!file.isFile()) out.print("droppable"); %>">
 					<td><a id=<% if (file.isFile()) out.print("file" + i); else out.print("directory" + i); %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
 					<td><% if (file.isFile()) out.print("File"); else if (owner_sd_list.contains(file.getAbsolutePath())) out.print("Cartella condivisa"); else out.print("Cartella"); %></td>
 					<td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
+					<td class="hidden"></td>
 				</tr>
 				
 				<%
