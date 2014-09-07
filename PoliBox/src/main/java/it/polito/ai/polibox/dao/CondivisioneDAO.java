@@ -7,6 +7,7 @@ import java.util.List;
 public interface CondivisioneDAO {
 
 	public void addCondivisione(Condivisione condivisione);
+	public List<Condivisione> getCondivisioniOwner(Long id);
 	public List<Condivisione> getCondivisioni(Long id);
 	public Condivisione getCondivisione(Long id);
 	public Condivisione getCondivisioneWithoutTrans(Long id);

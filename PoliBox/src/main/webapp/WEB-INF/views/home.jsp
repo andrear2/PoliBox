@@ -1,3 +1,4 @@
+<%@page import="java.util.ArrayList"%>
 <%@page import="it.polito.ai.polibox.entity.Condivisione"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.text.DateFormat"%>
@@ -60,7 +61,7 @@
 		<!-- Breadcrumbs -->
 		<ol class="breadcrumb">
 			<%
-			String pathBreadcrumb = (String) request.getAttribute("javax.servlet.forward.request_uri");
+			String pathBreadcrumb = ((String) request.getAttribute("javax.servlet.forward.request_uri")).replace("%20", " ");
 			if (pathBreadcrumb != null) {
 				String[] pathElementsBreadcrumb = pathBreadcrumb.split("/");
 				String pathUrlBreadcrumb = new String();
@@ -113,6 +114,7 @@
 				Utente utente = (Utente) request.getAttribute("utente");
 				String pathDir = (String) request.getAttribute("pathDir");
 				String pathUrl = (String) request.getAttribute("pathUrl");
+				ArrayList<String> owner_sd_list = (ArrayList<String>) request.getAttribute("owner_sd_list");
 				if (pathDir == null) {
 					pathDir = utente.getHome_dir()+"\\Polibox";
 				}
@@ -126,7 +128,7 @@
 				%>
 				<tr>
 					<td><a id=<% if (file.isFile()) out.print("file" + i); else out.print("directory" + i); %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
-					<td><% if (file.isFile()) out.print("File"); else out.print("Cartella"); %></td>
+					<td><% if (file.isFile()) out.print("File"); else if (owner_sd_list.contains(file.getAbsolutePath())) out.print("Cartella condivisa"); else out.print("Cartella"); %></td>
 					<td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
 				</tr>
 				

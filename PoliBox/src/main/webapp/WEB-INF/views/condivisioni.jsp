@@ -61,6 +61,13 @@
 				<button class='btn btn-danger' onclick='refuse_cond2()'>Rifiuta</button>
 			</div>
 		</c:forEach>
+		<c:forEach var="dir" items="${pending_owner_sd_list}">
+			<div>
+				<c:set var="splitDirPath" value="${fn:split(dir.key.dirPath, '\\\\')}"/>
+				<c:set var="dirPath" value="${splitDirPath[fn:length(splitDirPath)-1]}"/>
+				<p>La condivisione della cartella <b>${dirPath}</b> con <i>${dir.value.nome} ${dir.value.cognome}</i> è in attesa di essere accettata</p>
+			</div>
+		</c:forEach>
 		
 		<hr>
 		
@@ -71,7 +78,14 @@
 				<c:set var="dirPath" value="${splitDirPath[fn:length(splitDirPath)-1]}"/>
 				<p>La cartella <b>${dirPath}</b> è condivisa con <i>${dir.value.nome} ${dir.value.cognome}</i></p>
 				<div style='display:none;' id='c_id' name='c_id'>${dir.key.id}</div>
-				<button class='btn btn-danger' onclick='refuse_cond3()'>Rimuovi condivisione</button>
+				<button class='btn btn-danger' onclick='refuse_cond3("${dir.key.id}")'>Rimuovi condivisione</button>
+			</div>
+		</c:forEach>
+		<c:forEach var="dir" items="${owner_sd_list}">
+			<div>
+				<c:set var="splitDirPath" value="${fn:split(dir.key.dirPath, '\\\\')}"/>
+				<c:set var="dirPath" value="${splitDirPath[fn:length(splitDirPath)-1]}"/>
+				<p>Sei il proprietario della cartella <b>${dirPath}</b> condivisa con <i>${dir.value.nome} ${dir.value.cognome}</i></p>
 			</div>
 		</c:forEach>
 	</div>

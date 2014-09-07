@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import it.polito.ai.polibox.dao.CondivisioneDAO;
 import it.polito.ai.polibox.dao.UtenteDAO;
@@ -51,6 +53,7 @@ public class HomeController {
 			return "index";
 		}
 		
+		List<String> owner_sd_list = new ArrayList<String>();
 		HashMap<Long,String> sd_list = new HashMap<Long,String>();
 		HashMap<Long,String> pending_sd_list = new HashMap<Long,String>();
 		for (Condivisione c: condivisioneDAO.getCondivisioni(u.getId())) {
@@ -60,6 +63,11 @@ public class HomeController {
 			else if (c.getState() == 0)
 				pending_sd_list.put(c.getId(), dirPath);
 		}
+		for (Condivisione c: condivisioneDAO.getCondivisioniOwner(u.getId())) {
+			if (c.getState() == 1)
+				owner_sd_list.add(c.getDirPath());
+		}
+		model.addAttribute("owner_sd_list", owner_sd_list);
 		model.addAttribute("sd_list", sd_list);
 		model.addAttribute("pending_sd_list", pending_sd_list);
 		model.addAttribute("utente", u);

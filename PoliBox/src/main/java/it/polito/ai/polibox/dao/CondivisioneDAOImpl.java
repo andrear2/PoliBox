@@ -90,4 +90,12 @@ public class CondivisioneDAOImpl implements CondivisioneDAO {
 		return null;
 	}
 
+	@Override
+	public List<Condivisione> getCondivisioniOwner(Long id) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		Query query = session.createQuery("from Condivisione where ownerId=:ownerId");
+		query.setLong("ownerId", id);
+		return query.list();
+	}
+
 }

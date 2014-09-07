@@ -110,8 +110,7 @@ function refuse_cond2 () {
 	}
 }
 
-function refuse_cond3 () {
-	var c_id = document.getElementById("c_id").textContent;
+function refuse_cond3 (c_id) {
 	if(socket != null && socket.readyState === WebSocket.OPEN){
 		var msg = "REF; c_id: "+c_id;
 		socket.send(msg);

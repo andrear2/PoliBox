@@ -30,7 +30,7 @@ public class CreaCartellaController {
 			return "index";
 		}
 		
-		String[] pathElements = path.split("/");
+		String[] pathElements = path.replace("%20", " ").split("/");
 		String pathDir = new String();
 		Utente owner = new Utente();
 		Condivisione condivisione = new Condivisione ();

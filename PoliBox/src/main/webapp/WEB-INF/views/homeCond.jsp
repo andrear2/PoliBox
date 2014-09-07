@@ -60,7 +60,7 @@
 		<!-- Breadcrumbs -->
 		<ol class="breadcrumb">
 			<%
-			String pathBreadcrumb = (String) request.getAttribute("javax.servlet.forward.request_uri");
+			String pathBreadcrumb = ((String) request.getAttribute("javax.servlet.forward.request_uri")).replace("%20", " ");
 			if (pathBreadcrumb != null) {
 				String[] pathElementsBreadcrumb = pathBreadcrumb.split("/");
 				String pathUrlBreadcrumb = new String();

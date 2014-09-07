@@ -35,7 +35,7 @@ public class UploadController {
 		}
 		
 		System.out.println(path);
-		String[] pathElements = path.split("/");
+		String[] pathElements = path.replace("%20", " ").split("/");
 		String pathDir = new String();
 		if (cond == 1) {
 			// creazione in una cartella condivisa

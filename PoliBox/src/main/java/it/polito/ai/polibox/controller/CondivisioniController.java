@@ -29,6 +29,8 @@ public class CondivisioniController {
 			return "index";
 		}
 		
+		HashMap<Condivisione, Utente> owner_sd_list = new HashMap<Condivisione, Utente>();
+		HashMap<Condivisione, Utente> pending_owner_sd_list = new HashMap<Condivisione, Utente>();
 		HashMap<Condivisione, Utente> sd_list = new HashMap<Condivisione, Utente>();
 		HashMap<Condivisione, Utente> pending_sd_list = new HashMap<Condivisione, Utente>();
 		for (Condivisione c: condivisioneDAO.getCondivisioni(utente.getId())) {
@@ -38,6 +40,14 @@ public class CondivisioniController {
 			else if (c.getState() == 0)
 				pending_sd_list.put(c, utenteDAO.getUtenteWithoutTrans(c.getOwnerId()));
 		}
+		for (Condivisione c: condivisioneDAO.getCondivisioniOwner(utente.getId())) {
+			if (c.getState() == 1)
+				owner_sd_list.put(c, utenteDAO.getUtenteWithoutTrans(c.getUserId()));
+			else if (c.getState() == 0)
+				pending_owner_sd_list.put(c, utenteDAO.getUtenteWithoutTrans(c.getUserId()));
+		}
+		model.addAttribute("owner_sd_list", owner_sd_list);
+		model.addAttribute("pending_owner_sd_list", pending_owner_sd_list);
 		model.addAttribute("sd_list", sd_list);
 		model.addAttribute("pending_sd_list", pending_sd_list);
 		model.addAttribute("utente", utente);
