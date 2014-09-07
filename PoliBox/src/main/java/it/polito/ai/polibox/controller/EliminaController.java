@@ -32,23 +32,33 @@ public class EliminaController {
 		
 		String[] pathElements = path.split("/");
 		String pathDir = new String();
+		Utente owner = new Utente();
+		Condivisione condivisione = new Condivisione ();
+		String pathUrl = new String();
+		String pathLog = new String();
+		String condName = new String();
 		if (cond == 1) {
 			// creazione in una cartella condivisa
-			Condivisione condivisione = condivisioneDAO.getCondivisioneWithoutTrans((Long) session.getAttribute("cId"));
-			Utente owner = utenteDAO.getUtenteWithoutTrans(condivisione.getOwnerId());
-			pathDir = owner.getHome_dir();
+			condivisione = condivisioneDAO.getCondivisioneWithoutTrans((Long) session.getAttribute("cId"));
+			owner = utenteDAO.getUtenteWithoutTrans(condivisione.getOwnerId());
+			pathDir = condivisione.getDirPath();
+			condName = pathElements[5];
+			for (int i=6; i<pathElements.length; i++) {
+				pathUrl += "\\" + pathElements[i];
+				pathLog += "/"+pathElements[i];
+			}
+			pathDir += pathUrl;
 		} else {
 			pathDir = utente.getHome_dir();
-		}
-		String pathUrl = new String();
-		for (int i=5; i<pathElements.length; i++) {
-			if (i==5) {
-				pathUrl += pathElements[i];
-			} else {
-				pathUrl += "\\" + pathElements[i];
+			for (int i=5; i<pathElements.length; i++) {
+				if (i==5) {
+					pathUrl += pathElements[i];
+				} else {
+					pathUrl += "\\" + pathElements[i];
+				}
 			}
+			pathDir += "\\Polibox\\" + pathUrl;
 		}
-		pathDir += "\\Polibox\\" + pathUrl;
 		File dir = new File(pathDir + "\\" + nome);
 		boolean isDir = dir.isDirectory();
 		String name = dir.getName();
@@ -60,11 +70,37 @@ public class EliminaController {
 		
 		if(success){
 			if(isDir) {
+				if(cond==1) {
+					Log owner_log = new Log(owner.getHome_dir());
+					String[] p = condivisione.getDirPath().split("\\\\");
+					int flag=0;
+					String pp = new String("http://localhost:8080/ai/home");
+					for (int i=0;i<p.length;i++) {
+						if (flag==1) pp += "/"+p[i];
+						if (p[i].equals("Polibox")) flag=1;
+					}
+					log.addLine(utente.getId(), "DD","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, owner.getId());
+					owner_log.addLine(owner.getId(), "DD",pp+pathLog+"/"+nome , 0, utente.getId());
+				} else {
+					log.addLine(utente.getId(), "DD",path+"/"+name , 0);
+				}
 				redirectAttrs.addFlashAttribute("msg", "Cartella " + name + " eliminata con successo");
-				log.addLine(utente.getId(), "DD",path+"/"+name , 0);
 			} else {
+				if(cond==1) {
+					Log owner_log = new Log(owner.getHome_dir());
+					String[] p = condivisione.getDirPath().split("\\\\");
+					int flag=0;
+					String pp = new String("http://localhost:8080/ai/home");
+					for (int i=0;i<p.length;i++) {
+						if (flag==1) pp += "/"+p[i];
+						if (p[i].equals("Polibox")) flag=1;
+					}
+					log.addLine(utente.getId(), "DD","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, owner.getId());
+					owner_log.addLine(owner.getId(), "DD",pp+pathLog+"/"+nome , 0, utente.getId());
+				} else {
+					log.addLine(utente.getId(), "DD",path+"/"+name , 0);
+				}
 				redirectAttrs.addFlashAttribute("msg", "File " + name + " eliminato con successo");
-				log.addLine(utente.getId(), "DF", path+"/"+name, 0);
 			}
 			redirectAttrs.addFlashAttribute("msgClass", "success");
 		}else{
@@ -77,7 +113,7 @@ public class EliminaController {
 		}
 		
 		if (cond == 1) {
-			return "redirect:Home/" + pathUrl.replace("\\", "/");
+			return "redirect:Home/" + condName +pathLog;
 		} else {
 			return "redirect:home/" + pathUrl.replace("\\", "/");
 		}
