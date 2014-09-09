@@ -1,10 +1,14 @@
 package it.polito.ai.polibox.controller;
 
 import java.io.File;
+import java.io.IOException;
 
 import it.polito.ai.polibox.dao.CondivisioneDAO;
+import it.polito.ai.polibox.dao.SincronizzazioniPendentiDAO;
+import it.polito.ai.polibox.dao.SincronizzazioniPendentiDAOImpl;
 import it.polito.ai.polibox.dao.UtenteDAO;
 import it.polito.ai.polibox.entity.Condivisione;
+import it.polito.ai.polibox.entity.SincronizzazioniPendenti;
 import it.polito.ai.polibox.entity.Utente;
 
 import javax.servlet.http.HttpSession;
@@ -17,11 +21,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-public class CreaCartellaController {
+public class CreaCartellaController implements CheckConnection{
 	@Autowired
 	CondivisioneDAO condivisioneDAO;
 	@Autowired
 	UtenteDAO utenteDAO;
+	@Autowired
+	SincronizzazioniPendentiDAO sincDAO;
 	
 	@RequestMapping(value = "/creaCartella", method = RequestMethod.POST)
 	public String creaCartellaSubmit(@RequestParam(value="nome") String nome, @RequestParam(value="pathCartella") String path, @RequestParam(value="cond") Integer cond, RedirectAttributes redirectAttrs, HttpSession session) {
@@ -97,12 +103,31 @@ public class CreaCartellaController {
 		redirectAttrs.addFlashAttribute("msg", "Cartella \"" + dir.getName() + "\" creata con successo");
 		redirectAttrs.addFlashAttribute("msgClass", "success");
 		if (pathUrl.isEmpty() && cond != 1) {
+			connected(dir.getName(), utente.getId());
 			return "redirect:home";
 		}
+		connected(pathUrl + "\\" + dir.getName(), utente.getId());
 		if (cond == 1) {
 			return "redirect:Home/" + condName +pathLog;
 		} else {
 			return "redirect:home/" + pathUrl.replace("\\", "/");
 		}
+	}
+
+	@Override
+	public void connected(String path,Long id) {
+		if (!ClientController.connected){
+			SincronizzazioniPendenti sinc = new SincronizzazioniPendenti(id,path,0);
+			sincDAO.addSincronizzazioniPendenti(sinc);
+		} else {
+			try {
+				//controllare che con la variabile openedsession static nn crei errori con piu utenti
+				ClientController.openedSession.getBasicRemote().sendText("DIR:"+path);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 	}
 }

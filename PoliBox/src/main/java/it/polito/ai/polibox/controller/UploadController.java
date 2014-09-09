@@ -1,15 +1,19 @@
 package it.polito.ai.polibox.controller;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
 import it.polito.ai.polibox.dao.CondivisioneDAO;
+import it.polito.ai.polibox.dao.SincronizzazioniPendentiDAO;
 import it.polito.ai.polibox.dao.UtenteDAO;
 import it.polito.ai.polibox.entity.Condivisione;
+import it.polito.ai.polibox.entity.SincronizzazioniPendenti;
 import it.polito.ai.polibox.entity.Utente;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +25,15 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-public class UploadController {
+public class UploadController implements CheckConnection {
 	@Autowired
 	CondivisioneDAO condivisioneDAO;
 	@Autowired
 	UtenteDAO utenteDAO;
+	@Autowired
+	SincronizzazioniPendentiDAO sincDAO;
+	
+	private File dest;
 	
 	@RequestMapping(value = "/fileUpload", method = RequestMethod.POST)
 	public String fileUploadSubmit(@RequestParam(value="files") List<MultipartFile> uploadedFiles, @RequestParam(value="pathFile") String path, @RequestParam(value="cond") Integer cond, RedirectAttributes redirectAttrs, HttpSession session) {
@@ -85,7 +93,7 @@ public class UploadController {
 		for (MultipartFile file: uploadedFiles) {
 			String fileName = file.getOriginalFilename();
 			fileNames.add(fileName);
-			File dest = new File(pathDir + "\\" + fileName);
+			dest = new File(pathDir + "\\" + fileName);
 			try {
 				file.transferTo(dest);
 				if(cond==1) {
@@ -102,6 +110,10 @@ public class UploadController {
 				} else {
 					log.addLine(utente.getId(), "NF",path+"/"+fileName , 0);
 				}
+				if (pathUrl.isEmpty())
+					connected(dest.getName(), utente.getId());
+				else
+					connected(pathUrl + "\\" + dest.getName(), utente.getId());
 			} catch (IllegalStateException ise) {
 				ise.printStackTrace();
 				redirectAttrs.addFlashAttribute("utente", utente);
@@ -154,5 +166,32 @@ public class UploadController {
 		} else {
 			return "redirect:home/" + pathUrl.replace("\\", "/");
 		}
+	}
+	
+	@Override
+	public void connected(String path,Long id) {
+		if (!ClientController.connected){
+			SincronizzazioniPendenti sinc = new SincronizzazioniPendenti(id,path,1);
+			sincDAO.addSincronizzazioniPendenti(sinc);
+		} else {
+			try {
+				//ClientController.openedSession.getBasicRemote().sendText("FILE:"+path);
+				FileInputStream fis = new FileInputStream(dest);
+				byte[] b = new byte[1024];
+				int bRead;
+				while ((bRead=fis.read(b))!=-1) {
+					ByteBuffer bb = ByteBuffer.allocate(bRead);
+					bb.put(b, 0, bRead);
+					System.out.println("PRIMA");
+					ClientController.openedSession.getBasicRemote().sendBinary(bb);
+					System.out.println("dopo");
+				}
+				fis.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 	}
 }

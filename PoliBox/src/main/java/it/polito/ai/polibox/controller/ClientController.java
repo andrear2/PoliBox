@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import javax.websocket.EndpointConfig;
+import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -25,12 +26,19 @@ public class ClientController {
 	private boolean firstRequest;
 	@Autowired
 	private UtenteDAO utenteDAO;
+	static boolean connected=false;
+	static Session openedSession;
 
 	@OnOpen
 	public void onOpen(Session s, EndpointConfig cfg) {
 		System.out.println("Aperta!");
+		connected=true;
+		openedSession=s;
 	}
-
+	@OnClose
+	public void onClose(Session s){
+		connected=false;
+	}
 	@OnMessage
 	public void onMessage(Session session, String msg) {
 		System.out.println("RICEVUTO! " + msg);
