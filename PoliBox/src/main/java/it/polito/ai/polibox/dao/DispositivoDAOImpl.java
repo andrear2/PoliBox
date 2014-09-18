@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 public class DispositivoDAOImpl implements DispositivoDAO {
 
@@ -28,10 +29,12 @@ public class DispositivoDAOImpl implements DispositivoDAO {
 	@Override
 	public Dispositivo getDispositivo(Long id) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		Transaction tx = (Transaction) session.beginTransaction();
 		Query query = session.createQuery("from Dispositivo where id = :id");
 		query.setLong("id", id);
 		List<Dispositivo> dispositivi = new ArrayList<Dispositivo>();
 		dispositivi = query.list();
+		tx.commit();
 		if (dispositivi.size() > 0) {
 			return dispositivi.get(0);
 		}
@@ -41,7 +44,9 @@ public class DispositivoDAOImpl implements DispositivoDAO {
 	@Override
 	public void updateDispositivo(Dispositivo dispositivo) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		Transaction tx = (Transaction) session.beginTransaction();
 		session.update(dispositivo);
+		tx.commit();
 	}
 
 	@Override

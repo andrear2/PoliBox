@@ -2,7 +2,7 @@ $(document).ready(function() {
     $('.sortable').dataTable({
     	paging: false,
     	"bInfo": false,
-    	"order": [[0, "asc"]],
+    	"order": [[1, "asc"]],
     	"language": {
     		"search": "Cerca:",
     		"zeroRecords": "Questa cartella è vuota"

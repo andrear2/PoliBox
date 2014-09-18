@@ -1,6 +1,7 @@
 package it.polito.ai.polibox.controller;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 
 import it.polito.ai.polibox.dao.DispositivoDAO;
@@ -8,11 +9,9 @@ import it.polito.ai.polibox.dao.UtenteDAO;
 import it.polito.ai.polibox.entity.Dispositivo;
 import it.polito.ai.polibox.entity.Utente;
 
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.websocket.server.ServerEndpoint;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -41,6 +40,7 @@ public class ClientAuthenticationController extends HttpServlet {
 				Dispositivo d;
 				if(dispositivo.equals("-1")){
 					d = new Dispositivo(u.getId());
+					d.setNew(true);
 					dispositivoDAO.addDispositivo(d);
 					response.getWriter().write("OK:"+d.getId());
 				}else{

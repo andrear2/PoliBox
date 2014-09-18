@@ -23,6 +23,9 @@ public class Dispositivo {
 		
 	@Column(name="last_sync")
 	private Date lastSync;
+	
+	@Column(name="isNew")
+	private boolean isNew;
 
 	public Dispositivo() {
 	}
@@ -78,6 +81,14 @@ public class Dispositivo {
 
 	public void setLastSync(Date lastSync) {
 		this.lastSync = lastSync;
+	}
+
+	public boolean isNew() {
+		return isNew;
+	}
+
+	public void setNew(boolean isNew) {
+		this.isNew = isNew;
 	}
 	
 }

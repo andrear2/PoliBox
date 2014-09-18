@@ -97,5 +97,17 @@ public class CondivisioneDAOImpl implements CondivisioneDAO {
 		query.setLong("ownerId", id);
 		return query.list();
 	}
+	
+	@Override
+	public List<Condivisione> getActiveCondivisioni(String resource){
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		Transaction tx = (Transaction) session.beginTransaction();
+		Query query = session.createQuery("from Condivisione where dirPath = :dirPath AND state = 1");
+		query.setString("dirPath", resource);
+		List<Condivisione> condivisioni = query.list();
+		tx.commit();
+		return condivisioni;
+		
+	}
 
 }

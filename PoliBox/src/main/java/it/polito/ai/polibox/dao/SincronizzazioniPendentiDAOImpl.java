@@ -27,10 +27,12 @@ public class SincronizzazioniPendentiDAOImpl implements
 	}
 
 	@Override
-	public List<SincronizzazioniPendenti> getSincronizzazioniPendenti(Long id) {
+	public List<SincronizzazioniPendenti> getSincronizzazioniPendenti(
+			Long userId, Long dispId) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		Query query = session.createQuery("from SincronizzazioniPendenti where uId=:uId");
-		query.setLong("uId", id);
+		Query query = session.createQuery("from SincronizzazioniPendenti where userId=:userId and dispId=:dispId");
+		query.setLong("userId", userId);
+		query.setLong("dispId", dispId);
 		return query.list();
 	}
 

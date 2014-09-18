@@ -7,5 +7,5 @@ import it.polito.ai.polibox.entity.SincronizzazioniPendenti;
 public interface SincronizzazioniPendentiDAO {
 	public void addSincronizzazioniPendenti(SincronizzazioniPendenti sinc);
 	public void deleteSincronizzazioniPendenti(SincronizzazioniPendenti sinc);
-	public List<SincronizzazioniPendenti> getSincronizzazioniPendenti(Long id);
+	public List<SincronizzazioniPendenti> getSincronizzazioniPendenti(Long userId, Long dispId);
 }

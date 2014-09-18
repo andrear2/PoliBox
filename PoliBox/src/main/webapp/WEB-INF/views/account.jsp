@@ -131,7 +131,7 @@
 	<!-- Nav tabs -->
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="#profilo" data-toggle="tab">Profilo</a></li>
-	    <li><a href="#sicurezza" data-toggle="tab">Sicurezza</a></li>
+<!-- 	    <li><a href="#sicurezza" data-toggle="tab">Sicurezza</a></li> -->
 	</ul>
 	
 	<!-- Tab panes -->
@@ -146,22 +146,67 @@
 					<td>${utente.email}</td>
 					<td><a data-toggle="modal" href="#divFormEmailModal">Modifica email</a></td>
 				</tr>
+				<tr>
+					<td>Password</td>
+					<td><a data-toggle="modal" href="#divFormPasswordModal">Modifica password</a></td>
+				</tr>
 			</table>
-			<p>Spazio utilizzato in Polibox</p>
-			<div class="progress">
-	  			<div class="progress-bar" style="width: ${totByteFReg/50000}%">
-	    			<span class="sr-only">${totByteFReg/50000}% Complete</span>
-	  			</div>
-	  			<div class="progress-bar progress-bar-info" style="width: ${totByteFCond/50000}%">
-	    			<span class="sr-only">${totByteFCond/50000}% Complete</span>
-	  			</div>
-			</div>
-			<p> 
-				<c:if test = "${totByteFCond + totByteFReg >= 1000 && totByteFCond + totByteFReg < 1000000}"> ${(totByteFCond+totByteFReg)/1000} KB </c:if>
-				<c:if test = "${totByteFCond + totByteFReg >= 1000000 && totByteFCond + totByteFReg < 1000000000}"> ${(totByteFCond+totByteFReg)/1000000} MB </c:if> 
-				<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> ${(totByteFCond+totByteFReg)/1000000000} GB </c:if>
-				di 5 MB in uso 
+			<div class="tab-pane" id="account">
+		<h3>Spazio utilizzato in Polibox</h3>
+		<div class="progress">
+  			<div class="progress-bar" style="width: ${totByteFReg/50000}%">
+    			<span class="sr-only">${totByteFReg/50000}% Complete</span>
+  			</div>
+  			<div class="progress-bar progress-bar-info" style="width: ${totByteFCond/50000}%">
+    			<span class="sr-only">${totByteFCond/50000}% Complete</span>
+  			</div>
+		</div>
+		<div> 
+			<c:if test = "${(totByteFCond + totByteFReg < 1000)}"> ${  totByteFCond+totByteFReg} B </c:if>
+			<c:if test = "${(totByteFCond + totByteFReg >= 1000) && (totByteFCond + totByteFReg < 1000000)}"> ${  (totByteFCond+totByteFReg)/1000} KB </c:if>
+			<c:if test = "${(totByteFCond + totByteFReg >= 1000000) && (totByteFCond + totByteFReg < 1000000000)}"> ${ (totByteFCond+totByteFReg)/1000000} MB </c:if> 
+			<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> ${ (totByteFCond+totByteFReg)/1000000000} GB </c:if>
+			di 5 MB in uso  
+			</div> 
+			<div class="progress-bar-legend-normal">leg</div> 
+			<p> File regolari 
+				<c:if test = "${(totByteFReg < 1000)}"> ${  totByteFReg} B </c:if>
+				<c:if test = "${(totByteFReg >= 1000) && (totByteFReg < 1000000)}"> ${  totByteFReg/1000} KB </c:if>
+				<c:if test = "${(totByteFReg >= 1000000) && (totByteFReg < 1000000000)}"> ${ totByteFReg/1000000} MB </c:if> 
+				<c:if test = "${totByteFReg >= 1000000000}"> ${ totByteFReg/1000000000} GB </c:if> 
 			</p>
+			<div class="progress-bar-legend-shared">leg</div>
+			<p> File condivisi 
+				<c:if test = "${(totByteFCond < 1000)}"> ${  totByteFCond} B </c:if>
+				<c:if test = "${(totByteFCond >= 1000) && (totByteFCond < 1000000)}"> ${  totByteFCond/1000} KB </c:if>
+				<c:if test = "${(totByteFCond >= 1000000) && (totByteFCond < 1000000000)}"> ${ totByteFCond/1000000} MB </c:if> 
+				<c:if test = "${totByteFCond >= 1000000000}"> ${ totByteFCond/1000000000} GB </c:if> 
+			</p>
+			<div class="progress-bar-legend-free">leg</div>
+			<p> Spazio inutilizzato 
+				<c:if test = "${((5000000 - totByteFCond - totByteFReg) < 1000)}"> ${  5000000 - totByteFCond - totByteFReg} B </c:if>
+				<c:if test = "${((5000000 - totByteFCond - totByteFReg) >= 1000) && ((5000000 - totByteFCond - totByteFReg) < 1000000)}"> ${  5000000 - totByteFCond - totByteFReg} KB </c:if>
+				<c:if test = "${((5000000 - totByteFCond - totByteFReg) >= 1000000) && ((5000000 - totByteFCond - totByteFReg) < 1000000000)}"> ${ 5000000 - totByteFCond - totByteFReg} MB </c:if> 
+				<c:if test = "${(5000000 - totByteFCond - totByteFReg) >= 1000000000}"> ${ 5000000 - totByteFCond - totByteFReg} GB </c:if> 
+			</p>
+		</div>
+	</div>
+			
+<!-- 			<p>Spazio utilizzato in Polibox</p> -->
+<!-- 			<div class="progress"> -->
+<%-- 	  			<div class="progress-bar" style="width: ${totByteFReg/50000}%"> --%>
+<%-- 	    			<span class="sr-only">${totByteFReg/50000}% Complete</span> --%>
+<!-- 	  			</div> -->
+<%-- 	  			<div class="progress-bar progress-bar-info" style="width: ${totByteFCond/50000}%"> --%>
+<%-- 	    			<span class="sr-only">${totByteFCond/50000}% Complete</span> --%>
+<!-- 	  			</div> -->
+<!-- 			</div> -->
+<!-- 			<p>  -->
+<%-- 				<c:if test = "${totByteFCond + totByteFReg >= 1000 && totByteFCond + totByteFReg < 1000000}"> ${(totByteFCond+totByteFReg)/1000} KB </c:if> --%>
+<%-- 				<c:if test = "${totByteFCond + totByteFReg >= 1000000 && totByteFCond + totByteFReg < 1000000000}"> ${(totByteFCond+totByteFReg)/1000000} MB </c:if>  --%>
+<%-- 				<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> ${(totByteFCond+totByteFReg)/1000000000} GB </c:if> --%>
+<!-- 				di 5 MB in uso  -->
+<!-- 			</p> -->
 			<!-- Modal form per il cambio nome -->
 			<div class="modal fade" id="divFormNomeModal" tabindex="-1" role="dialog" aria-labelledby="modalNomeLabel" aria-hidden="true">
 				<div class="modal-dialog modal-sm">
@@ -228,11 +273,8 @@
 			</div>
 		</div> <!-- tab-pane profilo -->
 		
-		<div class="tab-pane" id="sicurezza">
-			<p>
-				Password
-				<a data-toggle="modal" href="#divFormPasswordModal">Modifica password</a>
-			</p>
+<!-- 		<div class="tab-pane" id="sicurezza"> -->
+
 			
 			<!-- Modal form per la modifica della password -->
 			<div class="modal fade" id="divFormPasswordModal" tabindex="-1" role="dialog" aria-labelledby="modalPasswordLabel" aria-hidden="true">
@@ -262,7 +304,7 @@
 					</div>
 				</div>
 			</div>
-		</div> <!-- tab-pane sicurezza -->
+		 <!--</div> tab-pane sicurezza -->
 	</div> <!-- tab-content -->
 	
 	

@@ -24,7 +24,6 @@ public class SessionManager {
 	public void addUserSession(Long id_user,Long id_disp,Session s){
 
 		if(openedSessions.containsKey(id_user)){
-			
 			openedSessions.get(id_user).put(id_disp, s);
 		}else{
 			ConcurrentHashMap<Long, Session> tmp = new ConcurrentHashMap<Long, Session>();
@@ -37,5 +36,17 @@ public class SessionManager {
 			return openedSessions.get(id);
 		else
 			return null;
+	}
+
+	public void removeUserSession(Long id, Long disp) {
+		System.out.println("Rimuovo da utente:"+id+"disp:"+disp);
+		if (openedSessions.get(id).size() == 1) {
+			openedSessions.remove(id);
+			System.out.println("un dispostivo solo, elimino utente da mappa");
+		} else {
+			openedSessions.get(id).remove(disp);
+			System.out.println("più disp elimino solo quello");
+		}
+		
 	}
 }

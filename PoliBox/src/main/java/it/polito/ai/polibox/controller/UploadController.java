@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpSession;
 import javax.websocket.Session;
@@ -131,16 +132,37 @@ public class UploadController implements CheckConnection {
 						if (flag==1) pp += "/"+p[i];
 						if (p[i].equals("Polibox")) flag=1;
 					}
-					log.addLine(utente.getId(), "NF","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+fileName , 0, owner.getId());
-					owner_log.addLine(owner.getId(), "NF",pp+pathLog+"/"+fileName , 0, utente.getId());
+					log.addLine(utente.getId(), "NF","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+fileName , 0, utente.getId());
+					
+					
+					Session wssession;
+					SessionManager sm = SessionManager.getInstance();
+					ConcurrentHashMap<Long, Session> hm;
+					if ( (hm = sm.getSessionMap(owner.getId())) != null) {
+						owner_log.addLine(owner.getId(), "NF",pp+pathLog+"/"+fileName , 0, utente.getId());
+						if ((wssession = hm.get(Long.parseLong("0")))!=null)
+							wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha caricato il file <b>"+ fileName +" nella cartella condivisa "+ condivisione.getDirPath().substring(condivisione.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+					}
+					List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioni(condivisione.getDirPath());
+					for(Condivisione c: listCond){
+						log.addLine(c.getUserId(), "NF","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+fileName , 0, utente.getId());
+						if (c.getUserId()!=utente.getId()){
+							hm = sm.getSessionMap(c.getUserId());
+							if(hm != null && (wssession = hm.get(Long.parseLong("0")))!=null)
+								wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha caricato il file <b>"+ fileName +" nella cartella condivisa "+ c.getDirPath().substring(c.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+						
+						}
+					}
+					
 				} else {
 					session.setAttribute("totByteFReg", (Double) session.getAttribute("totByteFReg") + file.getSize());
 					log.addLine(utente.getId(), "NF",path+"/"+fileName , 0);
 				}
-				if (pathUrl.isEmpty())
-					connected(dest.getName(), utente.getId());
-				else
-					connected(pathUrl + "\\" + dest.getName(), utente.getId());
+//				if (pathUrl.isEmpty())
+//					connected(dest.getName(), utente.getId());
+//				else
+//					connected(pathUrl + "\\" + dest.getName(), utente.getId());
+				connected(pathDir, utente.getId());
 			} catch (IllegalStateException ise) {
 				ise.printStackTrace();
 				redirectAttrs.addFlashAttribute("utente", utente);
@@ -199,13 +221,15 @@ public class UploadController implements CheckConnection {
 	public void connected(String path,Long id) {
 		for (Dispositivo d : dispositivoDAO.getDispositivi(id)){
 			if(!SessionManager.getInstance().getSessionMap(id).containsKey(d.getId())){
-				SincronizzazioniPendenti sinc = new SincronizzazioniPendenti(id,path,1);
+				SincronizzazioniPendenti sinc = new SincronizzazioniPendenti(id,d.getId(),path,1);
 				sincDAO.addSincronizzazioniPendenti(sinc);
 			}
 		}
 			try {
-				for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
-					s.getBasicRemote().sendText("FILE:"+path);
+				if (SessionManager.getInstance().getSessionMap(id)!=null) {
+					for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
+						s.getBasicRemote().sendText("FILE:"+path);
+					}
 				}
 				FileInputStream fis=null;
 				fis = new FileInputStream(dest);

@@ -119,10 +119,30 @@
 				%>
 				<tr>
 					<% if (!((Condivisione) session.getAttribute("condivisione")).getReadOnly()) { %>
-						<td><a id=<% if (file.isFile()) out.print("file" + i); else out.print("directory" + i); %> class="filename_link" href="/ai/Home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+						<% if(file.isFile()) { %>
+							<td><span class="glyphicon glyphicon-file"></span></td>
+							<td><a id=<%= "file" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+							<td>File</td>
+							<td><% out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
+						<% } else { %>
+							<td><span class="glyphicon glyphicon-folder-close"></span></td>
+							<td><a id=<%= "directory" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+							<td>Cartella</td>
+							<td>--</td>
+						<% } %>
 					<% } else { %>
-						<td><a id=<% if (file.isFile()) out.print("file" + i); else out.print("directory" + i); %> class="filename_link not_editable" href="/ai/Home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
-					<% } %>
+						<% if(file.isFile()) { %>
+								<td><span class="glyphicon glyphicon-file"></span></td>
+								<td><a id=<%= "file" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+								<td>File</td>
+								<td><% out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
+							<% } else { %>
+								<td><span class="glyphicon glyphicon-folder-close"></span></td>
+								<td><a id=<%= "directory" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+								<td>Cartella</td>
+								<td>--</td>
+							<% } %>
+						<% } %>
 					<td><% if (file.isFile()) out.print("File"); else out.print("Cartella"); %></td>
 					<td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
 				</tr>

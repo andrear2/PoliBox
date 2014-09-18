@@ -44,6 +44,18 @@
 	          <ul class="dropdown-menu">
 	            <li id="nome">${utente.nome} ${utente.cognome}</li>
 	            <li id="email">${utente.email}</li>
+	            <li id="progBar">
+	            	<c:if test = "${(totByteFCond + totByteFReg < 1000)}"> ${totByteFCond+totByteFReg} B </c:if>
+					<c:if test = "${(totByteFCond + totByteFReg >= 1000) && (totByteFCond + totByteFReg < 1000000)}"> ${ (totByteFCond+totByteFReg)/1000} KB </c:if>
+					<c:if test = "${(totByteFCond + totByteFReg >= 1000000) && (totByteFCond + totByteFReg < 1000000000)}"> ${(totByteFCond+totByteFReg)/1000000} MB </c:if> 
+					<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> ${(totByteFCond+totByteFReg)/1000000000} GB </c:if>
+					di 5 MB in uso
+	            	<div class="progress">
+	            		<div class="progress-bar" role="progressbar" aria-valuenow="${(totByteFReg + totByteFCond)/50000}" aria-valuemin="0" aria-valuemax="100" style="width: ${(totByteFReg + totByteFCond)/50000}%;">
+    						<span class="sr-only">${(totByteFReg + totByteFCond)/50000}% Complete</span>
+  						</div>
+					</div>
+				</li>
 	            <li class="divider"></li>
 	            <li><a href="/ai/account">Profilo</a></li>
 	            <li><a href="/ai/logout">Logout</a></li>
@@ -93,6 +105,7 @@
 		<table class="sortable table-striped table-hover" id="list">
 			<thead>
 				<tr>
+					<th width="15px"></th>
 					<th>Nome</th>
 					<th>Tipo</th>
 					<th>Ultima modifica</th>
@@ -101,8 +114,9 @@
 			<tbody>
 				<c:forEach var="dir" items="${sd_list}" varStatus="i">
 						<tr>
+							<td><span class="glyphicon glyphicon-user"></span><span class="glyphicon glyphicon-user"></span></td>
 							<td><form action="/ai/Home/${dir.value}" method="post">
-									<input type="submit" class="filename_link link_button" value="${dir.value}" draggable="true">
+									<input type="submit" class="filename_link link_button" value="${dir.value}" draggable="true" id="fCond">
 									<input type="hidden" name="cId" value="${dir.key}" />
 <%-- 									<c:set var="cond" value="${dir.key}" /> --%>
 <%-- 									<% session.setAttribute("cId", pageContext.getAttribute("cond")); %> --%>
@@ -129,9 +143,22 @@
 						file = new java.io.File(pathDir + "\\" + list[i]);
 				%>
 				<tr class="draggable <% if (!file.isFile()) out.print("droppable"); %>">
-					<td><a id=<% if (file.isFile()) out.print("file" + i); else out.print("directory" + i); %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
-					<td><% if (file.isFile()) out.print("File"); else if (owner_sd_list.contains(file.getAbsolutePath())) out.print("Cartella condivisa"); else out.print("Cartella"); %></td>
-					<td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
+					<% if(file.isFile()) { %>
+						<td><span class="glyphicon glyphicon-file"></span></td>
+						<td><a id=<%= "file" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+						<td>File</td>
+						<td><% out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
+					<% } else if(owner_sd_list.contains(file.getAbsolutePath())) { %>
+						<td><span class="glyphicon glyphicon-user"></span><span class="glyphicon glyphicon-user"></span></td>
+						<td><a id=<%="directory" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+						<td>Cartella condivisa</td>
+						<td>--</td>
+					<% } else { %>
+						<td><span class="glyphicon glyphicon-folder-close"></span></td>
+						<td><a id=<%= "directory" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+						<td>Cartella</td>
+						<td>--</td>
+					<% } %>
 				</tr>
 				
 				<%

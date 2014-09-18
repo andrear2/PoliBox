@@ -108,11 +108,11 @@ public class CreaCartellaController implements CheckConnection{
 		redirectAttrs.addFlashAttribute("msgBool", true);
 		redirectAttrs.addFlashAttribute("msg", "Cartella \"" + dir.getName() + "\" creata con successo");
 		redirectAttrs.addFlashAttribute("msgClass", "success");
-		if (pathUrl.isEmpty() && cond != 1) {
-			connected(dir.getName(), utente.getId());
-			return "redirect:home";
-		}
-		connected(pathUrl + "\\" + dir.getName(), utente.getId());
+//		if (pathUrl.isEmpty() && cond != 1) {
+//			connected(dir.getName(), utente.getId());
+//			return "redirect:home";
+//		}
+		connected(pathDir, utente.getId());
 		if (cond == 1) {
 			return "redirect:Home/" + condName +pathLog;
 		} else {
@@ -124,7 +124,7 @@ public class CreaCartellaController implements CheckConnection{
 	public void connected(String path,Long id) {
 		for (Dispositivo d : dispositivoDAO.getDispositivi(id)){
 			if(!SessionManager.getInstance().getSessionMap(id).containsKey(d.getId())){
-				SincronizzazioniPendenti sinc = new SincronizzazioniPendenti(id,path,0);
+				SincronizzazioniPendenti sinc = new SincronizzazioniPendenti(id,d.getId(),path,0);
 				sincDAO.addSincronizzazioniPendenti(sinc);
 			}
 		}

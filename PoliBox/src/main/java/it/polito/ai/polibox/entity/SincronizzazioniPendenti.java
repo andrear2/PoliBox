@@ -19,6 +19,9 @@ public class SincronizzazioniPendenti {
 	@Column(name="u_id")
 	private Long userId;
 	
+	@Column(name="id_disp")
+	private Long dispId;
+	
 	@Column(name="Path")
 	private String path;
 	
@@ -26,8 +29,11 @@ public class SincronizzazioniPendenti {
 	private Integer type;
 
 
-	public SincronizzazioniPendenti(Long userId, String path, Integer type) {
+	public SincronizzazioniPendenti(Long userId, Long dispId, String path,
+			Integer type) {
+		super();
 		this.userId = userId;
+		this.dispId = dispId;
 		this.path = path;
 		this.type = type;
 	}
@@ -71,6 +77,14 @@ public class SincronizzazioniPendenti {
 
 	public void setUserId(Long userId) {
 		this.userId = userId;
+	}
+
+	public Long getDispId() {
+		return dispId;
+	}
+
+	public void setDispId(Long dispId) {
+		this.dispId = dispId;
 	}
 
 	public String getPath() {

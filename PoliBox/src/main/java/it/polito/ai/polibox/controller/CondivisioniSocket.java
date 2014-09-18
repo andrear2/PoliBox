@@ -1,6 +1,7 @@
 package it.polito.ai.polibox.controller;
 
 import it.polito.ai.polibox.entity.Condivisione;
+import it.polito.ai.polibox.entity.SessionManager;
 import it.polito.ai.polibox.entity.Utente;
 import it.polito.ai.polibox.dao.*;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpSession;
 import javax.websocket.Session;
@@ -23,11 +25,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 @Controller
-@ServerEndpoint("/serverWebSocket")
+@ServerEndpoint(value="/serverWebSocket", configurator=ServletAwareConfig.class)
 public class CondivisioniSocket {
 	private HttpSession httpSession;
 	private UtenteDAO utenteDAO = (UtenteDAO) AppCtxProv.getApplicationContext().getBean("utenteDAO");
 	private CondivisioneDAO condivisioneDAO = (CondivisioneDAO) AppCtxProv.getApplicationContext().getBean("condivisioneDAO");
+	private EndpointConfig config;
 	@OnMessage
 	public void onMessage(Session s, String msg) {
 		String[] form = msg.split(";");
@@ -40,12 +43,19 @@ public class CondivisioniSocket {
 		String filename;
 		String email;
 		Utente ownerUser; 
+		double totByteFCond = (Double) httpSession.getAttribute("totByteFCond");
+		double totByteFReg = (Double) httpSession.getAttribute("totByteFReg");
 		
 		email = s.getRequestParameterMap().get("email").get(0);
 		//tipologia di operazione
 		String type = form[0];
 		String[] vetTmp;
 		String tmp;
+		Map<String, Session> usersConn = new HashMap<String, Session>();
+		for(Session s1: s.getOpenSessions()) {
+			if(!s1.equals(s) && s1.isOpen())
+				usersConn.put(s1.getRequestParameterMap().get("email").get(0), s1);
+		}
 		if (type.equals("NEW"))
 		{
 	//		vetTmp = tmp.split(": ");
@@ -113,11 +123,7 @@ public class CondivisioniSocket {
 			pathDir += "\\Polibox"+ pathUrl;
 			System.out.println(pathDir+"-----"+pathUrl+"-------"+filename);
 			/*Costruisco una mappa con tutti gli utenti connessi attualmente tramite WebSocket*/
-			Map<String, Session> usersConn = new HashMap<String, Session>();
-			for(Session s1: s.getOpenSessions()) {
-				if(!s1.equals(s) && s1.isOpen())
-					usersConn.put(s1.getRequestParameterMap().get("email").get(0), s1);
-			}
+			
 			for(Utente u: users){
 				Condivisione cond = new Condivisione();
 				cond.setOwnerId(owner.getId());
@@ -173,7 +179,11 @@ public class CondivisioniSocket {
 			Long id = Long.parseLong(vetTmp[1]);
 			Condivisione cond = condivisioneDAO.getCondivisione(id);
 			double size = HomeController.directorySize(new File(cond.getDirPath()));
-//			if ()
+			//controllo dimensione massiam
+			if(totByteFReg + totByteFCond > 5000000){
+				s.getAsyncRemote().sendText("<div class=\"alert alert-danger\" role=\"alert\"> Oops! Impossibile condividere la cartella <b>"+ cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b>. Memoria in esaurimento.</div>");
+				return;
+			}
 			cond.setState(1);
 			condivisioneDAO.updateCondivisione(cond);
 			
@@ -192,6 +202,36 @@ public class CondivisioniSocket {
 			log.addLine(u.getId(), "RCA","http://localhost:8080/ai/home/"+p[p.length-1] , 0, owner.getId());
 			System.out.println("------pp:"+pp);
 			owner_log.addLine(owner.getId(), "RCA",pp , 0, u.getId());
+			
+			s.getAsyncRemote().sendText("<div class=\"alert alert-success\" role=\"alert\"> La condivisione alla cartella <b>"+ cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> è stata accettata. </div>");
+			Session session;
+			SessionManager sm = SessionManager.getInstance();
+			ConcurrentHashMap<Long, Session> hm;
+			if ( (hm = sm.getSessionMap(owner.getId())) != null) {
+				if ((session = hm.get(Long.parseLong("0")))!=null)
+					session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> si è iscritto alla cartella condivisa <b>" + cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+			}
+			List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioni(cond.getDirPath());
+			for(Condivisione c: listCond){
+				if (c.getUserId()!=u.getId()){
+					hm = sm.getSessionMap(c.getUserId());
+					if(hm != null && (session = hm.get(Long.parseLong("0")))!=null)
+						session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> si è iscritto alla cartella condivisa <b>" + cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+				
+				}
+			}
+//			Session session;
+//			if((session = usersConn.get(owner.getEmail())) != null){
+//				session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> si è iscritto alla cartella condivisa <b>" + cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+//			}
+//			
+//			List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioni(cond.getDirPath());
+//			for(Condivisione c: listCond){
+//				if((session = usersConn.get(utenteDAO.getUtente(c.getUserId()).getEmail())) != null)
+//					session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> si è iscritto alla cartella condivisa <b>" + cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+//			}
+			
+			
 		} else if (type.equals("REF")) {
 			System.out.println("sto rifiutando una condivisione");
 			tmp = form[1];
@@ -209,19 +249,33 @@ public class CondivisioniSocket {
 				if (flag==1) pp += "/"+p[i];
 				if (p[i].equals("Polibox")) flag=1;
 			}
+			String pathcond = cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1);
 			condivisioneDAO.deleteCondivisione(cond);
 			log.addLine(u.getId(), "RCREF","http://localhost:8080/ai/home/"+p[p.length-1] , 0, owner.getId());
 			owner_log.addLine(owner.getId(), "RCREF",pp , 0, u.getId());
+			Session session;
+			SessionManager sm = SessionManager.getInstance();
+			ConcurrentHashMap<Long, Session> hm;
+			if ( (hm = sm.getSessionMap(owner.getId())) != null) {
+				if ((session = hm.get(Long.parseLong("0")))!=null)
+					session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> ha rifiutato l'invito alla cartella condivisa <b>" + pathcond + "</b> </div>");
+			}
 		}
 	}
 	
 	@OnOpen
 	public void onOpen(Session s, EndpointConfig cfg) {
+		this.config = cfg;
+		httpSession = (HttpSession) config.getUserProperties().get("httpSession");
+		Utente u = (Utente) httpSession.getAttribute("utente");
+		SessionManager.getInstance().addUserSession(u.getId(), Long.parseLong("0"), s);
 		System.out.println("Connessione WebSocket aperta con utente: " + s.getRequestParameterMap().get("email").get(0) + ", " + s.getRequestParameterMap().get("nome").get(0));
 	}
 	
 	@OnClose
 	public void onClose(Session s, CloseReason reason) {
+		Utente u = (Utente) httpSession.getAttribute("utente");
+		SessionManager.getInstance().removeUserSession(u.getId(), Long.parseLong("0"));
 		System.out.println("Connessione WebSocket chiusa con utente: " + s.getRequestParameterMap().get("email").get(0) + " " + s.getRequestParameterMap().get("nome").get(0));
 	}
 	
