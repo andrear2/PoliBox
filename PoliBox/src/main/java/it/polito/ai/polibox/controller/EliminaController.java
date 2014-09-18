@@ -38,7 +38,7 @@ public class EliminaController {
 		String pathLog = new String();
 		String condName = new String();
 		if (cond == 1) {
-			// creazione in una cartella condivisa
+			// eliminazione in una cartella condivisa
 			condivisione = condivisioneDAO.getCondivisioneWithoutTrans((Long) session.getAttribute("cId"));
 			owner = utenteDAO.getUtenteWithoutTrans(condivisione.getOwnerId());
 			pathDir = condivisione.getDirPath();
@@ -60,6 +60,7 @@ public class EliminaController {
 			pathDir += "\\Polibox\\" + pathUrl;
 		}
 		File dir = new File(pathDir + "\\" + nome);
+		double size = HomeController.directorySize(dir);
 		boolean isDir = dir.isDirectory();
 		String name = dir.getName();
 		boolean success = EliminaController.deleteDir(dir);
@@ -71,6 +72,7 @@ public class EliminaController {
 		if(success){
 			if(isDir) {
 				if(cond==1) {
+					session.setAttribute("totByteFCond", (Double) session.getAttribute("totByteFCond") - size);
 					Log owner_log = new Log(owner.getHome_dir());
 					String[] p = condivisione.getDirPath().split("\\\\");
 					int flag=0;
@@ -82,11 +84,13 @@ public class EliminaController {
 					log.addLine(utente.getId(), "DD","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, owner.getId());
 					owner_log.addLine(owner.getId(), "DD",pp+pathLog+"/"+nome , 0, utente.getId());
 				} else {
+					session.setAttribute("totByteFReg", (Double) session.getAttribute("totByteFReg") - size);
 					log.addLine(utente.getId(), "DD",path+"/"+name , 0);
 				}
 				redirectAttrs.addFlashAttribute("msg", "Cartella " + name + " eliminata con successo");
 			} else {
 				if(cond==1) {
+					session.setAttribute("totByteFCond", (Double) session.getAttribute("totByteFCond") - size);
 					Log owner_log = new Log(owner.getHome_dir());
 					String[] p = condivisione.getDirPath().split("\\\\");
 					int flag=0;
@@ -98,6 +102,7 @@ public class EliminaController {
 					log.addLine(utente.getId(), "DD","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, owner.getId());
 					owner_log.addLine(owner.getId(), "DD",pp+pathLog+"/"+nome , 0, utente.getId());
 				} else {
+					session.setAttribute("totByteFReg", (Double) session.getAttribute("totByteFReg") - size);
 					log.addLine(utente.getId(), "DD",path+"/"+name , 0);
 				}
 				redirectAttrs.addFlashAttribute("msg", "File " + name + " eliminato con successo");

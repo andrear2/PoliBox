@@ -4,11 +4,13 @@ import it.polito.ai.polibox.entity.Condivisione;
 import it.polito.ai.polibox.entity.Utente;
 import it.polito.ai.polibox.dao.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
 import javax.websocket.Session;
 import javax.websocket.CloseReason;
 import javax.websocket.EndpointConfig;
@@ -23,10 +25,11 @@ import org.springframework.ui.Model;
 @Controller
 @ServerEndpoint("/serverWebSocket")
 public class CondivisioniSocket {
+	private HttpSession httpSession;
 	private UtenteDAO utenteDAO = (UtenteDAO) AppCtxProv.getApplicationContext().getBean("utenteDAO");
 	private CondivisioneDAO condivisioneDAO = (CondivisioneDAO) AppCtxProv.getApplicationContext().getBean("condivisioneDAO");
 	@OnMessage
-	public void onMessage(Session s, String msg, Model model, EndpointConfig conf) {
+	public void onMessage(Session s, String msg) {
 		String[] form = msg.split(";");
 		
 //		boolean allowInvitations;
@@ -169,6 +172,8 @@ public class CondivisioniSocket {
 			vetTmp = tmp.split(": ");
 			Long id = Long.parseLong(vetTmp[1]);
 			Condivisione cond = condivisioneDAO.getCondivisione(id);
+			double size = HomeController.directorySize(new File(cond.getDirPath()));
+//			if ()
 			cond.setState(1);
 			condivisioneDAO.updateCondivisione(cond);
 			

@@ -11,5 +11,6 @@ public interface DispositivoDAO {
 	public Dispositivo getDispositivo(Long id);
 	public void updateDispositivo(Dispositivo dispositivo);
 	public void deleteDispositivo(Dispositivo dispositivo);
+	public List<Dispositivo> getDispositivi(Long id);
 	
 }

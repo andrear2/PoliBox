@@ -2,20 +2,26 @@ package it.polito.ai.polibox.controller;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
+import javax.websocket.Session;
 
 import it.polito.ai.polibox.dao.CondivisioneDAO;
+import it.polito.ai.polibox.dao.DispositivoDAO;
 import it.polito.ai.polibox.dao.SincronizzazioniPendentiDAO;
 import it.polito.ai.polibox.dao.UtenteDAO;
 import it.polito.ai.polibox.entity.Condivisione;
+import it.polito.ai.polibox.entity.Dispositivo;
+import it.polito.ai.polibox.entity.SessionManager;
 import it.polito.ai.polibox.entity.SincronizzazioniPendenti;
 import it.polito.ai.polibox.entity.Utente;
 
+import org.eclipse.jetty.jndi.local.localContextRoot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,17 +37,19 @@ public class UploadController implements CheckConnection {
 	@Autowired
 	UtenteDAO utenteDAO;
 	@Autowired
+	DispositivoDAO dispositivoDAO;
+	@Autowired
 	SincronizzazioniPendentiDAO sincDAO;
-	
+
 	private File dest;
-	
+
 	@RequestMapping(value = "/fileUpload", method = RequestMethod.POST)
 	public String fileUploadSubmit(@RequestParam(value="files") List<MultipartFile> uploadedFiles, @RequestParam(value="pathFile") String path, @RequestParam(value="cond") Integer cond, RedirectAttributes redirectAttrs, HttpSession session) {
 		Utente utente = (Utente) session.getAttribute("utente");
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
 		}
-		
+
 		System.out.println(path);
 		String[] pathElements = path.replace("%20", " ").split("/");
 		String pathDir = new String();
@@ -73,7 +81,7 @@ public class UploadController implements CheckConnection {
 			pathDir += "\\Polibox\\" + pathUrl;
 		}
 		List<String> fileNames = new ArrayList<String>();
-		  
+
 		if (uploadedFiles == null || uploadedFiles.size() == 0 || uploadedFiles.get(0).getOriginalFilename() == "") {
 			redirectAttrs.addFlashAttribute("utente", utente);
 			redirectAttrs.addFlashAttribute("msgBool", true);
@@ -88,15 +96,33 @@ public class UploadController implements CheckConnection {
 				return "redirect:home/" + pathUrl.replace("\\", "/");
 			}
 		}
-		
+
+		double totB = (Double) session.getAttribute("totByteFReg") + (Double) session.getAttribute("totByteFCond") ;
+
 		Log log = new Log(utente.getHome_dir());
 		for (MultipartFile file: uploadedFiles) {
+			if (file.getSize() + totB > 5000000) {
+				redirectAttrs.addFlashAttribute("utente", utente);
+				redirectAttrs.addFlashAttribute("msgBool", true);
+				redirectAttrs.addFlashAttribute("msg", "Il file " + file.getOriginalFilename() + " è troppo grosso. Hai a disposizione " + (5000000 - totB) + " bytes.");
+				redirectAttrs.addFlashAttribute("msgClass", "error");
+				if (pathUrl.isEmpty()) {
+					return "redirect:home";
+				}
+				if (cond == 1) {
+					return "redirect:Home/" + pathUrl.replace("\\", "/");
+				} else {
+					return "redirect:home/" + pathUrl.replace("\\", "/");
+				}
+			}
+
 			String fileName = file.getOriginalFilename();
 			fileNames.add(fileName);
 			dest = new File(pathDir + "\\" + fileName);
 			try {
 				file.transferTo(dest);
 				if(cond==1) {
+					session.setAttribute("totByteFCond", (Double) session.getAttribute("totByteFCond") + file.getSize());
 					Log owner_log = new Log(owner.getHome_dir());
 					String[] p = condivisione.getDirPath().split("\\\\");
 					int flag=0;
@@ -108,6 +134,7 @@ public class UploadController implements CheckConnection {
 					log.addLine(utente.getId(), "NF","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+fileName , 0, owner.getId());
 					owner_log.addLine(owner.getId(), "NF",pp+pathLog+"/"+fileName , 0, utente.getId());
 				} else {
+					session.setAttribute("totByteFReg", (Double) session.getAttribute("totByteFReg") + file.getSize());
 					log.addLine(utente.getId(), "NF",path+"/"+fileName , 0);
 				}
 				if (pathUrl.isEmpty())
@@ -167,31 +194,42 @@ public class UploadController implements CheckConnection {
 			return "redirect:home/" + pathUrl.replace("\\", "/");
 		}
 	}
-	
+
 	@Override
 	public void connected(String path,Long id) {
-		if (!ClientController.connected){
-			SincronizzazioniPendenti sinc = new SincronizzazioniPendenti(id,path,1);
-			sincDAO.addSincronizzazioniPendenti(sinc);
-		} else {
+		for (Dispositivo d : dispositivoDAO.getDispositivi(id)){
+			if(!SessionManager.getInstance().getSessionMap(id).containsKey(d.getId())){
+				SincronizzazioniPendenti sinc = new SincronizzazioniPendenti(id,path,1);
+				sincDAO.addSincronizzazioniPendenti(sinc);
+			}
+		}
 			try {
-				//ClientController.openedSession.getBasicRemote().sendText("FILE:"+path);
-				FileInputStream fis = new FileInputStream(dest);
-				byte[] b = new byte[1024];
+				for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
+					s.getBasicRemote().sendText("FILE:"+path);
+				}
+				FileInputStream fis=null;
+				fis = new FileInputStream(dest);
+				System.out.println(fis.available());
+				byte[] b = new byte[8192];
 				int bRead;
+				ByteBuffer bb;
 				while ((bRead=fis.read(b))!=-1) {
-					ByteBuffer bb = ByteBuffer.allocate(bRead);
-					bb.put(b, 0, bRead);
-					System.out.println("PRIMA");
-					ClientController.openedSession.getBasicRemote().sendBinary(bb);
-					System.out.println("dopo");
+					System.out.println(bRead);
+					bb=ByteBuffer.wrap(b);
+						for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
+							s.getBasicRemote().sendBinary(bb);
+						}
+					bb.clear();
+					Thread.sleep(25);
 				}
 				fis.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		}
-		
+
 	}
 }

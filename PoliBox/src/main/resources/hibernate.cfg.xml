@@ -18,5 +18,6 @@
 	<mapping class="it.polito.ai.polibox.entity.SincronizzazioniPendenti"/>
 	<mapping class="it.polito.ai.polibox.entity.Utente"/>
 	<mapping class="it.polito.ai.polibox.entity.Condivisione"/>
+	<mapping class="it.polito.ai.polibox.entity.Dispositivo"/>
   </session-factory>
 </hibernate-configuration>

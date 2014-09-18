@@ -24,6 +24,13 @@ public class Dispositivo {
 	@Column(name="last_sync")
 	private Date lastSync;
 
+	public Dispositivo() {
+	}
+	
+	public Dispositivo(Long id2) {
+		this.userId = id2;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

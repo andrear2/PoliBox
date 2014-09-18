@@ -8,6 +8,7 @@
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<bean name="utenteDAO" class="it.polito.ai.polibox.dao.UtenteDAOImpl"></bean>
+	<bean name="dispositivoDAO" class="it.polito.ai.polibox.dao.DispositivoDAOImpl"></bean>
 	<bean name="sincDAO" class="it.polito.ai.polibox.dao.SincronizzazioniPendentiDAOImpl"></bean>
 	<bean name="condivisioneDAO" class="it.polito.ai.polibox.dao.CondivisioneDAOImpl"></bean>
 	<bean id="applicationContextProvder" class="it.polito.ai.polibox.controller.AppCtxProv"/>

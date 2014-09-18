@@ -67,6 +67,20 @@ public class HomeController {
 			if (c.getState() == 1)
 				owner_sd_list.add(c.getDirPath());
 		}
+		
+		double totByteFCond = 0, totByteFReg = 0;	
+		
+		String homeDir = u.getHome_dir();
+		totByteFReg = HomeController.directorySize(new File(homeDir));
+		System.out.println("---->"+totByteFReg);
+		
+		for(Condivisione c: condivisioneDAO.getCondivisioni(u.getId())){
+			totByteFCond += HomeController.directorySize(new File(c.getDirPath()));
+		}
+		
+		session.setAttribute("totByteFReg", totByteFReg);
+		session.setAttribute("totByteFCond", totByteFCond);
+		
 		model.addAttribute("owner_sd_list", owner_sd_list);
 		model.addAttribute("sd_list", sd_list);
 		model.addAttribute("pending_sd_list", pending_sd_list);
@@ -130,14 +144,14 @@ public class HomeController {
 			if (i==1)
 				p+= pp[i];
 			else
-				p += "\\"+pp[i];
+				p += "/"+pp[i];
 		}
-		String filePath = condivisione.getDirPath()+ "\\"+p;
+		String filePath = condivisione.getDirPath()+ "/"+p;
 		System.out.println(condivisione.getDirPath()+ p+"----------------path:"+path);
 		File file = new File(filePath);
 		
 		if (file.isFile()) {
-			// é stato selezionato un file, esegui il download
+			// ï¿½ stato selezionato un file, esegui il download
 			try {
 				FileInputStream input = new FileInputStream(file);
 				
@@ -191,7 +205,7 @@ public class HomeController {
 		
 		HashMap<Long,String> pending_sd_list = new HashMap<Long,String>();
 		for (Condivisione c: condivisioneDAO.getCondivisioni(utente.getId())) {
-			String dirPath = c.getDirPath().substring(c.getDirPath().lastIndexOf("\\") + 1);
+			String dirPath = c.getDirPath().substring(c.getDirPath().lastIndexOf("/") + 1);
 			if (c.getState() == 0)
 				pending_sd_list.put(c.getId(), dirPath);
 		}
@@ -202,4 +216,22 @@ public class HomeController {
 		model.addAttribute("pathUrl", path);
 		return "homeCond";
 	}
+	
+	
+	public static double directorySize(File dir){
+		double tot = 0;
+		
+		if(dir.isFile())
+			tot += dir.length();
+		else{
+			String[] children = dir.list();
+			if (children != null) {
+				for(int i = 0; i < children.length; i++)
+					tot += HomeController.directorySize(new File(dir, children[i])); 
+			}
+		}
+		
+		return tot;
+	}
+	
 }

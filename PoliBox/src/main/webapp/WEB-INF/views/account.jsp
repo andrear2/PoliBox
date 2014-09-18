@@ -6,6 +6,7 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Polibox - Account</title>
 	<link href='<c:url value="/resources/css/style.css" />' type="text/css" rel="stylesheet">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -96,6 +97,22 @@
 	          <ul class="dropdown-menu">
 	            <li>${utente.nome} ${utente.cognome}</li>
 	            <li>${utente.email}</li>
+	            <li id="progBar">
+	            	<div class="progress">
+  						<div class="progress-bar" style="width: ${totByteFReg/50000}%">
+    						<span class="sr-only">${totByteFReg/50000}% Complete</span>
+  						</div>
+  						<div class="progress-bar progress-bar-info" style="width: ${totByteFCond/50000}%">
+    						<span class="sr-only">${totByteFCond/50000}% Complete</span>
+  						</div>
+					</div>
+					<p> 
+						<c:if test = "${totByteFCond + totByteFReg >= 1000}"> ${(totByteFCond+totByteFReg)/1000} KB </c:if>
+						<c:if test = "${totByteFCond + totByteFReg >= 1000000}"> ${(totByteFCond+totByteFReg)/1000000} MB </c:if> 
+						<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> ${(totByteFCond+totByteFReg)/1000000000} GB </c:if>
+						di 2,5 GB in uso 
+					</p>
+				</li>
 	            <li class="divider"></li>
 	            <li><a href="/ai/account">Profilo</a></li>
 	            <li><a href="/ai/logout">Logout</a></li>
@@ -130,7 +147,21 @@
 					<td><a data-toggle="modal" href="#divFormEmailModal">Modifica email</a></td>
 				</tr>
 			</table>
-			
+			<p>Spazio utilizzato in Polibox</p>
+			<div class="progress">
+	  			<div class="progress-bar" style="width: ${totByteFReg/50000}%">
+	    			<span class="sr-only">${totByteFReg/50000}% Complete</span>
+	  			</div>
+	  			<div class="progress-bar progress-bar-info" style="width: ${totByteFCond/50000}%">
+	    			<span class="sr-only">${totByteFCond/50000}% Complete</span>
+	  			</div>
+			</div>
+			<p> 
+				<c:if test = "${totByteFCond + totByteFReg >= 1000 && totByteFCond + totByteFReg < 1000000}"> ${(totByteFCond+totByteFReg)/1000} KB </c:if>
+				<c:if test = "${totByteFCond + totByteFReg >= 1000000 && totByteFCond + totByteFReg < 1000000000}"> ${(totByteFCond+totByteFReg)/1000000} MB </c:if> 
+				<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> ${(totByteFCond+totByteFReg)/1000000000} GB </c:if>
+				di 5 MB in uso 
+			</p>
 			<!-- Modal form per il cambio nome -->
 			<div class="modal fade" id="divFormNomeModal" tabindex="-1" role="dialog" aria-labelledby="modalNomeLabel" aria-hidden="true">
 				<div class="modal-dialog modal-sm">
@@ -233,5 +264,8 @@
 			</div>
 		</div> <!-- tab-pane sicurezza -->
 	</div> <!-- tab-content -->
+	
+	
+	
 </body>
 </html>

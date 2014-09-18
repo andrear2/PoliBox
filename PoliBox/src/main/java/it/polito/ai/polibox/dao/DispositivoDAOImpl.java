@@ -50,6 +50,14 @@ public class DispositivoDAOImpl implements DispositivoDAO {
 		session.delete(dispositivo);
 	}
 
+	@Override
+	public List<Dispositivo> getDispositivi(Long id) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		Query query = session.createQuery("from Dispositivo where userId=:userId");
+		query.setLong("userId", id);
+		return query.list();
+	}
+
 	
 	
 }
