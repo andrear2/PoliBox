@@ -240,9 +240,11 @@ public class UploadController implements CheckConnection {
 				while ((bRead=fis.read(b))!=-1) {
 					System.out.println(bRead);
 					bb=ByteBuffer.wrap(b);
+					if (SessionManager.getInstance().getSessionMap(id)!= null) {
 						for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
 							s.getBasicRemote().sendBinary(bb);
 						}
+					}
 					bb.clear();
 					Thread.sleep(25);
 				}

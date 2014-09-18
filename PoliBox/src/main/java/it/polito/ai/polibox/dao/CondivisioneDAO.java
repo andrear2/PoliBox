@@ -15,5 +15,6 @@ public interface CondivisioneDAO {
 	public void updateCondivisione(Condivisione condivisione);
 	public void deleteCondivisione(Condivisione condivisione);
 	public List<Condivisione> getActiveCondivisioni(String resource);
+	List<Condivisione> getActiveCondivisioniWithoutTrans(String resource);
 	
 }

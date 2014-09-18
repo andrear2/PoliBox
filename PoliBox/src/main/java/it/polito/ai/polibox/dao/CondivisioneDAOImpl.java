@@ -109,5 +109,15 @@ public class CondivisioneDAOImpl implements CondivisioneDAO {
 		return condivisioni;
 		
 	}
+	
+	@Override
+	public List<Condivisione> getActiveCondivisioniWithoutTrans(String resource){
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		Query query = session.createQuery("from Condivisione where dirPath = :dirPath AND state = 1");
+		query.setString("dirPath", resource);
+		List<Condivisione> condivisioni = query.list();
+		return condivisioni;
+		
+	}
 
 }
