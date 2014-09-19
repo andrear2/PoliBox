@@ -8,22 +8,19 @@ $(document).ready(function() {
     		"zeroRecords": "Questa cartella è vuota"
     	}
     });
-    
-	$('tr').each(function() {
-		var $a = $(this).find("a");
-		
-		var menu = new Array();
-		menu[0] = ["Opzioni cartella condivisa", "#"];
-		menu[1] = ["Invita alla cartella", "#divFormCondividi"];
-		menu[2] = ["Condividi link", "#"];
-		menu[3] = ["Scarica", "http://localhost:8080" + $a.attr('href')];
-		menu[4] = ["Elimina", "#divFormElimina"];
-		menu[5] = ["Rinomina", "#divFormRinomina"];
-		menu[6] = ["Sposta", "#"];
-		menu[7] = ["Copia", "#"];
-		menu[8] = ["Crea album", "#"];
-		menu[9] = ["Versioni precedenti", "#"];
-
+    if (document.getElementById("ownerCond").innerHTML == "0") {
+		$('tr').each(function() {
+			var $a = $(this).find("a");
+			
+			var menu = new Array();
+			menu[0] = ["Opzioni cartella condivisa", "#"];
+			menu[1] = ["Invita alla cartella", "#divFormCondividi"];
+			menu[2] = ["Scarica", "http://localhost:8080" + $a.attr('href')];
+			menu[3] = ["Elimina", "#divFormElimina"];
+			menu[4] = ["Rinomina", "#divFormRinomina"];
+			menu[5] = ["Sposta", "#"];
+			menu[6] = ["Copia", "#"];
+	
     	var id = $a.attr('id');
     	var isFile = /^file/.test(id);
     	
@@ -41,6 +38,34 @@ $(document).ready(function() {
     
     	$(contextMenu).insertAfter($a).hide();
     });
+    } else {
+    	$('tr').each(function() {
+			var $a = $(this).find("a");
+			
+			var menu = new Array();
+			menu[0] = ["Opzioni cartella condivisa", "#"];
+			menu[1] = ["Scarica", "http://localhost:8080" + $a.attr('href')];
+			menu[2] = ["Elimina", "#divFormElimina"];
+			menu[3] = ["Rinomina", "#divFormRinomina"];
+	
+    	var id = $a.attr('id');
+    	var isFile = /^file/.test(id);
+    	
+    	var contextMenu = '<div class="context-menu">';
+    	for(var i = 0; i < menu.length; i++){
+    		if ($a.hasClass("not_editable")) {
+    			if (i==0 || i==1 || i==4 || i==5 || i==6) continue;
+    		} else {
+        		if(isFile && (i == 0 || i == 1 || i == 8)) continue;
+        		if(!isFile && (i == 0 || i == 9)) continue;
+    		}
+        		contextMenu += '<div><a data-toggle="modal" href="' + menu[i][1] + '">' + menu[i][0] + '</a></div>';
+    	}
+    	contextMenu += '</div>';
+    
+    	$(contextMenu).insertAfter($a).hide();
+    });
+    }
 	
 	$('tr').bind('contextmenu', function(e) {
 	    
@@ -118,4 +143,8 @@ function changeValueCheckbox(field) {
 		field.value = "false";
 	else
 		field.value = "true";
+}
+function hideMsgDiv() {
+	document.getElementById('msg').innerHTML='';
+	location.reload(true);
 }

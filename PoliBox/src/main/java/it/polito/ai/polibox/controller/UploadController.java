@@ -51,7 +51,7 @@ public class UploadController implements CheckConnection {
 			return "index";
 		}
 
-		System.out.println(path);
+		System.out.println("Upload filevariabile path: "+path);
 		String[] pathElements = path.replace("%20", " ").split("/");
 		String pathDir = new String();
 		Utente owner = new Utente();
@@ -81,6 +81,7 @@ public class UploadController implements CheckConnection {
 			}
 			pathDir += "\\Polibox\\" + pathUrl;
 		}
+		System.out.println("Upload file --- pathdir:" + pathDir + " ----pathurl: "+pathUrl);
 		List<String> fileNames = new ArrayList<String>();
 
 		if (uploadedFiles == null || uploadedFiles.size() == 0 || uploadedFiles.get(0).getOriginalFilename() == "") {
@@ -91,8 +92,10 @@ public class UploadController implements CheckConnection {
 			if (pathUrl.isEmpty()) {
 				return "redirect:home";
 			}
-			if (cond == 1) {
-				return "redirect:Home/" + pathUrl.replace("\\", "/");
+			if (cond == 1 && session.getAttribute("ownerCond")==null) {
+				return "redirect:Home/" + condName+pathUrl.replace("\\", "/");
+			}   else if ( session.getAttribute("ownerCond")!=null) {
+				return "redirect:home/" + condName + pathUrl.replace("\\", "/");
 			} else {
 				return "redirect:home/" + pathUrl.replace("\\", "/");
 			}
@@ -110,8 +113,10 @@ public class UploadController implements CheckConnection {
 				if (pathUrl.isEmpty()) {
 					return "redirect:home";
 				}
-				if (cond == 1) {
-					return "redirect:Home/" + pathUrl.replace("\\", "/");
+				if (cond == 1 && session.getAttribute("ownerCond")==null) {
+					return "redirect:Home/" + condName + pathUrl.replace("\\", "/");
+				}  else if ( session.getAttribute("ownerCond")!=null) {
+					return "redirect:home/" + condName + pathUrl.replace("\\", "/");
 				} else {
 					return "redirect:home/" + pathUrl.replace("\\", "/");
 				}
@@ -120,6 +125,7 @@ public class UploadController implements CheckConnection {
 			String fileName = file.getOriginalFilename();
 			fileNames.add(fileName);
 			dest = new File(pathDir + "\\" + fileName);
+			System.out.println("Upload file in path: "+pathDir + "\\" + fileName);
 			try {
 				file.transferTo(dest);
 				if(cond==1) {
@@ -162,7 +168,10 @@ public class UploadController implements CheckConnection {
 //					connected(dest.getName(), utente.getId());
 //				else
 //					connected(pathUrl + "\\" + dest.getName(), utente.getId());
-				connected(pathDir, utente.getId());
+				if(pathUrl.isEmpty())
+					connected(pathDir+file.getOriginalFilename(), utente.getId(),dest.getName());
+				else
+					connected(pathDir+"\\"+file.getOriginalFilename(), utente.getId(),pathUrl + "\\" + dest.getName());
 			} catch (IllegalStateException ise) {
 				ise.printStackTrace();
 				redirectAttrs.addFlashAttribute("utente", utente);
@@ -172,8 +181,10 @@ public class UploadController implements CheckConnection {
 				if (pathUrl.isEmpty()) {
 					return "redirect:home";
 				}
-				if (cond == 1) {
-					return "redirect:Home/" + pathUrl.replace("\\", "/");
+				if (cond == 1 && session.getAttribute("ownerCond")==null) {
+					return "redirect:Home/" + condName + pathUrl.replace("\\", "/");
+				}  else if ( session.getAttribute("ownerCond")!=null) {
+					return "redirect:home/" + condName + pathUrl.replace("\\", "/");
 				} else {
 					return "redirect:home/" + pathUrl.replace("\\", "/");
 				}
@@ -186,8 +197,10 @@ public class UploadController implements CheckConnection {
 				if (pathUrl.isEmpty()) {
 					return "redirect:home";
 				}
-				if (cond == 1) {
-					return "redirect:Home/" + pathUrl.replace("\\", "/");
+				if (cond == 1 && session.getAttribute("ownerCond")==null) {
+					return "redirect:Home/" + condName + pathUrl.replace("\\", "/");
+				}  else if ( session.getAttribute("ownerCond")!=null) {
+					return "redirect:home/" + condName + pathUrl.replace("\\", "/");
 				} else {
 					return "redirect:home/" + pathUrl.replace("\\", "/");
 				}
@@ -207,20 +220,22 @@ public class UploadController implements CheckConnection {
 		}
 		redirectAttrs.addFlashAttribute("msg", msg);
 		redirectAttrs.addFlashAttribute("msgClass", "success");
-		if (pathUrl.isEmpty()) {
+		if (cond!=1 && pathUrl.isEmpty()) {
 			return "redirect:home";
 		}
-		if (cond == 1) {
+		if (cond == 1 && session.getAttribute("ownerCond")==null) {
 			return "redirect:Home/" + condName +pathLog;
+		}  else if ( session.getAttribute("ownerCond")!=null) {
+			return "redirect:home/" + condName + pathUrl.replace("\\", "/");
 		} else {
 			return "redirect:home/" + pathUrl.replace("\\", "/");
 		}
 	}
 
 	@Override
-	public void connected(String path,Long id) {
+	public void connected(String path,Long id, String pathRel) {
 		for (Dispositivo d : dispositivoDAO.getDispositivi(id)){
-			if(!SessionManager.getInstance().getSessionMap(id).containsKey(d.getId())){
+			if(SessionManager.getInstance().getSessionMap(id)== null || !SessionManager.getInstance().getSessionMap(id).containsKey(d.getId())){
 				SincronizzazioniPendenti sinc = new SincronizzazioniPendenti(id,d.getId(),path,1);
 				sincDAO.addSincronizzazioniPendenti(sinc);
 			}
@@ -228,7 +243,7 @@ public class UploadController implements CheckConnection {
 			try {
 				if (SessionManager.getInstance().getSessionMap(id)!=null) {
 					for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
-						s.getBasicRemote().sendText("FILE:"+path);
+						s.getBasicRemote().sendText("FILE:"+pathRel);
 					}
 				}
 				FileInputStream fis=null;
@@ -239,7 +254,10 @@ public class UploadController implements CheckConnection {
 				ByteBuffer bb;
 				while ((bRead=fis.read(b))!=-1) {
 					System.out.println(bRead);
-					bb=ByteBuffer.wrap(b);
+					if(bRead<8192){
+						bb=ByteBuffer.wrap(b,0,bRead);
+					}else
+						bb=ByteBuffer.wrap(b);
 					if (SessionManager.getInstance().getSessionMap(id)!= null) {
 						for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
 							s.getBasicRemote().sendBinary(bb);

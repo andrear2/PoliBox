@@ -63,6 +63,16 @@ public class DispositivoDAOImpl implements DispositivoDAO {
 		return query.list();
 	}
 
+	@Override
+	public List<Dispositivo> getDispositiviWithTransaction(Long id) {
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction tx = (Transaction) session.beginTransaction();
+		Query query = session.createQuery("from Dispositivo where userId=:userId");
+		query.setLong("userId", id);
+		tx.commit();
+		return query.list();
+	}
+
 	
 	
 }

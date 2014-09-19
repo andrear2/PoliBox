@@ -22,18 +22,32 @@ public class SincronizzazioniPendentiDAOImpl implements
 	@Override
 	public void deleteSincronizzazioniPendenti(SincronizzazioniPendenti sinc) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		Transaction tx = (Transaction) session.beginTransaction();
 		session.delete(sinc);
+		tx.commit();
 		
 	}
 
 	@Override
 	public List<SincronizzazioniPendenti> getSincronizzazioniPendenti(
 			Long userId, Long dispId) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		Query query = session.createQuery("from SincronizzazioniPendenti where userId=:userId and dispId=:dispId");
+		System.out.println("--->"+userId+" "+dispId);
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction tx = (Transaction) session.beginTransaction();
+		Query query = session.createQuery("from SincronizzazioniPendenti where userId = :userId and dispId = :dispId");
 		query.setLong("userId", userId);
 		query.setLong("dispId", dispId);
+		tx.commit();
 		return query.list();
+	}
+
+	@Override
+	public void addSincronizzazioniPendentiWithTransaction(
+			SincronizzazioniPendenti sinc) {
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction tx = (Transaction) session.beginTransaction();
+		session.save(sinc);
+		tx.commit();
 	}
 
 }

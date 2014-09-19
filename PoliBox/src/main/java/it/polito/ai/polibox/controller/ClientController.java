@@ -1,8 +1,10 @@
 package it.polito.ai.polibox.controller;
 
+import it.polito.ai.polibox.dao.CondivisioneDAO;
 import it.polito.ai.polibox.dao.DispositivoDAO;
 import it.polito.ai.polibox.dao.SincronizzazioniPendentiDAO;
 import it.polito.ai.polibox.dao.UtenteDAO;
+import it.polito.ai.polibox.entity.Condivisione;
 import it.polito.ai.polibox.entity.Dispositivo;
 import it.polito.ai.polibox.entity.SessionManager;
 import it.polito.ai.polibox.entity.SincronizzazioniPendenti;
@@ -13,9 +15,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
+import java.util.Map;
 
-import javax.servlet.http.HttpSession;
 import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -35,11 +36,13 @@ public class ClientController {
 	private UtenteDAO utenteDAO = (UtenteDAO) AppCtxProv.getApplicationContext().getBean("utenteDAO");
 	private DispositivoDAO dispositivoDAO = (DispositivoDAO) AppCtxProv.getApplicationContext().getBean("dispositivoDAO");
 	private SincronizzazioniPendentiDAO sincDAO = (SincronizzazioniPendentiDAO) AppCtxProv.getApplicationContext().getBean("sincDAO");
+	private CondivisioneDAO condivisioneDAO = (CondivisioneDAO) AppCtxProv.getApplicationContext().getBean("condivisioneDAO");
 	static boolean connected=false;
 	private Utente u;
 	private Long id;
 	private Long disp;
-	
+	private boolean isReadOnly = false;
+
 	@OnOpen
 	public void onOpen(Session s, EndpointConfig cfg) {
 		System.out.println("Aperta!");
@@ -52,92 +55,122 @@ public class ClientController {
 			visitDirectory(new File(u.getHome_dir() + "\\Polibox"));
 			d.setNew(false);
 			dispositivoDAO.updateDispositivo(d);
-		}
-		for (SincronizzazioniPendenti sp: sincDAO.getSincronizzazioniPendenti(id, disp)) {
-			switch(sp.getType()) {
-			case 0:
-				sendDirectory(new File(sp.getPath()));
-				break;
-			case 1:
-				break;
-			case 2:
-				break;
-			default:
-				break;
+		}else{
+			for (SincronizzazioniPendenti sp: sincDAO.getSincronizzazioniPendenti(id, disp)) {
+				switch(sp.getType()) {
+				case 0:
+					sendDirectory(new File(sp.getPath()));
+					break;
+				case 1:
+					sendFile(new File(sp.getPath()));
+					break;
+				case 2:
+					delete(new File(sp.getPath()));
+					break;
+				default:
+					visitDirectory(new File(sp.getPath()));
+					break;
+				}
+				sincDAO.deleteSincronizzazioniPendenti(sp);
 			}
 		}
-		
 	}
+	
 	@OnClose
 	public void onClose(Session s){
-		
+
 		System.out.println("Sessione chiusaaaa!!!!!");
+		SessionManager.getInstance().removeUserSession(id, disp);
 	}
 	@OnMessage
 	public void onMessage(Session session, String msg) {
 		System.out.println("RICEVUTO! " + msg);
+		String sharedPath = null;
 		String[] s = msg.split(":");
+		isReadOnly=false;
+		for (Condivisione c: condivisioneDAO.getCondivisioniWithTransaction(id)) {
+			System.out.println("((((((((((((((((((("+c.getDirPath().substring(c.getDirPath().lastIndexOf("\\") + 1));
+			System.out.println("((((((((((((((((((("+s[1].split("\\\\")[0]);
+			if (c.getDirPath().substring(c.getDirPath().lastIndexOf("\\") + 1).equals(s[1].split("\\\\")[0])) {
+				if (c.getReadOnly()) {
+					isReadOnly = true;
+				}else{
+					sharedPath = c.getDirPath();
+				}
+			}
+		}
 		pathUtente = new String();
-		if (s[0].equals("DIR")) {
-			u = utenteDAO.getUtente(s[1]);
-			fileName = "C:\\Polibox uploaded files\\" + u.getId() + "_" + u.getCognome() + "_" + u.getNome() + "\\Polibox\\" + s[2];
-			File f = new File(fileName);
-			f.mkdir();
-		} else if (s[0].equals("DELETE_FILE")) {
-			u = utenteDAO.getUtente(s[1]);
-			fileName = "C:\\Polibox uploaded files\\" + u.getId() + "_" + u.getCognome() + "_" + u.getNome() + "\\Polibox\\" + s[2];
-			File f = new File(fileName);
-			f.delete();
-			if (f.isDirectory()) {
+		
+		System.out.println("((((((((((((((((((("+isReadOnly);
+		if (!isReadOnly) {
+			if (s[0].equals("DIR")) {
+				u = utenteDAO.getUtente(s[1]);
+				fileName = "C:\\Polibox uploaded files\\" + u.getId() + "_" + u.getCognome() + "_" + u.getNome() + "\\Polibox\\" + s[2];
+				File f = new File(fileName);
+				f.mkdir();
+			} else if (s[0].equals("DELETE_FILE")) {
+				u = utenteDAO.getUtente(s[1]);
+				fileName = "C:\\Polibox uploaded files\\" + u.getId() + "_" + u.getCognome() + "_" + u.getNome() + "\\Polibox\\" + s[2];
+				File f = new File(fileName);
+				f.delete();
+				if (f.isDirectory()) {
+					try {
+						FileUtils.deleteDirectory(f);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			} else if (s[0].equals("DELETE_DIR")) {
+				u = utenteDAO.getUtente(s[1]);
+				fileName = "C:\\Polibox uploaded files\\" + u.getId() + "_" + u.getCognome() + "_" + u.getNome() + "\\Polibox\\" + s[2];
+				File f = new File(fileName);
 				try {
 					FileUtils.deleteDirectory(f);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			} else if (s[0].equals("EMPTY_FILE")) {
+				File f = new File(pathUtente + s[1]);
+				try {
+					f.createNewFile();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				u = utenteDAO.getUtente(s[0]);
+				if(sharedPath != null){
+					fileName = sharedPath+"\\"+ s[1].split("\\\\")[1];
+				}else{
+					fileName = "C:\\Polibox uploaded files\\" + u.getId() + "_" + u.getCognome() + "_" + u.getNome() + "\\Polibox\\" + s[1];
+				}
+				System.out.println(fileName);
+				firstRequest = true;
 			}
-		} else if (s[0].equals("DELETE_DIR")) {
-			u = utenteDAO.getUtente(s[1]);
-			fileName = "C:\\Polibox uploaded files\\" + u.getId() + "_" + u.getCognome() + "_" + u.getNome() + "\\Polibox\\" + s[2];
-			File f = new File(fileName);
-			try {
-				FileUtils.deleteDirectory(f);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else if (s[0].equals("EMPTY_FILE")) {
-			File f = new File(pathUtente + s[1]);
-			try {
-				f.createNewFile();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else {
-			u = utenteDAO.getUtente(s[0]);
-			fileName = "C:\\Polibox uploaded files\\" + u.getId() + "_" + u.getCognome() + "_" + u.getNome() + "\\Polibox\\" + s[1];
-			firstRequest = true;
 		}
 	}
 
 	@OnMessage
 	public void onBinaryMessage(Session session, ByteBuffer buf) {
-		try {
-			File f = new File(fileName);
-			FileOutputStream fos;
-			if (firstRequest) {
-				fos = new FileOutputStream(f);
-			} else {
-				fos = new FileOutputStream(f, true);
+		if (!isReadOnly) {
+			try {
+				File f = new File(fileName);
+				FileOutputStream fos;
+				if (firstRequest) {
+					fos = new FileOutputStream(f);
+				} else {
+					fos = new FileOutputStream(f, true);
+				}
+				firstRequest = false;
+				while (buf.hasRemaining()) {
+					fos.write(buf.get());
+				}
+				fos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			firstRequest = false;
-			while (buf.hasRemaining()) {
-				fos.write(buf.get());
-			}
-			fos.close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -156,26 +189,29 @@ public class ClientController {
 		}
 	}
 	private void sendDirectory(File dir) {
-		for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
-			try {
-				System.out.println("pathD " + dir.getAbsolutePath() + " " + dir.getName() + " " + dir.getAbsolutePath().split("Polibox").length);
-				if (dir.getAbsolutePath().split("Polibox").length > 2) {
-					s.getBasicRemote().sendText("DIR:"+dir.getAbsolutePath().split("Polibox\\\\")[1]);
+		for (Map.Entry<Long, Session> s : SessionManager.getInstance().getSessionMap(id).entrySet()){
+			if (s.getKey() != 0) {
+				try {
+					System.out.println("pathD " + dir.getAbsolutePath() + " " + dir.getName() + " " + dir.getAbsolutePath().split("Polibox").length);
+					if (dir.getAbsolutePath().split("Polibox").length > 2) {
+						s.getValue().getBasicRemote().sendText("DIR:"+dir.getAbsolutePath().split("Polibox\\\\")[1]);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 	}
 	private void sendFile(File dir) {
 		try {
-			for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
-				System.out.println("pathF " + dir.getAbsolutePath() + " " + dir.getName() + " " + dir.getAbsolutePath().split("Polibox\\\\").length);
-				if (dir.getAbsolutePath().split("Polibox\\\\").length > 1) {
-					s.getBasicRemote().sendText("FILE:"+dir.getAbsolutePath().split("Polibox\\\\")[1]);
+			for (Map.Entry<Long, Session> s : SessionManager.getInstance().getSessionMap(id).entrySet()){
+				if (s.getKey() != 0) {
+					System.out.println("pathF " + dir.getAbsolutePath() + " " + dir.getName() + " " + dir.getAbsolutePath().split("Polibox\\\\").length);
+					if (dir.getAbsolutePath().split("Polibox\\\\").length > 1) {
+						s.getValue().getBasicRemote().sendText("FILE:"+dir.getAbsolutePath().split("Polibox\\\\")[1]);
+					}
 				}
-					
 			}
 			FileInputStream fis=null;
 			fis = new FileInputStream(dir);
@@ -185,12 +221,17 @@ public class ClientController {
 			ByteBuffer bb;
 			while ((bRead=fis.read(b))!=-1) {
 				System.out.println(bRead);
-				bb=ByteBuffer.wrap(b);
-					for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
-						s.getBasicRemote().sendBinary(bb);
+				if(bRead<8192){
+					bb=ByteBuffer.wrap(b,0,bRead);
+				}else
+					bb=ByteBuffer.wrap(b);
+				for (Map.Entry<Long, Session> s : SessionManager.getInstance().getSessionMap(id).entrySet()){
+					if (s.getKey() != 0) {
+						s.getValue().getBasicRemote().sendBinary(bb);
+						Thread.sleep(100);
 					}
+				}
 				bb.clear();
-				Thread.sleep(25);
 			}
 			fis.close();
 		} catch (IOException e) {
@@ -199,6 +240,22 @@ public class ClientController {
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	private void delete(File dir) {
+		for (Map.Entry<Long, Session> s : SessionManager.getInstance().getSessionMap(id).entrySet()){
+			if (s.getKey() != 0) {
+				try {
+					System.out.println("pathD " + dir.getAbsolutePath() + " " + dir.getName() + " " + dir.getAbsolutePath().split("Polibox").length);
+					if (dir.getAbsolutePath().split("Polibox").length > 2) {
+						s.getValue().getBasicRemote().sendText("DELETE:"+dir.getAbsolutePath().split("Polibox\\\\")[1]);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }

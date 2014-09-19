@@ -1,11 +1,16 @@
 package it.polito.ai.polibox.controller;
 
 import it.polito.ai.polibox.entity.Condivisione;
+import it.polito.ai.polibox.entity.Dispositivo;
 import it.polito.ai.polibox.entity.SessionManager;
+import it.polito.ai.polibox.entity.SincronizzazioniPendenti;
 import it.polito.ai.polibox.entity.Utente;
 import it.polito.ai.polibox.dao.*;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,16 +31,20 @@ import org.springframework.ui.Model;
 
 @Controller
 @ServerEndpoint(value="/serverWebSocket", configurator=ServletAwareConfig.class)
-public class CondivisioniSocket {
+public class CondivisioniSocket implements CheckConnection {
 	private HttpSession httpSession;
 	private UtenteDAO utenteDAO = (UtenteDAO) AppCtxProv.getApplicationContext().getBean("utenteDAO");
 	private CondivisioneDAO condivisioneDAO = (CondivisioneDAO) AppCtxProv.getApplicationContext().getBean("condivisioneDAO");
+	private DispositivoDAO dispositivoDAO = (DispositivoDAO) AppCtxProv.getApplicationContext().getBean("dispositivoDAO");
+	private SincronizzazioniPendentiDAO sincDAO = (SincronizzazioniPendentiDAO) AppCtxProv.getApplicationContext().getBean("sincDAO");
 	private EndpointConfig config;
+	private Long id;
+	
 	@OnMessage
 	public void onMessage(Session s, String msg) {
 		String[] form = msg.split(";");
-		
-//		boolean allowInvitations;
+
+		//		boolean allowInvitations;
 		boolean allowChanges;
 		List<String> usersList = new ArrayList<String>();
 		String message;
@@ -45,7 +54,7 @@ public class CondivisioniSocket {
 		Utente ownerUser; 
 		double totByteFCond = (Double) httpSession.getAttribute("totByteFCond");
 		double totByteFReg = (Double) httpSession.getAttribute("totByteFReg");
-		
+
 		email = s.getRequestParameterMap().get("email").get(0);
 		//tipologia di operazione
 		String type = form[0];
@@ -58,37 +67,37 @@ public class CondivisioniSocket {
 		}
 		if (type.equals("NEW"))
 		{
-	//		vetTmp = tmp.split(": ");
-	//		if(vetTmp[1].equals("true"))
-	//			allowInvitations = true;
-	//		else
-	//			allowInvitations = false;
-	//		
+			//		vetTmp = tmp.split(": ");
+			//		if(vetTmp[1].equals("true"))
+			//			allowInvitations = true;
+			//		else
+			//			allowInvitations = false;
+			//		
 			tmp = form[1];
 			vetTmp = tmp.split(": ");
 			if(vetTmp[1].equals("true"))
 				allowChanges = true;
 			else
 				allowChanges = false;
-			
+
 			tmp = form[2];
 			vetTmp = tmp.split(": ");
 			String[] vetTmp2 = vetTmp[1].split(",");
 			for(String str: vetTmp2)
 				usersList.add(str.trim());
-			
+
 			tmp = form[3];
 			vetTmp = tmp.split(": ");
 			message = vetTmp[1].trim();
-			
+
 			tmp = form[4];
 			vetTmp = tmp.split(": ");
 			path = vetTmp[1];
-			
+
 			tmp = form[5];
 			vetTmp = tmp.split(": ");
 			filename = vetTmp[1];
-			
+
 			System.out.println(usersList.toString());
 			List<Utente> users = new ArrayList<Utente>();
 			for(String str: usersList){
@@ -96,21 +105,21 @@ public class CondivisioniSocket {
 					System.out.println("utenteDAO è null!!");
 				Utente u = utenteDAO.getUtente(str);
 				System.out.println(u.toString());
-	//			org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-	//			Query query = session.createQuery("from Utente where id = :id");
-	//			System.out.println("PIPO");
-	//			query.setLong("id", 1);
-	//			List<Utente> utenti = new ArrayList<Utente>();
-	//			utenti = query.list();
-	//			Utente u = null;
-	//			if (utenti.size() > 0) {
-	//				u = utenti.get(0);
-	//			}
-	//			System.out.println(u.toString());
+				//			org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+				//			Query query = session.createQuery("from Utente where id = :id");
+				//			System.out.println("PIPO");
+				//			query.setLong("id", 1);
+				//			List<Utente> utenti = new ArrayList<Utente>();
+				//			utenti = query.list();
+				//			Utente u = null;
+				//			if (utenti.size() > 0) {
+				//				u = utenti.get(0);
+				//			}
+				//			System.out.println(u.toString());
 				if(u != null)
 					users.add(u);
 			}
-			
+
 			//Aggiungo una riga nella tabella Condivisioni per ogni utente contenuto in users
 			Utente owner = utenteDAO.getUtente(email);
 			String[] pathElements = path.split("/");
@@ -118,12 +127,12 @@ public class CondivisioniSocket {
 			Log owner_log = new Log(owner.getHome_dir());
 			String pathUrl = new String();
 			for (int i=5; i<pathElements.length; i++) {
-					pathUrl += "\\" + pathElements[i];
+				pathUrl += "\\" + pathElements[i];
 			}
 			pathDir += "\\Polibox"+ pathUrl;
 			System.out.println(pathDir+"-----"+pathUrl+"-------"+filename);
 			/*Costruisco una mappa con tutti gli utenti connessi attualmente tramite WebSocket*/
-			
+
 			for(Utente u: users){
 				Condivisione cond = new Condivisione();
 				cond.setOwnerId(owner.getId());
@@ -142,36 +151,36 @@ public class CondivisioniSocket {
 					System.out.println(u.getEmail() + " non connesso in questo momento");
 				}
 				Log log = new Log(u.getHome_dir());
-				log.addLine(u.getId(), "RCR","http://localhost:8080/ai/home/"+filename , 0, owner.getId());
-				owner_log.addLine(owner.getId(), "RCI",path+"/"+filename , 0, u.getId());
+				log.addLine(u.getId(), "RCR","http://localhost:8080/ai/home/"+filename , 0, owner);
+				owner_log.addLine(owner.getId(), "RCI",path+"/"+filename , 0, u);
 			}
-			
-		
+
+
 			/*Inviare a tutti gli utenti di users una mail*/
 			//TODO
-			
-			
-//			/*Invio la richiesta di condivisione in tempo reale a tutti gli utenti che sono connessi tramite interfaccia Web*/
-//			for(String str: usersList){
-//				for(String str1: usersConn.keySet())
-//					if(str.equals(str1)){
-//						usersConn.get(str1).getAsyncRemote().sendText("<div><p><i>" 
-//																		+ s.getRequestParameterMap().get("nome").get(0) 
-//																		+ "</i> ti ha invitato a condividere la cartella <b>" 
-//																		+ filename 
-//																		+ "</b></p> "
-//																		+ "<div style='display:none;'  id='c_id' name='c_id' >"
-//																		+ utenteDAO.getUtente(s.getRequestParameterMap().get("email").get(0)).getId() 
-//																		+ "</div>"
-//																		+ " <div style='display:none;'  id='dirPath' name='dirPath' >"+ pathDir +"\\"+ filename+"</div>"
-//																		+ " <button class='btn btn-primary' onclick='accept_cond()'>Accetta</button> "
-//																		+ "<button class='btn btn-primary' onclick='refuse_cond()'>Rifiuta</button></div>");                
-//					}
-//			}
-			
+
+
+			//			/*Invio la richiesta di condivisione in tempo reale a tutti gli utenti che sono connessi tramite interfaccia Web*/
+			//			for(String str: usersList){
+			//				for(String str1: usersConn.keySet())
+			//					if(str.equals(str1)){
+			//						usersConn.get(str1).getAsyncRemote().sendText("<div><p><i>" 
+			//																		+ s.getRequestParameterMap().get("nome").get(0) 
+			//																		+ "</i> ti ha invitato a condividere la cartella <b>" 
+			//																		+ filename 
+			//																		+ "</b></p> "
+			//																		+ "<div style='display:none;'  id='c_id' name='c_id' >"
+			//																		+ utenteDAO.getUtente(s.getRequestParameterMap().get("email").get(0)).getId() 
+			//																		+ "</div>"
+			//																		+ " <div style='display:none;'  id='dirPath' name='dirPath' >"+ pathDir +"\\"+ filename+"</div>"
+			//																		+ " <button class='btn btn-primary' onclick='accept_cond()'>Accetta</button> "
+			//																		+ "<button class='btn btn-primary' onclick='refuse_cond()'>Rifiuta</button></div>");                
+			//					}
+			//			}
+
 			/*Notifico all'utente che ha fatto richiesta di condividere la cartella che le richieste sono state inoltrate*/
 			s.getAsyncRemote().sendText("<p>La cartella <b>" + filename + "</b> è stata condivisa.<p>");
-			
+
 		} else if (type.equals("ACC")) {
 			System.out.println("sto accettando una condivisione");
 			tmp = form[1];
@@ -186,6 +195,8 @@ public class CondivisioniSocket {
 			}
 			cond.setState(1);
 			condivisioneDAO.updateCondivisione(cond);
+
+			httpSession.setAttribute("totByteFCond", totByteFCond + HomeController.directorySize(new File(cond.getDirPath())));
 			
 			Utente owner = utenteDAO.getUtente(cond.getOwnerId());
 			Utente u = utenteDAO.getUtente(cond.getUserId());
@@ -199,11 +210,11 @@ public class CondivisioniSocket {
 				else if (p[i].equals("Polibox")) 
 					flag=1;
 			}
-			log.addLine(u.getId(), "RCA","http://localhost:8080/ai/home/"+p[p.length-1] , 0, owner.getId());
+			log.addLine(u.getId(), "RCA","http://localhost:8080/ai/home/"+p[p.length-1] , 0, owner);
 			System.out.println("------pp:"+pp);
-			owner_log.addLine(owner.getId(), "RCA",pp , 0, u.getId());
+			owner_log.addLine(owner.getId(), "RCA",pp , 0, u);
 			
-			s.getAsyncRemote().sendText("<div class=\"alert alert-success\" role=\"alert\"> La condivisione alla cartella <b>"+ cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> è stata accettata. </div>");
+			//s.getAsyncRemote().sendText("<div class=\"alert alert-success\" role=\"alert\"> La condivisione alla cartella <b>"+ cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> è stata accettata. </div>");
 			Session session;
 			SessionManager sm = SessionManager.getInstance();
 			ConcurrentHashMap<Long, Session> hm;
@@ -232,6 +243,36 @@ public class CondivisioniSocket {
 //			}
 			
 			
+
+			s.getAsyncRemote().sendText("<div class=\"alert alert-success\" role=\"alert\"> La condivisione alla cartella <b>"+ cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> è stata accettata. </div>");
+			Session session;
+			SessionManager sm = SessionManager.getInstance();
+			ConcurrentHashMap<Long, Session> hm;
+			if ( (hm = sm.getSessionMap(owner.getId())) != null) {
+				if ((session = hm.get(Long.parseLong("0")))!=null)
+					session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> si è iscritto alla cartella condivisa <b>" + cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+			}
+			List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioni(cond.getDirPath());
+			for(Condivisione c: listCond){
+				if (c.getUserId()!=u.getId()){
+					hm = sm.getSessionMap(c.getUserId());
+					if(hm != null && (session = hm.get(Long.parseLong("0")))!=null)
+						session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> si è iscritto alla cartella condivisa <b>" + cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+
+				}
+			}
+			//			Session session;
+			//			if((session = usersConn.get(owner.getEmail())) != null){
+			//				session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> si è iscritto alla cartella condivisa <b>" + cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+			//			}
+			//			
+			//			List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioni(cond.getDirPath());
+			//			for(Condivisione c: listCond){
+			//				if((session = usersConn.get(utenteDAO.getUtente(c.getUserId()).getEmail())) != null)
+			//					session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> si è iscritto alla cartella condivisa <b>" + cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+			//			}
+			id = cond.getUserId();
+			connected(cond.getDirPath(), id, cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\") + 1));
 		} else if (type.equals("REF")) {
 			System.out.println("sto rifiutando una condivisione");
 			tmp = form[1];
@@ -251,8 +292,43 @@ public class CondivisioniSocket {
 			}
 			String pathcond = cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1);
 			condivisioneDAO.deleteCondivisione(cond);
-			log.addLine(u.getId(), "RCREF","http://localhost:8080/ai/home/"+p[p.length-1] , 0, owner.getId());
-			owner_log.addLine(owner.getId(), "RCREF",pp , 0, u.getId());
+			log.addLine(u.getId(), "RCREF","http://localhost:8080/ai/home/"+p[p.length-1] , 0, owner);
+			owner_log.addLine(owner.getId(), "RCREF",pp , 0, u);
+			Session session;
+			SessionManager sm = SessionManager.getInstance();
+			ConcurrentHashMap<Long, Session> hm;
+			if ( (hm = sm.getSessionMap(owner.getId())) != null) {
+				if ((session = hm.get(Long.parseLong("0")))!=null)
+					session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> ha rifiutato l'invito alla cartella condivisa <b>" + pathcond + "</b> </div>");
+			}
+		}  else if (type.equals("DEL")) {
+			System.out.println("sto cancellando una condivisione");
+			tmp = form[1];
+			vetTmp = tmp.split(": ");
+			Long id = Long.parseLong(vetTmp[1]);
+			Condivisione cond = condivisioneDAO.getCondivisione(id);
+			Utente owner = utenteDAO.getUtente(cond.getOwnerId());
+			Utente u = utenteDAO.getUtente(cond.getUserId());
+			Log log = new Log(u.getHome_dir());
+			Log owner_log = new Log(owner.getHome_dir());
+			String[] p = cond.getDirPath().split("\\\\");
+			int flag=0;
+			String pp = new String("http://localhost:8080/ai/home");
+			for (int i=0;i<p.length;i++) {
+				if (flag==1) pp += "/"+p[i];
+				if (p[i].equals("Polibox")) flag=1;
+			}
+			String pathcond = cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1);
+			condivisioneDAO.deleteCondivisione(cond);
+			log.addLine(u.getId(), "DELC","http://localhost:8080/ai/home/"+p[p.length-1] , 0, owner);
+			owner_log.addLine(owner.getId(), "DELC",pp , 0, u);
+			Session session;
+			SessionManager sm = SessionManager.getInstance();
+			ConcurrentHashMap<Long, Session> hm;
+			if ( (hm = sm.getSessionMap(cond.getUserId())) != null) {
+				if ((session = hm.get(Long.parseLong("0")))!=null)
+					session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ owner.getNome() + owner.getCognome() + "</i> ti ha eliminato dalla cartella condivisa <b>" + pathcond + "</b> </div>");
+			}
 			Session session;
 			SessionManager sm = SessionManager.getInstance();
 			ConcurrentHashMap<Long, Session> hm;
@@ -262,7 +338,7 @@ public class CondivisioniSocket {
 			}
 		}
 	}
-	
+
 	@OnOpen
 	public void onOpen(Session s, EndpointConfig cfg) {
 		this.config = cfg;
@@ -271,20 +347,102 @@ public class CondivisioniSocket {
 		SessionManager.getInstance().addUserSession(u.getId(), Long.parseLong("0"), s);
 		System.out.println("Connessione WebSocket aperta con utente: " + s.getRequestParameterMap().get("email").get(0) + ", " + s.getRequestParameterMap().get("nome").get(0));
 	}
-	
+
 	@OnClose
 	public void onClose(Session s, CloseReason reason) {
 		Utente u = (Utente) httpSession.getAttribute("utente");
 		SessionManager.getInstance().removeUserSession(u.getId(), Long.parseLong("0"));
 		System.out.println("Connessione WebSocket chiusa con utente: " + s.getRequestParameterMap().get("email").get(0) + " " + s.getRequestParameterMap().get("nome").get(0));
 	}
-	
+
+	@Override
+	public void connected(String path, Long id, String pathRel) {
+		for (Dispositivo d : dispositivoDAO.getDispositiviWithTransaction(id)){
+			if(SessionManager.getInstance().getSessionMap(id)== null || !SessionManager.getInstance().getSessionMap(id).containsKey(d.getId())){
+				System.out.println("----------------->"+id+" "+d.getId()+" "+path+" "+0);
+				SincronizzazioniPendenti sinc = new SincronizzazioniPendenti(id,d.getId(),path,3);
+				sincDAO.addSincronizzazioniPendentiWithTransaction(sinc);
+			}
+		}
+		if (SessionManager.getInstance().getSessionMap(id)!= null) {
+			visitDirectory(new File(path));
+		}
+	}
+
 	/*
 	@OnError
 	public void error(Session s, Throwable t) {
 		System.out.println("An ERROR occured!");
 		System.out.println(t);
 	}*/
-	
+
+	private void visitDirectory(File dir){
+		if(dir.isFile())
+			sendFile(dir);
+		else{
+			sendDirectory(dir);
+			String[] children = dir.list();
+			if (children != null) {
+				for(int i = 0; i < children.length; i++) {
+					System.out.println("--->" + dir.getAbsolutePath() + "\\" + children[i]);
+					visitDirectory(new File(dir.getAbsolutePath() + "\\" + children[i])); 
+				}
+			}
+		}
+	}
+	private void sendDirectory(File dir) {
+		for (Map.Entry<Long, Session> s : SessionManager.getInstance().getSessionMap(id).entrySet()){
+			if (s.getKey() != 0) {
+				try {
+					System.out.println("pathD " + dir.getAbsolutePath() + " " + dir.getName() + " " + dir.getAbsolutePath().split("Polibox").length);
+					if (dir.getAbsolutePath().split("Polibox").length > 2) {
+						s.getValue().getBasicRemote().sendText("DIR:"+dir.getAbsolutePath().split("Polibox\\\\")[1]);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	private void sendFile(File dir) {
+		try {
+			for (Map.Entry<Long, Session> s : SessionManager.getInstance().getSessionMap(id).entrySet()){
+				if (s.getKey() != 0) {
+					System.out.println("pathF " + dir.getAbsolutePath() + " " + dir.getName() + " " + dir.getAbsolutePath().split("Polibox\\\\").length);
+					if (dir.getAbsolutePath().split("Polibox\\\\").length > 1) {
+						s.getValue().getBasicRemote().sendText("FILE:"+dir.getAbsolutePath().split("Polibox\\\\")[1]);
+					}
+				}
+			}
+			FileInputStream fis=null;
+			fis = new FileInputStream(dir);
+			System.out.println(fis.available());
+			byte[] b = new byte[8192];
+			int bRead;
+			ByteBuffer bb;
+			while ((bRead=fis.read(b))!=-1) {
+				System.out.println(bRead);
+				if(bRead<8192){
+					bb=ByteBuffer.wrap(b,0,bRead);
+				}else
+					bb=ByteBuffer.wrap(b);
+				for (Map.Entry<Long, Session> s : SessionManager.getInstance().getSessionMap(id).entrySet()){
+					if (s.getKey() != 0) {
+						s.getValue().getBasicRemote().sendBinary(bb);
+						Thread.sleep(100);
+					}
+				}
+				bb.clear();
+			}
+			fis.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }

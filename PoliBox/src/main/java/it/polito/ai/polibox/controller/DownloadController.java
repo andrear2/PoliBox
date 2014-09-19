@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import it.polito.ai.polibox.dao.CondivisioneDAO;
+import it.polito.ai.polibox.dao.SincronizzazioniPendentiDAO;
 import it.polito.ai.polibox.entity.Condivisione;
+import it.polito.ai.polibox.entity.SincronizzazioniPendenti;
 import it.polito.ai.polibox.entity.Utente;
 
 import javax.servlet.ServletContext;
@@ -42,7 +44,6 @@ public class DownloadController {
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
 		}
-		
 		String pattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);  
 		String path = new AntPathMatcher().extractPathWithinPattern(pattern, request.getServletPath());
 		String filePath = utente.getHome_dir() + "\\Polibox\\" + path.replace("/", "\\");
@@ -100,7 +101,28 @@ public class DownloadController {
 			}
 			return null;
 		}
-		
+		System.out.println("Attributo di sessione ownercond: "+session.getAttribute("ownerCond"));
+		if (session.getAttribute("ownerCond")== null) {
+			for (Condivisione c : condivisioneDAO.getCondivisioniOwner(utente.getId())) {
+				if (c.getDirPath().equals(filePath)) {
+					session.setAttribute("ownerCond", path);
+					session.setAttribute("cId", c.getId());
+					System.out.println("Setto attributo di sessione ownerCond a : "+path);
+					break;
+				}
+			}
+		} else {
+			String p =(String) session.getAttribute("ownerCond");
+			int l1 = (p.split("/").length);
+			int l2 =  (path.split("/").length);
+			System.out.println("Confronto: "+p+" lungo "+l1+ " con: "+path+" lungo:"+l2);
+			if ( l1>l2) {
+				session.removeAttribute("ownerCond");
+				session.removeAttribute("cId");
+				System.out.println("Rimuovo attributo di sessione ownerCond a : ");
+			} 
+				
+		}
 		List<String> owner_sd_list = new ArrayList<String>();
 		HashMap<Long,String> pending_sd_list = new HashMap<Long,String>();
 		for (Condivisione c: condivisioneDAO.getCondivisioni(utente.getId())) {

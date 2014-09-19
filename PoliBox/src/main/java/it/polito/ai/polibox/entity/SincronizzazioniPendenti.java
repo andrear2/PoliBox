@@ -28,6 +28,9 @@ public class SincronizzazioniPendenti {
 	@Column(name="Type")
 	private Integer type;
 
+	public SincronizzazioniPendenti(){
+		
+	}
 
 	public SincronizzazioniPendenti(Long userId, Long dispId, String path,
 			Integer type) {

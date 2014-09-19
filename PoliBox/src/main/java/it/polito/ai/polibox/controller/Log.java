@@ -1,5 +1,7 @@
 package it.polito.ai.polibox.controller;
 
+import it.polito.ai.polibox.entity.Utente;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -55,7 +57,7 @@ public class Log {
 		return ln;
 	}
 	
-	public int addLine(Long u_id, String type, String resource, int disp, Long u2_id) {
+	public int addLine(Long u_id, String type, String resource, int disp, Utente u2) {
 		int ln=0;
 		System.out.println(resource);
 		String[] path = resource.split("/");
@@ -77,12 +79,12 @@ public class Log {
 			System.out.println(len+":"+lnr.getLineNumber());
 			lnr.close();
 		    long now = new Date().getTime();
-		    System.out.println(ln+":"+u_id+":"+type+":"+pathUrl+":"+disp+":"+now+":"+u2_id+"\n");
+		    System.out.println(ln+":"+u_id+":"+type+":"+pathUrl+":"+disp+":"+now+":"+u2.getId()+"\n");
 		    RandomAccessFile logFile = new RandomAccessFile(logpath,"rw");
 			FileOutputStream fos = new FileOutputStream(logFile.getFD());
     		PrintStream log = new PrintStream(fos);
     		logFile.seek(logFile.length());
-    		log.println(ln+":"+u_id+":"+type+":"+pathUrl+":"+disp+":"+now+":"+u2_id);
+    		log.println(ln+":"+u_id+":"+type+":"+pathUrl+":"+disp+":"+now+":"+u2.getId()+":"+u2.getNome()+":"+u2.getCognome());
     		log.close();
     		logFile.close();
 

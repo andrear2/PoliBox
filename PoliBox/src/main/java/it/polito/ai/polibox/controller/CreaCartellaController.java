@@ -2,6 +2,8 @@ package it.polito.ai.polibox.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import it.polito.ai.polibox.dao.CondivisioneDAO;
 import it.polito.ai.polibox.dao.DispositivoDAO;
@@ -86,20 +88,83 @@ public class CreaCartellaController implements CheckConnection{
 					if (flag==1) pp += "/"+p[i];
 					if (p[i].equals("Polibox")) flag=1;
 				}
-				log.addLine(utente.getId(), "ND","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, owner.getId());
-				owner_log.addLine(owner.getId(), "ND",pp+pathLog+"/"+nome , 0, utente.getId());
+				//log.addLine(utente.getId(), "ND","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, owner.getId());
 				
+				Session wssession;
+				SessionManager sm = SessionManager.getInstance();
+				ConcurrentHashMap<Long, Session> hm;
+				owner_log.addLine(owner.getId(), "ND",pp+pathLog+"/"+nome , 0, utente);					
+				if ( (hm = sm.getSessionMap(owner.getId())) != null) {
+					if ((wssession = hm.get(Long.parseLong("0")))!=null)
+						wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha creato la cartella <b>"+ nome +" nella cartella condivisa "+ condivisione.getDirPath().substring(condivisione.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+				}
+				List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioniWithoutTrans(condivisione.getDirPath());
+				System.out.println("Creacartellacontroller :"+ condivisione.getDirPath());
+				for(Condivisione c: listCond){
+					System.out.println("Creacartellacontroller  sto ciclando utente:"+c.getUserId()+" cartella "+ c.getDirPath());
+					Log l = new Log (utenteDAO.getUtenteWithoutTrans(c.getUserId()).getHome_dir());
+					l.addLine(c.getUserId(), "ND","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, utente);
+					if (c.getUserId()!=utente.getId()){
+						hm = sm.getSessionMap(c.getUserId());
+						System.out.println("Creacartellacontrollor: guardo se questo utente è nella mappa e ha un dispositovo 0");
+						if(hm != null && (wssession = hm.get(Long.parseLong("0")))!=null){
+							System.out.println("Creacartellacontroller OKKKKK");
+							wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha caricato il file <b>"+ nome +" nella cartella condivisa "+ c.getDirPath().substring(c.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+						}
+					}
+				}
 			} else
 				log.addLine(utente.getId(), "ND", path+"/"+nome, 0);
 		} else {
-			for (int i=1; ;i++) {
-				dir = new File(pathDir + "\\" + nome + "(" + i + ")");
-				if (!dir.isDirectory()) {
-					dir.mkdir();
-					//aggiorno il log file con l'azione appena compiuta
-					log.addLine(utente.getId(), "ND", path+"/"+nome, 0);
-					
-					break;
+			if (cond==1){
+				for (int i=1; ;i++) {
+					dir = new File(pathDir + "\\" + nome + "(" + i + ")");
+					if (!dir.isDirectory()) {
+						dir.mkdir();
+						Log owner_log = new Log(owner.getHome_dir());
+						String[] p = condivisione.getDirPath().split("\\\\");
+						int flag=0;
+						String pp = new String("http://localhost:8080/ai/home");
+						for (int j=0;j<p.length;j++) {
+							if (flag==1) pp += "/"+p[j];
+							if (p[j].equals("Polibox")) flag=1;
+						}
+						//log.addLine(utente.getId(), "ND","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, owner.getId());
+						
+						Session wssession;
+						SessionManager sm = SessionManager.getInstance();
+						ConcurrentHashMap<Long, Session> hm;
+						owner_log.addLine(owner.getId(), "ND",pp+pathLog+"/"+nome + "(" + i + ")" , 0, utente);					
+						if ( (hm = sm.getSessionMap(owner.getId())) != null) {
+							if ((wssession = hm.get(Long.parseLong("0")))!=null)
+								wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha creato la cartella <b>"+ nome + "(" + i + ")" +" nella cartella condivisa "+ condivisione.getDirPath().substring(condivisione.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+						}
+						List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioniWithoutTrans(condivisione.getDirPath());
+						System.out.println("Creacartellacontroller :"+ condivisione.getDirPath());
+						for(Condivisione c: listCond){
+							System.out.println("Creacartellacontroller  sto ciclando utente:"+c.getUserId()+" cartella "+ c.getDirPath());
+							Log l = new Log (utenteDAO.getUtenteWithoutTrans(c.getUserId()).getHome_dir());
+							l.addLine(c.getUserId(), "ND","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome + "(" + i + ")" , 0, utente);
+							if (c.getUserId()!=utente.getId()){
+								hm = sm.getSessionMap(c.getUserId());
+								if(hm != null && (wssession = hm.get(Long.parseLong("0")))!=null)
+									wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha caricato il file <b>"+ nome + "(" + i + ")" +" nella cartella condivisa "+ c.getDirPath().substring(c.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+							
+							}
+						}
+						break;
+					}
+				}
+			} else {
+				for (int i=1; ;i++) {
+					dir = new File(pathDir + "\\" + nome + "(" + i + ")");
+					if (!dir.isDirectory()) {
+						dir.mkdir();
+						//aggiorno il log file con l'azione appena compiuta
+						log.addLine(utente.getId(), "ND", path+"/"+nome + "(" + i + ")", 0);
+						
+						break;
+					}
 				}
 			}
 		}
@@ -112,28 +177,35 @@ public class CreaCartellaController implements CheckConnection{
 //			connected(dir.getName(), utente.getId());
 //			return "redirect:home";
 //		}
-		connected(pathDir, utente.getId());
-		if (cond == 1) {
+		if(pathUrl.isEmpty())
+			connected(pathDir+nome, utente.getId(),nome);
+		else
+			connected(pathDir+"\\"+nome, utente.getId(),pathUrl+"\\"+nome);
+		if (cond == 1 && session.getAttribute("ownerCond")==null) {
 			return "redirect:Home/" + condName +pathLog;
-		} else {
+		} else if ( session.getAttribute("ownerCond")!=null) {
+			return "redirect:home/" + condName + pathUrl.replace("\\", "/");
+		} else
 			return "redirect:home/" + pathUrl.replace("\\", "/");
-		}
 	}
 
 	@Override
-	public void connected(String path,Long id) {
+	public void connected(String path,Long id,String pathRel) {
 		for (Dispositivo d : dispositivoDAO.getDispositivi(id)){
-			if(!SessionManager.getInstance().getSessionMap(id).containsKey(d.getId())){
+			if(SessionManager.getInstance().getSessionMap(id)== null || !SessionManager.getInstance().getSessionMap(id).containsKey(d.getId())){
+				System.out.println("----------------->"+id+" "+d.getId()+" "+path+" "+0);
 				SincronizzazioniPendenti sinc = new SincronizzazioniPendenti(id,d.getId(),path,0);
 				sincDAO.addSincronizzazioniPendenti(sinc);
 			}
 		}
-		for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
-			try {
-				s.getBasicRemote().sendText("DIR:"+path);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		if (SessionManager.getInstance().getSessionMap(id)!= null) {
+			for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
+				try {
+					s.getBasicRemote().sendText("DIR:"+pathRel);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		

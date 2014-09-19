@@ -20,7 +20,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 	<script src="//cdn.datatables.net/1.10.0/js/jquery.dataTables.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="<c:url value='/resources/javascript/pageContext.js' />" ></script>
+	<script type="text/javascript" src="<c:url value='/resources/javascript/pageContextCond.js' />" ></script>
 	<script type="text/javascript" src="<c:url value='/resources/javascript/websocket.js' />" ></script>
 </head>
 <body>
@@ -83,7 +83,7 @@
 				<p>${msg}</p>
 			</div>
 		</c:if>
-		<div id="msg">
+		<div id="msg" onclick="document.getElementById('msg').innerHTML='';">
 			
 		</div>
 		<% if (!((Condivisione) session.getAttribute("condivisione")).getReadOnly()) { %>
@@ -96,6 +96,7 @@
 		<table class="sortable table-striped table-hover" id="list">
 			<thead>
 				<tr>
+					<th></th>
 					<th>Nome</th>
 					<th>Tipo</th>
 					<th>Ultima modifica</th>

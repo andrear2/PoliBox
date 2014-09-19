@@ -1,13 +1,20 @@
 package it.polito.ai.polibox.controller;
 
 import it.polito.ai.polibox.dao.CondivisioneDAO;
+import it.polito.ai.polibox.dao.DispositivoDAO;
+import it.polito.ai.polibox.dao.SincronizzazioniPendentiDAO;
 import it.polito.ai.polibox.dao.UtenteDAO;
 import it.polito.ai.polibox.entity.Condivisione;
+import it.polito.ai.polibox.entity.Dispositivo;
+import it.polito.ai.polibox.entity.SessionManager;
+import it.polito.ai.polibox.entity.SincronizzazioniPendenti;
 import it.polito.ai.polibox.entity.Utente;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.servlet.http.HttpSession;
+import javax.websocket.Session;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,11 +24,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-public class EliminaController {
+public class EliminaController implements CheckConnection {
 	@Autowired
 	CondivisioneDAO condivisioneDAO;
 	@Autowired
 	UtenteDAO utenteDAO;
+	@Autowired
+	SincronizzazioniPendentiDAO sincDAO;
+	@Autowired
+	DispositivoDAO dispositivoDAO;
 	
 	@RequestMapping(value = "/elimina", method = RequestMethod.POST)
 	public String eliminaFileSubmit(@RequestParam(value="nomefile") String nome, @RequestParam(value="path") String path, @RequestParam(value="cond") Integer cond, RedirectAttributes redirectAttrs, HttpSession session) {
@@ -81,8 +92,25 @@ public class EliminaController {
 						if (flag==1) pp += "/"+p[i];
 						if (p[i].equals("Polibox")) flag=1;
 					}
-					log.addLine(utente.getId(), "DD","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, owner.getId());
-					owner_log.addLine(owner.getId(), "DD",pp+pathLog+"/"+nome , 0, utente.getId());
+					
+					Session wssession;
+					SessionManager sm = SessionManager.getInstance();
+					ConcurrentHashMap<Long, Session> hm;
+					if ( (hm = sm.getSessionMap(owner.getId())) != null) {
+						owner_log.addLine(owner.getId(), "DD",pp+pathLog+"/"+nome , 0, utente);					
+						if ((wssession = hm.get(Long.parseLong("0")))!=null)
+							wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha eliminato la cartella <b>"+ nome +" nella cartella condivisa "+ condivisione.getDirPath().substring(condivisione.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+					}
+					List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioniWithoutTrans(condivisione.getDirPath());
+					for(Condivisione c: listCond){
+						log.addLine(c.getId(), "DD","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, utente);
+						if (c.getUserId()!=utente.getId()){
+							hm = sm.getSessionMap(c.getUserId());
+							if(hm != null && (wssession = hm.get(Long.parseLong("0")))!=null)
+								wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha eliminato la cartella <b>"+ nome +" nella cartella condivisa "+ c.getDirPath().substring(c.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+						
+						}
+					}
 				} else {
 					session.setAttribute("totByteFReg", (Double) session.getAttribute("totByteFReg") - size);
 					log.addLine(utente.getId(), "DD",path+"/"+name , 0);
@@ -99,8 +127,26 @@ public class EliminaController {
 						if (flag==1) pp += "/"+p[i];
 						if (p[i].equals("Polibox")) flag=1;
 					}
-					log.addLine(utente.getId(), "DD","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, owner.getId());
-					owner_log.addLine(owner.getId(), "DD",pp+pathLog+"/"+nome , 0, utente.getId());
+					
+					Session wssession;
+					SessionManager sm = SessionManager.getInstance();
+					ConcurrentHashMap<Long, Session> hm;
+					owner_log.addLine(owner.getId(), "DD",pp+pathLog+"/"+nome , 0, utente);					
+					if ( (hm = sm.getSessionMap(owner.getId())) != null) {
+						if ((wssession = hm.get(Long.parseLong("0")))!=null)
+							wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha eliminato il file <b>"+ nome +" nella cartella condivisa "+ condivisione.getDirPath().substring(condivisione.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+					}
+					List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioniWithoutTrans(condivisione.getDirPath());
+					for(Condivisione c: listCond){
+						Log l = new Log (utenteDAO.getUtenteWithoutTrans(c.getUserId()).getHome_dir());
+						l.addLine(c.getId(), "DD","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, utente);
+						if (c.getUserId()!=utente.getId()){
+							hm = sm.getSessionMap(c.getUserId());
+							if(hm != null && (wssession = hm.get(Long.parseLong("0")))!=null)
+								wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha eliminato il file <b>"+ nome +" nella cartella condivisa "+ c.getDirPath().substring(c.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+						
+						}
+					}
 				} else {
 					session.setAttribute("totByteFReg", (Double) session.getAttribute("totByteFReg") - size);
 					log.addLine(utente.getId(), "DD",path+"/"+name , 0);
@@ -116,10 +162,15 @@ public class EliminaController {
 			
 			redirectAttrs.addFlashAttribute("msgClass", "error");
 		}
-		
-		if (cond == 1) {
+		if(pathUrl.isEmpty())
+			connected(pathDir+nome, utente.getId(),nome);
+		else
+			connected(pathDir+"\\"+nome, utente.getId(),pathUrl+"\\"+nome);
+		if (cond == 1 && session.getAttribute("ownerCond")==null) {
 			return "redirect:Home/" + condName +pathLog;
-		} else {
+		} else if ( session.getAttribute("ownerCond")!=null) {
+			return "redirect:home/" + condName + pathUrl.replace("\\", "/");
+		}else {
 			return "redirect:home/" + pathUrl.replace("\\", "/");
 		}
 	}
@@ -135,6 +186,27 @@ public class EliminaController {
 		}
 		
 		return dir.delete();
+	}
+
+	@Override
+	public void connected(String path, Long id, String pathRel) {
+		for (Dispositivo d : dispositivoDAO.getDispositivi(id)){
+			if(SessionManager.getInstance().getSessionMap(id)== null || !SessionManager.getInstance().getSessionMap(id).containsKey(d.getId())){
+				System.out.println("----------------->"+id+" "+d.getId()+" "+path+" "+0);
+				SincronizzazioniPendenti sinc = new SincronizzazioniPendenti(id,d.getId(),path,2);
+				sincDAO.addSincronizzazioniPendenti(sinc);
+			}
+		}
+		if (SessionManager.getInstance().getSessionMap(id)!= null) {
+			for (Session s : SessionManager.getInstance().getSessionMap(id).values()){
+				try {
+					s.getBasicRemote().sendText("DELETE:"+pathRel);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	

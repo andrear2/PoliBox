@@ -72,6 +72,7 @@
 		<a href="/ai/events">Eventi</a>
 	</div>
 	<div class="col-xs-9">
+	<div id="content">
 		<!-- Breadcrumbs -->
 		<ol class="breadcrumb">
 			<%
@@ -87,13 +88,12 @@
 			}
 			%>
 		</ol>
-		
 		<c:if test="${msgBool == true}">
 			<div class="${msgClass}">
 				<p>${msg}</p>
 			</div>
 		</c:if>
-		<div id="msg">
+		<div id="msg" onclick="hideMsgDiv();">
 			
 		</div>
 		
@@ -177,7 +177,7 @@
 					    <h2 id="modalCartellaLabel">Crea cartella</h2>
 					</div>
 					<div class="modal-body">
-						<form id="formCartellaModal" data-toggle="validator" action="/ai/creaCartella?cond=0" method="post">
+						<form id="formCartellaModal" data-toggle="validator" action="/ai/creaCartella?cond=<%if(session.getAttribute("ownerCond")!=null)out.print("1");else out.print("0"); %>" method="post">
 							<div class="row">
 								<div class="form-group col-lg-9">
 									<label for="nome" class="control-label">Nome</label>
@@ -204,7 +204,7 @@
 					    <h2 id="modalFileLabel">Carica file</h2>
 					</div>
 					<div class="modal-body">
-						<form id="formFileModal" data-toggle="validator" action="/ai/fileUpload?cond=0" method="post" enctype="multipart/form-data" role="form">
+						<form id="formFileModal" data-toggle="validator" action="/ai/fileUpload?cond=<%if(session.getAttribute("ownerCond")!=null)out.print("1");else out.print("0"); %>" method="post" enctype="multipart/form-data" role="form">
 							<div class="row">
 								<div class="form-group col-lg-12">
 									<label for="files" class="control-label">File</label>
@@ -231,7 +231,7 @@
 					    <h2 id="modalCartellaLabel">Eliminare il file/la cartella?</h2>
 					</div>
 					<div class="modal-body">
-						<form data-toggle="validator" action="/ai/elimina?cond=0" method="post">
+						<form data-toggle="validator" action="/ai/elimina?cond=<%if(session.getAttribute("ownerCond")!=null)out.print("1");else out.print("0"); %>" method="post">
 							<div class="row">
 								<div class="form-group col-lg-9">
 									Eliminare il file/la cartella <b id="fileDeleted"></b> selezionato/a? 
@@ -256,7 +256,7 @@
 					    <h2 id="modalCartellaLabel">Rinomina file/cartella</h2>
 					</div>
 					<div class="modal-body">
-						<form data-toggle="validator" action="/ai/rinomina?cond=0" method="post">
+						<form data-toggle="validator" action="/ai/rinomina?cond=<%if(session.getAttribute("ownerCond")!=null)out.print("1");else out.print("0"); %>" method="post">
 							<div class="row">
 								<div class="form-group col-lg-12">
 									<label for="newName" class="control-label">Rinomina in</label>
@@ -307,6 +307,9 @@
 					</div>
 				</div>
 			</div>	
+		</div>
+		</div>
+		<div id="ownerCond" style="display:none;"><%if(session.getAttribute("ownerCond")!=null)out.print("1");else out.print("0"); %></div>
 		</div>
 		
 </body>
