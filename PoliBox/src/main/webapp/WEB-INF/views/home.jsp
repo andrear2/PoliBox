@@ -145,17 +145,17 @@
 				<tr class="draggable <% if (!file.isFile()) out.print("droppable"); %>">
 					<% if(file.isFile()) { %>
 						<td><span class="glyphicon glyphicon-file"></span></td>
-						<td><a id=<%= "file" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+						<td><a  id=<%= "file" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
 						<td>File</td>
 						<td><% out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
 					<% } else if(owner_sd_list.contains(file.getAbsolutePath())) { %>
 						<td><span class="glyphicon glyphicon-user"></span><span class="glyphicon glyphicon-user"></span></td>
-						<td><a id=<%="directory" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+						<td><a  id=<%="directory" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
 						<td>Cartella condivisa</td>
 						<td>--</td>
 					<% } else { %>
 						<td><span class="glyphicon glyphicon-folder-close"></span></td>
-						<td><a id=<%= "directory" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+						<td><a  id=<%= "directory" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
 						<td>Cartella</td>
 						<td>--</td>
 					<% } %>

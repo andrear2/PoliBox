@@ -59,18 +59,18 @@ div.context-menu div:hover {background: #FFE4E1;}
 .link_button:hover {text-decoration: underline;}
 
 .progress-bar-legend-normal {
-	background: #69b5f2;
-	border-color: #69a0cd;
-	color:#69b5f2;
+	background: #428bca;
+	border-color: white;
+	color:#428bca;
 	width: 1,5%;
 	float:left;
 	border-style:solid;
 }
 
 .progress-bar-legend-shared {
-	background: #87ccf6;
-	color: #87ccf6;
-	border-color: #66b4e4;
+	background: #5bc0de;
+	color: #5bc0de;
+	border-color: white;
 	width: 1,5%;
 	float:left;
 	border-style:solid;
@@ -80,7 +80,7 @@ div.context-menu div:hover {background: #FFE4E1;}
 	background: #f4faff;
 	color: #f4faff;
 	border-style:solid;
-	border-color: #D7E4F1;
+	border-color: white;
 	width: 1,5%;
 	float:left;
 }

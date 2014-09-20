@@ -184,10 +184,10 @@
 			</p>
 			<div class="progress-bar-legend-free">leg</div>
 			<p> Spazio inutilizzato 
-				<c:if test = "${((5000000 - totByteFCond - totByteFReg) < 1000)}"> ${  5000000 - totByteFCond - totByteFReg} B </c:if>
-				<c:if test = "${((5000000 - totByteFCond - totByteFReg) >= 1000) && ((5000000 - totByteFCond - totByteFReg) < 1000000)}"> ${  5000000 - totByteFCond - totByteFReg} KB </c:if>
-				<c:if test = "${((5000000 - totByteFCond - totByteFReg) >= 1000000) && ((5000000 - totByteFCond - totByteFReg) < 1000000000)}"> ${ 5000000 - totByteFCond - totByteFReg} MB </c:if> 
-				<c:if test = "${(5000000 - totByteFCond - totByteFReg) >= 1000000000}"> ${ 5000000 - totByteFCond - totByteFReg} GB </c:if> 
+				<c:if test = "${((5000000 - totByteFCond - totByteFReg) < 1000)}"> ${ 5000000 - totByteFCond - totByteFReg} B </c:if>
+				<c:if test = "${((5000000 - totByteFCond - totByteFReg) >= 1000) && ((5000000 - totByteFCond - totByteFReg) < 1000000)}"> ${ (5000000 - totByteFCond - totByteFReg)/1000} KB </c:if>
+				<c:if test = "${((5000000 - totByteFCond - totByteFReg) >= 1000000) && ((5000000 - totByteFCond - totByteFReg) < 1000000000)}"> ${ (5000000 - totByteFCond - totByteFReg)/1000000} MB </c:if> 
+				<c:if test = "${(5000000 - totByteFCond - totByteFReg) >= 1000000000}"> ${ (5000000 - totByteFCond - totByteFReg)/1000000000} GB </c:if> 
 			</p>
 		</div>
 	</div>

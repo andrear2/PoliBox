@@ -47,7 +47,7 @@ public class HomeController {
 	}
 	
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
-	public String showHome(Model model, HttpSession session) {
+	public String showHome(Model model, HttpSession session,  HttpServletRequest request) {
 		Utente u = (Utente) session.getAttribute("utente");
 		if (u == null || u.getEmail() == null) {
 			return "index";
@@ -86,6 +86,22 @@ public class HomeController {
 		model.addAttribute("pending_sd_list", pending_sd_list);
 		model.addAttribute("utente", u);
 		
+		System.out.println("Attributo di sessione ownerCond: "+session.getAttribute("ownerCond"));
+		if (session.getAttribute("ownerCond")!= null)
+		{
+			String p =(String) session.getAttribute("ownerCond");
+			String pattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);  
+			String path = new AntPathMatcher().extractPathWithinPattern(pattern, request.getServletPath());
+			int l1 = (p.split("/").length);
+			int l2 =  (path.split("/").length);
+			System.out.println("Confronto: "+p+" lungo "+l1+ " con: "+path+" lungo:"+l2);
+			if ( l1>=l2) {
+				session.removeAttribute("ownerCond");
+				session.removeAttribute("cId");
+				System.out.println("Rimuovo attributo di sessione ownerCond a : ");
+			} 
+				
+		}
 		return "home";
 	}
 	

@@ -122,30 +122,30 @@
 					<% if (!((Condivisione) session.getAttribute("condivisione")).getReadOnly()) { %>
 						<% if(file.isFile()) { %>
 							<td><span class="glyphicon glyphicon-file"></span></td>
-							<td><a id=<%= "file" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+							<td><a id=<%= "file" + i %> class="filename_link" href="/ai/Home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
 							<td>File</td>
 							<td><% out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
 						<% } else { %>
 							<td><span class="glyphicon glyphicon-folder-close"></span></td>
-							<td><a id=<%= "directory" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+							<td><a id=<%= "directory" + i %> class="filename_link" href="/ai/Home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
 							<td>Cartella</td>
 							<td>--</td>
 						<% } %>
 					<% } else { %>
 						<% if(file.isFile()) { %>
 								<td><span class="glyphicon glyphicon-file"></span></td>
-								<td><a id=<%= "file" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+								<td><a id=<%= "file" + i %> class="filename_link" href="/ai/Home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
 								<td>File</td>
 								<td><% out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
 							<% } else { %>
 								<td><span class="glyphicon glyphicon-folder-close"></span></td>
-								<td><a id=<%= "directory" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+								<td><a id=<%= "directory" + i %> class="filename_link" href="/ai/Home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
 								<td>Cartella</td>
 								<td>--</td>
 							<% } %>
 						<% } %>
-					<td><% if (file.isFile()) out.print("File"); else out.print("Cartella"); %></td>
-					<td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
+<%-- 					<td><% if (file.isFile()) out.print("File"); else out.print("Cartella"); %></td> --%>
+<%-- 					<td><% if (file.isFile()) out.print(dateFormat.format(new Date(file.lastModified()))); %></td> --%>
 				</tr>
 				
 				<%

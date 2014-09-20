@@ -3,11 +3,15 @@ package it.polito.ai.polibox.controller;
 import it.polito.ai.polibox.dao.CondivisioneDAO;
 import it.polito.ai.polibox.dao.UtenteDAO;
 import it.polito.ai.polibox.entity.Condivisione;
+import it.polito.ai.polibox.entity.SessionManager;
 import it.polito.ai.polibox.entity.Utente;
 
 import java.io.File;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpSession;
+import javax.websocket.Session;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -68,13 +72,55 @@ public class RinominaController {
 		
 		redirectAttrs.addFlashAttribute("utente", utente);
 		redirectAttrs.addFlashAttribute("msgBool", true);
-		
+		String logType = new String ();
+		String resourceType = new String();
 		if (dir.renameTo(newDir)) {
 			if (isDir) {
+				logType = "D";
+				resourceType ="la cartella";
 				redirectAttrs.addFlashAttribute("msg", "Cartella " + name + " rinominata in " + newName);
 			} else {
+				logType = "F";
+				resourceType ="il file";
 				redirectAttrs.addFlashAttribute("msg", "File " + name + " rinominato in " + newName);
 			}
+			if (cond==1) {
+				Log owner_log = new Log(owner.getHome_dir());
+				String[] p = condivisione.getDirPath().split("\\\\");
+				int flag=0;
+				String pp = new String("http://localhost:8080/ai/home");
+				for (int i=0;i<p.length;i++) {
+					if (flag==1) pp += "/"+p[i];
+					if (p[i].equals("Polibox")) flag=1;
+				}
+				Session wssession;
+				SessionManager sm = SessionManager.getInstance();
+				ConcurrentHashMap<Long, Session> hm;
+				owner_log.addLine(owner.getId(), "D"+logType ,pp+pathLog+"/"+nome , 0, utente);	
+				owner_log.addLine(owner.getId(), "N"+logType ,pp+pathLog+"/"+newName , 0, utente);		
+				if ( (hm = sm.getSessionMap(owner.getId())) != null) {
+					if ((wssession = hm.get(Long.parseLong("0")))!=null)
+						wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha rinominato "+ resourceType+" <b>"+ nome +"in "+newName+ " nella cartella condivisa "+ condivisione.getDirPath().substring(condivisione.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+				}
+				List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioniWithoutTrans(condivisione.getDirPath());
+				for(Condivisione c: listCond){
+					Log l = new Log (utenteDAO.getUtenteWithoutTrans(c.getUserId()).getHome_dir());
+					l.addLine(c.getUserId(), "D"+logType,"http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, utente);
+					l.addLine(c.getUserId(), "N"+logType,"http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+newName , 0, utente);
+					if (c.getUserId()!=utente.getId()){
+						hm = sm.getSessionMap(c.getUserId());
+						if(hm != null && (wssession = hm.get(Long.parseLong("0")))!=null){
+							wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha rinominato "+ resourceType+" <b>"+ nome +"in "+newName+ " nella cartella condivisa "+ c.getDirPath().substring(c.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
+						}
+					}
+				}
+			} else {
+				Log l = new Log (utente.getHome_dir());
+				l.addLine(utente.getId(), "D"+logType,"http://localhost:8080/ai/home/"+path+"/"+nome , 0);
+				l.addLine(utente.getId(), "N"+logType,"http://localhost:8080/ai/home/"+path+"/"+newName , 0);
+				
+			}
+			
 			redirectAttrs.addFlashAttribute("msgClass", "success");
 		} else {
 			if(isDir)
@@ -85,8 +131,10 @@ public class RinominaController {
 			redirectAttrs.addFlashAttribute("msgClass", "error");
 		}
 		
-		if (cond == 1) {
+		if (cond == 1 && session.getAttribute("ownerCond")==null) {
 			return "redirect:Home/" + condName +pathLog;
+		}  else if ( session.getAttribute("ownerCond")!=null) {
+			return "redirect:home/" + condName + pathUrl.replace("\\", "/");
 		} else {
 			return "redirect:home/" + pathUrl.replace("\\", "/");
 		}

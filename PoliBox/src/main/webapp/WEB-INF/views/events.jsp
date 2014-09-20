@@ -1,3 +1,5 @@
+<%@page import="it.polito.ai.polibox.dao.UtenteDAO"%>
+<%@page import="it.polito.ai.polibox.dao.CondivisioneDAO"%>
 <%@page import="java.awt.print.Printable"%>
 <%@page import="java.io.LineNumberReader"%>
 <%@page import="java.text.SimpleDateFormat"%>
@@ -5,6 +7,7 @@
 <%@page import="java.util.Date"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="it.polito.ai.polibox.entity.Utente"%>
+<%@page import="it.polito.ai.polibox.controller.AppCtxProv" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -81,6 +84,7 @@
 					<th>Tipo</th>
 					<th>Risorsa</th>
 					<th>Data</th>
+					<th>Autore della modifica</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -95,13 +99,21 @@
 				{
 				    String[] sub = line.split(":");
 				    sub[3] = sub[3].replace("\\", "/");
+				    String uName = new String();
+				    if (sub.length == 9) {				    	
+				    	uName = sub[7] +" "+ sub[8]; 
+				    } else {
+				    	uName = "Mio";
+				    }
+				    	
 
 				%>
 				<tr>
 					<td><%out.print(sub[2]); %></td>
 					<td><a href="/ai/home/<%  out.print(sub[3] + "/"); %>"><%= sub[3] %></a></td>
 					<td><%out.print(dateFormat.format(new Date(Long.parseLong(sub[5])))); %></td>
-<%-- 					<td><%out.print(dateFormat.format(new Date(Long.parseLong(sub[5])*1000))); %></td> --%>
+					
+					<td><%out.print(uName); %></td>
 				</tr>
 				<%
 				}

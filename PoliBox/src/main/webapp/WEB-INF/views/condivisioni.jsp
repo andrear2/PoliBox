@@ -87,6 +87,8 @@
 				<c:set var="splitDirPath" value="${fn:split(dir.key.dirPath, '\\\\')}"/>
 				<c:set var="dirPath" value="${splitDirPath[fn:length(splitDirPath)-1]}"/>
 				<p>Sei il proprietario della cartella <b>${dirPath}</b> condivisa con <i>${dir.value.nome} ${dir.value.cognome}</i></p>
+				<div style='display:none;' id='c_id' name='c_id'>${dir.key.id}</div>
+				<button class='btn btn-danger' onclick='refuse_cond4("${dir.key.id}")'>Rimuovi condivisione con questo utente</button>
 			</div>
 		</c:forEach>
 	</div>

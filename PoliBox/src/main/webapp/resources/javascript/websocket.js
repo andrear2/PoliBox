@@ -118,3 +118,12 @@ function refuse_cond3 (c_id) {
 		location.reload(true);
 	}
 }
+
+function refuse_cond4 (c_id) {
+	if(socket != null && socket.readyState === WebSocket.OPEN){
+		var msg = "DEL; c_id: "+c_id;
+		socket.send(msg);
+		console.log("Ho inviato: " + msg);
+		location.reload(true);
+	}
+}

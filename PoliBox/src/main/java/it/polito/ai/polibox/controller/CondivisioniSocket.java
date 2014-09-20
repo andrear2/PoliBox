@@ -244,33 +244,6 @@ public class CondivisioniSocket implements CheckConnection {
 			
 			
 
-			s.getAsyncRemote().sendText("<div class=\"alert alert-success\" role=\"alert\"> La condivisione alla cartella <b>"+ cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> è stata accettata. </div>");
-			Session session;
-			SessionManager sm = SessionManager.getInstance();
-			ConcurrentHashMap<Long, Session> hm;
-			if ( (hm = sm.getSessionMap(owner.getId())) != null) {
-				if ((session = hm.get(Long.parseLong("0")))!=null)
-					session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> si è iscritto alla cartella condivisa <b>" + cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
-			}
-			List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioni(cond.getDirPath());
-			for(Condivisione c: listCond){
-				if (c.getUserId()!=u.getId()){
-					hm = sm.getSessionMap(c.getUserId());
-					if(hm != null && (session = hm.get(Long.parseLong("0")))!=null)
-						session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> si è iscritto alla cartella condivisa <b>" + cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
-
-				}
-			}
-			//			Session session;
-			//			if((session = usersConn.get(owner.getEmail())) != null){
-			//				session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> si è iscritto alla cartella condivisa <b>" + cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
-			//			}
-			//			
-			//			List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioni(cond.getDirPath());
-			//			for(Condivisione c: listCond){
-			//				if((session = usersConn.get(utenteDAO.getUtente(c.getUserId()).getEmail())) != null)
-			//					session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> si è iscritto alla cartella condivisa <b>" + cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
-			//			}
 			id = cond.getUserId();
 			connected(cond.getDirPath(), id, cond.getDirPath().substring(cond.getDirPath().lastIndexOf("\\") + 1));
 		} else if (type.equals("REF")) {
@@ -328,13 +301,6 @@ public class CondivisioniSocket implements CheckConnection {
 			if ( (hm = sm.getSessionMap(cond.getUserId())) != null) {
 				if ((session = hm.get(Long.parseLong("0")))!=null)
 					session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ owner.getNome() + owner.getCognome() + "</i> ti ha eliminato dalla cartella condivisa <b>" + pathcond + "</b> </div>");
-			}
-			Session session;
-			SessionManager sm = SessionManager.getInstance();
-			ConcurrentHashMap<Long, Session> hm;
-			if ( (hm = sm.getSessionMap(owner.getId())) != null) {
-				if ((session = hm.get(Long.parseLong("0")))!=null)
-					session.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ u.getNome() + u.getCognome() + "</i> ha rifiutato l'invito alla cartella condivisa <b>" + pathcond + "</b> </div>");
 			}
 		}
 	}
