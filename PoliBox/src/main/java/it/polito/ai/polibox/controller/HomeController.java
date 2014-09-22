@@ -55,11 +55,14 @@ public class HomeController {
 		
 		List<String> owner_sd_list = new ArrayList<String>();
 		HashMap<Long,String> sd_list = new HashMap<Long,String>();
+		HashMap<Long, String> sd_list_read_only = new HashMap<Long, String>();
 		HashMap<Long,String> pending_sd_list = new HashMap<Long,String>();
 		for (Condivisione c: condivisioneDAO.getCondivisioni(u.getId())) {
 			String dirPath = c.getDirPath().substring(c.getDirPath().lastIndexOf("\\") + 1);
-			if (c.getState() == 1)
+			if (c.getState() == 1){
 				sd_list.put(c.getId(), dirPath);
+				sd_list_read_only.put(c.getId(), "" + c.getReadOnly());
+			}
 			else if (c.getState() == 0)
 				pending_sd_list.put(c.getId(), dirPath);
 		}
@@ -82,7 +85,8 @@ public class HomeController {
 		session.setAttribute("totByteFCond", totByteFCond);
 		
 		model.addAttribute("owner_sd_list", owner_sd_list);
-		model.addAttribute("sd_list", sd_list);
+		session.setAttribute("sd_list", sd_list);
+		session.setAttribute("sd_list_read_only", sd_list_read_only);
 		model.addAttribute("pending_sd_list", pending_sd_list);
 		model.addAttribute("utente", u);
 		
@@ -230,6 +234,7 @@ public class HomeController {
 		// aggiorna il path
 		model.addAttribute("pathDir", filePath);
 		model.addAttribute("pathUrl", path);
+		model.addAttribute("readOnly", condivisione.getReadOnly());
 		return "homeCond";
 	}
 	

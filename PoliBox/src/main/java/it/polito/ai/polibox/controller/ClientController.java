@@ -15,7 +15,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
@@ -36,12 +38,13 @@ public class ClientController {
 	private UtenteDAO utenteDAO = (UtenteDAO) AppCtxProv.getApplicationContext().getBean("utenteDAO");
 	private DispositivoDAO dispositivoDAO = (DispositivoDAO) AppCtxProv.getApplicationContext().getBean("dispositivoDAO");
 	private SincronizzazioniPendentiDAO sincDAO = (SincronizzazioniPendentiDAO) AppCtxProv.getApplicationContext().getBean("sincDAO");
-	private CondivisioneDAO condivisioneDAO = (CondivisioneDAO) AppCtxProv.getApplicationContext().getBean("condivisioneDAO");
+	private CondivisioneDAO condDAO = (CondivisioneDAO) AppCtxProv.getApplicationContext().getBean("condDAO");
 	static boolean connected=false;
 	private Utente u;
 	private Long id;
 	private Long disp;
 	private boolean isReadOnly = false;
+	private Log log;
 
 	@OnOpen
 	public void onOpen(Session s, EndpointConfig cfg) {
@@ -88,10 +91,14 @@ public class ClientController {
 		String sharedPath = null;
 		String[] s = msg.split(":");
 		isReadOnly=false;
-		for (Condivisione c: condivisioneDAO.getCondivisioniWithTransaction(id)) {
+		boolean shared = false;
+		Condivisione cond;
+		for (Condivisione c: condDAO.getCondivisioniWithTransaction(id)) {
 			System.out.println("((((((((((((((((((("+c.getDirPath().substring(c.getDirPath().lastIndexOf("\\") + 1));
 			System.out.println("((((((((((((((((((("+s[1].split("\\\\")[0]);
 			if (c.getDirPath().substring(c.getDirPath().lastIndexOf("\\") + 1).equals(s[1].split("\\\\")[0])) {
+				shared = true;
+				cond = c;
 				if (c.getReadOnly()) {
 					isReadOnly = true;
 				}else{
@@ -100,7 +107,8 @@ public class ClientController {
 			}
 		}
 		pathUtente = new String();
-		
+		u = utenteDAO.getUtente(s[1]);
+		log = new Log(u.getHome_dir());
 		System.out.println("((((((((((((((((((("+isReadOnly);
 		if (!isReadOnly) {
 			if (s[0].equals("DIR")) {
@@ -108,11 +116,13 @@ public class ClientController {
 				fileName = "C:\\Polibox uploaded files\\" + u.getId() + "_" + u.getCognome() + "_" + u.getNome() + "\\Polibox\\" + s[2];
 				File f = new File(fileName);
 				f.mkdir();
+				log.addLineClient(u.getId(), "ND", s[2], disp);
 			} else if (s[0].equals("DELETE_FILE")) {
 				u = utenteDAO.getUtente(s[1]);
 				fileName = "C:\\Polibox uploaded files\\" + u.getId() + "_" + u.getCognome() + "_" + u.getNome() + "\\Polibox\\" + s[2];
 				File f = new File(fileName);
 				f.delete();
+				log.addLineClient(u.getId(), "DF", s[2], disp);
 				if (f.isDirectory()) {
 					try {
 						FileUtils.deleteDirectory(f);
@@ -125,12 +135,14 @@ public class ClientController {
 				u = utenteDAO.getUtente(s[1]);
 				fileName = "C:\\Polibox uploaded files\\" + u.getId() + "_" + u.getCognome() + "_" + u.getNome() + "\\Polibox\\" + s[2];
 				File f = new File(fileName);
+				
 				try {
 					FileUtils.deleteDirectory(f);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				log.addLineClient(u.getId(), "DD", s[2], disp);
 			} else if (s[0].equals("EMPTY_FILE")) {
 				File f = new File(pathUtente + s[1]);
 				try {
@@ -152,12 +164,12 @@ public class ClientController {
 		}
 	}
 
+	private FileOutputStream fos;
 	@OnMessage
 	public void onBinaryMessage(Session session, ByteBuffer buf) {
 		if (!isReadOnly) {
 			try {
 				File f = new File(fileName);
-				FileOutputStream fos;
 				if (firstRequest) {
 					fos = new FileOutputStream(f);
 				} else {
@@ -165,9 +177,12 @@ public class ClientController {
 				}
 				firstRequest = false;
 				while (buf.hasRemaining()) {
-					fos.write(buf.get());
+					synchronized (fos) {
+						fos.write(buf.get());
+					}
 				}
 				fos.close();
+				log.addLineClient(u.getId(), "NF", fileName.split("Polibox\\")[1], disp);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

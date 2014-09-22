@@ -5,7 +5,7 @@ $(document).ready(function() {
     	"order": [[1, "asc"]],
     	"language": {
     		"search": "Cerca:",
-    		"zeroRecords": "Questa cartella è vuota"
+    		"zeroRecords": "Questa cartella Ã¨ vuota"
     	}
     });
     if (document.getElementById("ownerCond").innerHTML == "0") {
@@ -56,7 +56,7 @@ $(document).ready(function() {
     		if ($a.hasClass("not_editable")) {
     			if (i==0 || i==1 || i==4 || i==5 || i==6) continue;
     		} else {
-        		if(isFile && (i == 0 || i == 1 || i == 8)) continue;
+        		if(isFile && (i == 0 )) continue;
         		if(!isFile && (i == 0 || i == 9)) continue;
     		}
         		contextMenu += '<div><a data-toggle="modal" href="' + menu[i][1] + '">' + menu[i][0] + '</a></div>';
@@ -123,7 +123,48 @@ $(document).ready(function() {
 		activeClass: "ui-state-default",
         hoverClass: "ui-drop-hover",
 		drop: function( event, ui ) {
-			document.location.href = "/ai/sposta?cond=0&path=" + ui.draggable.find("a").attr("href") + "&newPath=" + $(this).find("a").attr("href");
+			
+			var idDrag = ui.draggable.find("a").attr("id");
+			var idDrop = $(this).find("a").attr("id");
+			
+			if(idDrop === null)
+				idDrop = $(this).find("form").attr("id");
+			if(idDrop === null)
+				idDrop = $(this).find("a").attr("id");
+			
+			if(((/^file/.test(idDrag)) || (/^directory/.test(idDrag))) && (/^directory/.test(idDrop)) ){  // sposto file/directory non condivisa in directory non condivisa
+				
+				document.location.href = "/ai/sposta?cond=0&path=" + ui.draggable.find("a").attr("href") + "&newPath=" + $(this).find("a").attr("href")+"&cId=-1";
+				
+			} else if(((/^file/.test(idDrag)) || (/^directory/.test(idDrag))) && (/^notReadOnly/.test(idDrop))) {  // sposto file/directory NON condivisa in directory condivisa di cui NON sono proprietario
+				
+				document.location.href = "/ai/sposta?cond=2&path=" + ui.draggable.find("a").attr("href") + "&newPath=" + $(this).find("input.submit").attr("value") + "&cId=" + $(this).find("input.hidden").attr("value");
+				
+			} else if(((/^file/.test(idDrag)) || (/^directory/.test(idDrag))) && (/^sharedDir/.test(idDrop))){  // sposto file/directory NON condivisa in directory condivisa di cui sono proprietario
+				
+				document.location.href = "/ai/sposta?cond=3&path=" + ui.draggable.find("a").attr("href") + "&newPath=" + $(this).find("a").attr("href");
+				
+			} else if(document.getElementById("ownerCond").innerHTML == "1"){  // spostamento interno a directory condivisa di cui sono proprietario
+				
+				document.location.href = "/ai/sposta?cond=4&path=" + ui.draggable.find("a").attr("href") + "&newPath=" + $(this).find("a").attr("href");
+				
+			} else if( (/^sharedDir/.test(idDrag)) && (/^directory/.test(idDrop)) ) { // sposto cartella condivisa di cui sono proprietario in cartella NON condivisa
+				
+				document.location.href = "/ai/sposta?cond=5&path=" + ui.draggable.find("a").attr("href") + "&newPath=" + $(this).find("a").attr("href")+"&cId=-1";
+				
+			} else if ((/^breadcrumb/.test(idDrop))) {
+				document.location.href = "/ai/sposta?cond=0&path=" + ui.draggable.find("a").attr("href") + "&newPath=" + $(this).find("a").attr("href") + "&cId=-1";
+			}
+			
+			/*
+			else if( ((/^sharedDir/.test(idDrag)) && ((/^readOnly/.test(idDrop)) || (/^notReadOnly/.test(idDrop)))) ) { // sposto cartella condivisa di cui sono proprietario in cartella condivisa di cui NON sono proprietario: VIETATO
+				
+			} else if(false) { // sposto cartella condivisa di cui NON sono proprietario in cartella condivisa di cui sono proprietario: VIETATO
+				
+			} else if( false ) { // sposto cartella condivisa di cui non sono proprietario in cartella non condivisa
+				
+			}
+			*/
 		}
 	});
 	

@@ -1,3 +1,4 @@
+<%@page import="java.util.HashMap"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="it.polito.ai.polibox.entity.Condivisione"%>
 <%@page import="java.text.SimpleDateFormat"%>
@@ -8,6 +9,7 @@
     pageEncoding="ISO-8859-1"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %> 
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -45,10 +47,10 @@
 	            <li id="nome">${utente.nome} ${utente.cognome}</li>
 	            <li id="email">${utente.email}</li>
 	            <li id="progBar">
-	            	<c:if test = "${(totByteFCond + totByteFReg < 1000)}"> ${totByteFCond+totByteFReg} B </c:if>
-					<c:if test = "${(totByteFCond + totByteFReg >= 1000) && (totByteFCond + totByteFReg < 1000000)}"> ${ (totByteFCond+totByteFReg)/1000} KB </c:if>
-					<c:if test = "${(totByteFCond + totByteFReg >= 1000000) && (totByteFCond + totByteFReg < 1000000000)}"> ${(totByteFCond+totByteFReg)/1000000} MB </c:if> 
-					<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> ${(totByteFCond+totByteFReg)/1000000000} GB </c:if>
+	            	<c:if test = "${(totByteFCond + totByteFReg < 1000)}"> <fmt:formatNumber value="${totByteFCond+totByteFReg}" maxFractionDigits="1" /> B </c:if>
+					<c:if test = "${(totByteFCond + totByteFReg >= 1000) && (totByteFCond + totByteFReg < 1000000)}"> <fmt:formatNumber value="${ (totByteFCond+totByteFReg)/1000}" maxFractionDigits="1" /> KB </c:if>
+					<c:if test = "${(totByteFCond + totByteFReg >= 1000000) && (totByteFCond + totByteFReg < 1000000000)}"> <fmt:formatNumber value="${(totByteFCond+totByteFReg)/1000000}" maxFractionDigits="1" /> MB </c:if> 
+					<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> <fmt:formatNumber value="${(totByteFCond+totByteFReg)/1000000000}" maxFractionDigits="1" /> GB </c:if>
 					di 5 MB in uso
 	            	<div class="progress">
 	            		<div class="progress-bar" role="progressbar" aria-valuenow="${(totByteFReg + totByteFCond)/50000}" aria-valuemin="0" aria-valuemax="100" style="width: ${(totByteFReg + totByteFCond)/50000}%;">
@@ -57,6 +59,7 @@
 					</div>
 				</li>
 	            <li class="divider"></li>
+	            <li><a href="<c:url value='/resources/client/Polibox.exe' />">Installa</a></li>
 	            <li><a href="/ai/account">Profilo</a></li>
 	            <li><a href="/ai/logout">Logout</a></li>
 	          </ul>
@@ -68,6 +71,7 @@
 	
 	<div class="col-xs-3">
 		<h2>Ciao ${utente.nome}!</h2>
+		<a href="/ai/home">Home</a><br>
 		<a href="/ai/condivisioni">Condivisioni <c:if test="${fn:length(pending_sd_list) > 0}">(${fn:length(pending_sd_list)})</c:if></a><br>
 		<a href="/ai/events">Eventi</a>
 	</div>
@@ -82,7 +86,7 @@
 				String pathUrlBreadcrumb = new String();
 				for (int i=2; i<pathElementsBreadcrumb.length-1; i++) {
 					pathUrlBreadcrumb += "/" + pathElementsBreadcrumb[i];
-					out.print("<li class='droppable'><a href='/ai" + pathUrlBreadcrumb + "'>" + pathElementsBreadcrumb[i] + "</a></li>");
+					out.print("<li class='droppable'><a id='breadcrumb' href='/ai" + pathUrlBreadcrumb + "'>" + pathElementsBreadcrumb[i] + "</a></li>");
 				}
 				out.print("<li class='active'>" + pathElementsBreadcrumb[pathElementsBreadcrumb.length-1] + "</li>");
 			}
@@ -112,20 +116,39 @@
 				</tr>
 			</thead>
 			<tbody>
-				<c:forEach var="dir" items="${sd_list}" varStatus="i">
-						<tr>
+			
+			<% 
+				HashMap<Long, String> sd_list = (HashMap<Long, String>) session.getAttribute("sd_list");
+				HashMap<Long, String> sd_list_read_only = (HashMap<Long, String>) session.getAttribute("sd_list_read_only");
+				
+				for(Long key: sd_list.keySet()){ %>
+					<tr class="droppable">
 							<td><span class="glyphicon glyphicon-user"></span><span class="glyphicon glyphicon-user"></span></td>
-							<td><form action="/ai/Home/${dir.value}" method="post">
-									<input type="submit" class="filename_link link_button" value="${dir.value}" draggable="true" id="fCond">
-									<input type="hidden" name="cId" value="${dir.key}" />
-<%-- 									<c:set var="cond" value="${dir.key}" /> --%>
-<%-- 									<% session.setAttribute("cId", pageContext.getAttribute("cond")); %> --%>
+							<td><form action="/ai/Home/<%=sd_list.get(key) %>" method="post" id="<% if(sd_list_read_only.get(key).equals("true")){ out.print("readOnly"); }else{ out.print("NotReadOnly"); } %>">
+									<input type="submit" class="filename_link link_button" value="<%=sd_list.get(key) %>" draggable="true" id="fCond">
+									<input type="hidden" name="cId" value="<%=key%>" />
 								</form>
 							</td>
-							<td>Cartella condivisa</td>
-							<td></td>
-						</tr>
-				</c:forEach>
+							<td>Cartella condivisa <% if(sd_list_read_only.get(key).equals("true")){ out.print("(sola lettura)"); } %></td>
+							<td>--</td>
+						</tr>	
+				<% 
+				}
+				%>
+<%-- 				<c:forEach var="dir" items="${sd_list}" varStatus="i"> --%>
+<!-- 						<tr> -->
+<!-- 							<td><span class="glyphicon glyphicon-user"></span><span class="glyphicon glyphicon-user"></span></td> -->
+<%-- 							<td><form action="/ai/Home/${dir.value}" method="post"> --%>
+<%-- 									<input type="submit" class="filename_link link_button" value="${dir.value}" draggable="true" id="fCond"> --%>
+<%-- 									<input type="hidden" name="cId" value="${dir.key}" /> --%>
+<%-- 									<c:set var="cond" value="${dir.key}" /> --%>
+<%-- 									<% session.setAttribute("cId", pageContext.getAttribute("cond")); %> --%>
+<%-- 								</form> --%>
+<!-- 							</td> -->
+<!-- 							<td>Cartella condivisa</td> -->
+<!-- 							<td></td> -->
+<!-- 						</tr> -->
+<%-- 				</c:forEach> --%>
 				<%
 				Utente utente = (Utente) request.getAttribute("utente");
 				String pathDir = (String) request.getAttribute("pathDir");
@@ -150,7 +173,7 @@
 						<td><% out.print(dateFormat.format(new Date(file.lastModified()))); %></td>
 					<% } else if(owner_sd_list.contains(file.getAbsolutePath())) { %>
 						<td><span class="glyphicon glyphicon-user"></span><span class="glyphicon glyphicon-user"></span></td>
-						<td><a  id=<%="directory" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
+						<td><a  id=<%="sharedDir" + i %> class="filename_link" href="/ai/home/<% if (pathUrl != null) out.print(pathUrl + "/"); %><%= list[i] %>" draggable="true"><%= list[i] %></a></td>
 						<td>Cartella condivisa</td>
 						<td>--</td>
 					<% } else { %>

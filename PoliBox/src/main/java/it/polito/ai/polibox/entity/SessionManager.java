@@ -24,8 +24,10 @@ public class SessionManager {
 	public void addUserSession(Long id_user,Long id_disp,Session s){
 
 		if(openedSessions.containsKey(id_user)){
+			System.out.println("!!!!!!!!!!Agguingo dispositivo:"+id_user+"disp:"+id_disp);
 			openedSessions.get(id_user).put(id_disp, s);
 		}else{
+			System.out.println("!!!!!!!!! Aggiungo utente:"+id_user+"disp:"+id_disp);
 			ConcurrentHashMap<Long, Session> tmp = new ConcurrentHashMap<Long, Session>();
 			tmp.put(id_disp, s);
 			openedSessions.put(id_user, tmp);

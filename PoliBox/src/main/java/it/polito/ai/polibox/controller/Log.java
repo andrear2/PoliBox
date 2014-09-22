@@ -96,4 +96,67 @@ public class Log {
 		return ln;
 		
 	}
+	
+	public int addLineClient(Long u_id, String type, String resource, int disp, Utente u2) {
+		int ln=0;
+		
+		try {
+			File file = new File(logpath);
+			long len = file.length();
+			FileReader fr = new FileReader(logpath);
+			LineNumberReader lnr = new LineNumberReader (fr);
+			lnr.skip(len);
+			ln = lnr.getLineNumber()+1;
+			System.out.println(len+":"+lnr.getLineNumber());
+			lnr.close();
+		    long now = new Date().getTime();
+		    System.out.println(ln+":"+u_id+":"+type+":"+resource+":"+disp+":"+now+":"+u2.getId()+"\n");
+		    RandomAccessFile logFile = new RandomAccessFile(logpath,"rw");
+			FileOutputStream fos = new FileOutputStream(logFile.getFD());
+    		PrintStream log = new PrintStream(fos);
+    		logFile.seek(logFile.length());
+    		log.println(ln+":"+u_id+":"+type+":"+resource+":"+disp+":"+now+":"+u2.getId()+":"+u2.getNome()+":"+u2.getCognome());
+    		log.close();
+    		logFile.close();
+
+
+	    } catch (IOException e) {
+	    	// TODO Auto-generated catch block
+	    	e.printStackTrace();
+	    }
+		return ln;
+		
+	}
+
+	public int addLineClient(Long u_id, String type, String resource, Long disp) {
+		int ln=0;
+		System.out.println(resource);
+		
+		try {
+			File file = new File(logpath);
+			long len = file.length();
+			FileReader fr = new FileReader(logpath);
+			LineNumberReader lnr = new LineNumberReader (fr);
+			lnr.skip(len);
+			ln = lnr.getLineNumber()+1;
+			System.out.println(len+":"+lnr.getLineNumber());
+			lnr.close();
+		    long now = new Date().getTime();
+		    System.out.println(ln+":"+u_id+":"+type+":"+resource+":"+disp+":"+now+"\n");
+		    RandomAccessFile logFile = new RandomAccessFile(logpath,"rw");
+			FileOutputStream fos = new FileOutputStream(logFile.getFD());
+    		PrintStream log = new PrintStream(fos);
+    		logFile.seek(logFile.length());
+    		log.println(ln+":"+u_id+":"+type+":"+resource+":"+disp+":"+now);
+    		log.close();
+    		logFile.close();
+
+
+	    } catch (IOException e) {
+	    	// TODO Auto-generated catch block
+	    	e.printStackTrace();
+	    }
+		return ln;
+		
+	}
 }

@@ -133,7 +133,7 @@ public class EliminaController implements CheckConnection {
 					Session wssession;
 					SessionManager sm = SessionManager.getInstance();
 					ConcurrentHashMap<Long, Session> hm;
-					owner_log.addLine(owner.getId(), "DD",pp+pathLog+"/"+nome , 0, utente);					
+					owner_log.addLine(owner.getId(), "DF",pp+pathLog+"/"+nome , 0, utente);					
 					if ( (hm = sm.getSessionMap(owner.getId())) != null) {
 						if ((wssession = hm.get(Long.parseLong("0")))!=null)
 							wssession.getAsyncRemote().sendText("<div class=\"alert alert-info\" role=\"alert\"><i>"+ utente.getNome() + utente.getCognome() + "</i> ha eliminato il file <b>"+ nome +" nella cartella condivisa "+ condivisione.getDirPath().substring(condivisione.getDirPath().lastIndexOf("\\")+1) + "</b> </div>");
@@ -141,7 +141,7 @@ public class EliminaController implements CheckConnection {
 					List<Condivisione> listCond = condivisioneDAO.getActiveCondivisioniWithoutTrans(condivisione.getDirPath());
 					for(Condivisione c: listCond){
 						Log l = new Log (utenteDAO.getUtenteWithoutTrans(c.getUserId()).getHome_dir());
-						l.addLine(c.getId(), "DD","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, utente);
+						l.addLine(c.getId(), "DF","http://localhost:8080/ai/home/"+p[p.length-1]+pathLog+"/"+nome , 0, utente);
 						if (c.getUserId()!=utente.getId()){
 							hm = sm.getSessionMap(c.getUserId());
 							if(hm != null && (wssession = hm.get(Long.parseLong("0")))!=null)
@@ -151,7 +151,7 @@ public class EliminaController implements CheckConnection {
 					}
 				} else {
 					session.setAttribute("totByteFReg", (Double) session.getAttribute("totByteFReg") - size);
-					log.addLine(utente.getId(), "DD",path+"/"+name , 0);
+					log.addLine(utente.getId(), "DF",path+"/"+name , 0);
 				}
 				redirectAttrs.addFlashAttribute("msg", "File " + name + " eliminato con successo");
 			}

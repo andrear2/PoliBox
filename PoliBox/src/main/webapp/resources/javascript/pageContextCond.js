@@ -8,36 +8,63 @@ $(document).ready(function() {
     		"zeroRecords": "Questa cartella è vuota"
     	}
     });
-    
-	$('tr').each(function() {
-		var $a = $(this).find("a");
-		
-		var menu = new Array();
-		menu[0] = ["Opzioni cartella condivisa", "#"];
-		menu[1] = ["Scarica", "http://localhost:8080" + $a.attr('href')];
-		menu[2] = ["Elimina", "#divFormElimina"];
-		menu[3] = ["Rinomina", "#divFormRinomina"];
-
-
-
-    	var id = $a.attr('id');
-    	var isFile = /^file/.test(id);
-    	
-    	var contextMenu = '<div class="context-menu">';
-    	for(var i = 0; i < menu.length; i++){
-    		if ($a.hasClass("not_editable")) {
-    			if (i==0 || i==1 || i==4 || i==5 || i==6) continue;
-    		} else {
-        		if(isFile && (i == 0 || i == 1 || i == 8)) continue;
-        		if(!isFile && (i == 0 || i == 9)) continue;
-    		}
-        		contextMenu += '<div><a data-toggle="modal" href="' + menu[i][1] + '">' + menu[i][0] + '</a></div>';
-    	}
-    	contextMenu += '</div>';
-    
-    	$(contextMenu).insertAfter($a).hide();
-    });
+    if (document.getElementById("readOnly").innerHTML==0) {
+		$('tr').each(function() {
+			var $a = $(this).find("a");
+			
+			var menu = new Array();
+			menu[0] = ["Opzioni cartella condivisa", "#"];
+			menu[1] = ["Scarica", "http://localhost:8080" + $a.attr('href')];
+			menu[2] = ["Elimina", "#divFormElimina"];
+			menu[3] = ["Rinomina", "#divFormRinomina"];
 	
+	
+	
+	    	var id = $a.attr('id');
+	    	var isFile = /^file/.test(id);
+	    	
+	    	var contextMenu = '<div class="context-menu">';
+	    	for(var i = 0; i < menu.length; i++){
+	    		if ($a.hasClass("not_editable")) {
+	    			if (i==0 || i==1 || i==4 || i==5 || i==6) continue;
+	    		} else {
+	        		if(isFile && (i == 0)) continue;
+	        		if(!isFile && (i == 0)) continue;
+	    		}
+	        		contextMenu += '<div><a data-toggle="modal" href="' + menu[i][1] + '">' + menu[i][0] + '</a></div>';
+	    	}
+	    	contextMenu += '</div>';
+	    
+	    	$(contextMenu).insertAfter($a).hide();
+	    });
+    } else {
+    	$('tr').each(function() {
+    		var $a = $(this).find("a");
+    		
+    		var menu = new Array();
+    		menu[0] = ["Opzioni cartella condivisa", "#"];
+    		menu[1] = ["Scarica", "http://localhost:8080" + $a.attr('href')];
+
+        	var id = $a.attr('id');
+        	var isFile = /^file/.test(id);
+        	
+        	var contextMenu = '<div class="context-menu">';
+        	for(var i = 0; i < menu.length; i++){
+        		if ($a.hasClass("not_editable")) {
+        			if (i==0 || i==1 || i==4 || i==5 || i==6) continue;
+        		} else {
+            		if(isFile && (i == 0)) continue;
+            		if(!isFile && (i == 0 || i == 9)) continue;
+        		}
+            		contextMenu += '<div><a data-toggle="modal" href="' + menu[i][1] + '">' + menu[i][0] + '</a></div>';
+        	}
+        	contextMenu += '</div>';
+        
+        	$(contextMenu).insertAfter($a).hide();
+        });
+    	
+    	
+    }
 	$('tr').bind('contextmenu', function(e) {
 	    
 	    //alert("pippo");
@@ -59,30 +86,27 @@ $(document).ready(function() {
 	    
 	    contextMenu.css("display", "table");
 	    
-	    /*
-	    contextMenu.find("div").each( function() {
-	    		var $div = $(this);
-	    		$div.css("display", "row");
-	    		
-	    		$div.find("a").each( function() {
-	    			$(this).css("display", "table-cell");
-	    		});
-	    
-	    });
-	    */
 
 	    e.preventDefault();
 	});
 	
-	/*$('.context-menu').bind('click', function(e) {
-		alert("pippo");
-		var nomeFile = $(this).parent();
-		alert(nomeFile);
-	});*/
 	$('html').bind('click', function(e) {
 		$(this).find(".context-menu").each( function() {
 			$(this).css("display", "none");		
 		});	
+	});
+	
+	$(".draggable").draggable({
+		revert: "invalid",
+		helper: "clone",
+	    cursor: "move"
+	});
+	$(".droppable").droppable({
+		activeClass: "ui-state-default",
+        hoverClass: "ui-drop-hover",
+		drop: function( event, ui ) {
+			document.location.href = "/ai/sposta?cond=1&path=" + ui.draggable.find("a").attr("href") + "&newPath=" + $(this).find("a").attr("href");
+		}
 	});
 
 });

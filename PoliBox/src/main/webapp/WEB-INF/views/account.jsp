@@ -2,6 +2,7 @@
     pageEncoding="ISO-8859-1"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %> 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -95,25 +96,22 @@
 	        <li class="dropdown">
 	          <a href="#" class="dropdown-toggle" data-toggle="dropdown">${utente.nome} ${utente.cognome} <b class="caret"></b></a>
 	          <ul class="dropdown-menu">
-	            <li>${utente.nome} ${utente.cognome}</li>
-	            <li>${utente.email}</li>
+	            <li id="nome">${utente.nome} ${utente.cognome}</li>
+	            <li id="email">${utente.email}</li>
 	            <li id="progBar">
+	            	<c:if test = "${(totByteFCond + totByteFReg < 1000)}"> <fmt:formatNumber value="${totByteFCond+totByteFReg}" maxFractionDigits="1" /> B </c:if>
+					<c:if test = "${(totByteFCond + totByteFReg >= 1000) && (totByteFCond + totByteFReg < 1000000)}"> <fmt:formatNumber value="${ (totByteFCond+totByteFReg)/1000}" maxFractionDigits="1" /> KB </c:if>
+					<c:if test = "${(totByteFCond + totByteFReg >= 1000000) && (totByteFCond + totByteFReg < 1000000000)}"> <fmt:formatNumber value="${(totByteFCond+totByteFReg)/1000000}" maxFractionDigits="1" /> MB </c:if> 
+					<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> <fmt:formatNumber value="${(totByteFCond+totByteFReg)/1000000000}" maxFractionDigits="1" /> GB </c:if>
+					di 5 MB in uso
 	            	<div class="progress">
-  						<div class="progress-bar" style="width: ${totByteFReg/50000}%">
-    						<span class="sr-only">${totByteFReg/50000}% Complete</span>
-  						</div>
-  						<div class="progress-bar progress-bar-info" style="width: ${totByteFCond/50000}%">
-    						<span class="sr-only">${totByteFCond/50000}% Complete</span>
+	            		<div class="progress-bar" role="progressbar" aria-valuenow="${(totByteFReg + totByteFCond)/50000}" aria-valuemin="0" aria-valuemax="100" style="width: ${(totByteFReg + totByteFCond)/50000}%;">
+    						<span class="sr-only">${(totByteFReg + totByteFCond)/50000}% Complete</span>
   						</div>
 					</div>
-					<p> 
-						<c:if test = "${totByteFCond + totByteFReg >= 1000}"> ${(totByteFCond+totByteFReg)/1000} KB </c:if>
-						<c:if test = "${totByteFCond + totByteFReg >= 1000000}"> ${(totByteFCond+totByteFReg)/1000000} MB </c:if> 
-						<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> ${(totByteFCond+totByteFReg)/1000000000} GB </c:if>
-						di 2,5 GB in uso 
-					</p>
 				</li>
 	            <li class="divider"></li>
+	            <li><a href="<c:url value='/resources/client/Polibox.exe' />">Installa</a></li>
 	            <li><a href="/ai/account">Profilo</a></li>
 	            <li><a href="/ai/logout">Logout</a></li>
 	          </ul>
@@ -162,33 +160,37 @@
   			</div>
 		</div>
 		<div> 
-			<c:if test = "${(totByteFCond + totByteFReg < 1000)}"> ${  totByteFCond+totByteFReg} B </c:if>
-			<c:if test = "${(totByteFCond + totByteFReg >= 1000) && (totByteFCond + totByteFReg < 1000000)}"> ${  (totByteFCond+totByteFReg)/1000} KB </c:if>
-			<c:if test = "${(totByteFCond + totByteFReg >= 1000000) && (totByteFCond + totByteFReg < 1000000000)}"> ${ (totByteFCond+totByteFReg)/1000000} MB </c:if> 
-			<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> ${ (totByteFCond+totByteFReg)/1000000000} GB </c:if>
+			<c:if test = "${(totByteFCond + totByteFReg < 1000)}"> <fmt:formatNumber value="${totByteFCond+totByteFReg}" maxFractionDigits="1" /> B </c:if>
+					<c:if test = "${(totByteFCond + totByteFReg >= 1000) && (totByteFCond + totByteFReg < 1000000)}"> <fmt:formatNumber value="${ (totByteFCond+totByteFReg)/1000}" maxFractionDigits="1" /> KB </c:if>
+					<c:if test = "${(totByteFCond + totByteFReg >= 1000000) && (totByteFCond + totByteFReg < 1000000000)}"> <fmt:formatNumber value="${(totByteFCond+totByteFReg)/1000000}" maxFractionDigits="1" /> MB </c:if> 
+					<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> <fmt:formatNumber value="${(totByteFCond+totByteFReg)/1000000000}" maxFractionDigits="1" /> GB </c:if>
 			di 5 MB in uso  
 			</div> 
 			<div class="progress-bar-legend-normal">leg</div> 
 			<p> File regolari 
-				<c:if test = "${(totByteFReg < 1000)}"> ${  totByteFReg} B </c:if>
-				<c:if test = "${(totByteFReg >= 1000) && (totByteFReg < 1000000)}"> ${  totByteFReg/1000} KB </c:if>
-				<c:if test = "${(totByteFReg >= 1000000) && (totByteFReg < 1000000000)}"> ${ totByteFReg/1000000} MB </c:if> 
-				<c:if test = "${totByteFReg >= 1000000000}"> ${ totByteFReg/1000000000} GB </c:if> 
+				<c:if test = "${(totByteFReg < 1000)}"> <fmt:formatNumber value="${totByteFReg}" maxFractionDigits="1" /> B </c:if>
+					<c:if test = "${(totByteFReg >= 1000) && (totByteFReg < 1000000)}"> <fmt:formatNumber value="${ (totByteFReg)/1000}" maxFractionDigits="1" /> KB </c:if>
+					<c:if test = "${(totByteFReg >= 1000000) && (totByteFReg < 1000000000)}"> <fmt:formatNumber value="${(totByteFReg)/1000000}" maxFractionDigits="1" /> MB </c:if> 
+					<c:if test = "${totByteFReg >= 1000000000}"> <fmt:formatNumber value="${(totByteFReg)/1000000000}" maxFractionDigits="1" /> GB </c:if>
 			</p>
 			<div class="progress-bar-legend-shared">leg</div>
 			<p> File condivisi 
-				<c:if test = "${(totByteFCond < 1000)}"> ${  totByteFCond} B </c:if>
-				<c:if test = "${(totByteFCond >= 1000) && (totByteFCond < 1000000)}"> ${  totByteFCond/1000} KB </c:if>
-				<c:if test = "${(totByteFCond >= 1000000) && (totByteFCond < 1000000000)}"> ${ totByteFCond/1000000} MB </c:if> 
-				<c:if test = "${totByteFCond >= 1000000000}"> ${ totByteFCond/1000000000} GB </c:if> 
+				<c:if test = "${(totByteFCond < 1000)}"> <fmt:formatNumber value="${totByteFCond}" maxFractionDigits="1" /> B </c:if>
+					<c:if test = "${(totByteFCond >= 1000) && (totByteFCond < 1000000)}"> <fmt:formatNumber value="${ (totByteFCond)/1000}" maxFractionDigits="1" /> KB </c:if>
+					<c:if test = "${(totByteFCond >= 1000000) && (totByteFCond < 1000000000)}"> <fmt:formatNumber value="${(totByteFCond)/1000000}" maxFractionDigits="1" /> MB </c:if> 
+					<c:if test = "${totByteFCond >= 1000000000}"> <fmt:formatNumber value="${(totByteFCond)/1000000000}" maxFractionDigits="1" /> GB </c:if>
 			</p>
 			<div class="progress-bar-legend-free">leg</div>
 			<p> Spazio inutilizzato 
-				<c:if test = "${((5000000 - totByteFCond - totByteFReg) < 1000)}"> ${ 5000000 - totByteFCond - totByteFReg} B </c:if>
-				<c:if test = "${((5000000 - totByteFCond - totByteFReg) >= 1000) && ((5000000 - totByteFCond - totByteFReg) < 1000000)}"> ${ (5000000 - totByteFCond - totByteFReg)/1000} KB </c:if>
-				<c:if test = "${((5000000 - totByteFCond - totByteFReg) >= 1000000) && ((5000000 - totByteFCond - totByteFReg) < 1000000000)}"> ${ (5000000 - totByteFCond - totByteFReg)/1000000} MB </c:if> 
-				<c:if test = "${(5000000 - totByteFCond - totByteFReg) >= 1000000000}"> ${ (5000000 - totByteFCond - totByteFReg)/1000000000} GB </c:if> 
+				<c:if test = "${((5000000 - totByteFCond - totByteFReg) < 1000)}"> <fmt:formatNumber value="${5000000 - totByteFCond-totByteFReg}" maxFractionDigits="1" /> B </c:if>
+					<c:if test = "${((5000000 - totByteFCond - totByteFReg) >= 1000) && ((5000000 - totByteFCond - totByteFReg) < 1000000)}"> <fmt:formatNumber value="${ (5000000 - totByteFCond-totByteFReg)/1000}" maxFractionDigits="1" /> KB </c:if>
+					<c:if test = "${((5000000 - totByteFCond - totByteFReg) >= 1000000) && ((5000000 - totByteFCond - totByteFReg) < 1000000000)}"> <fmt:formatNumber value="${(5000000 - totByteFCond-totByteFReg)/1000000}" maxFractionDigits="1" /> MB </c:if> 
+					<c:if test = "${(5000000 - totByteFCond - totByteFReg) >= 1000000000}"> <fmt:formatNumber value="${((5000000 - totByteFCond-totByteFReg))/1000000000}" maxFractionDigits="1" /> GB </c:if>
 			</p>
+		</div>
+		
+		<div>
+		<h3>Dispositivi connessi: ${numDisp}</h3>
 		</div>
 	</div>
 			

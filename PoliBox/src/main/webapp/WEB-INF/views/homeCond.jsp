@@ -8,6 +8,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %> 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -42,7 +43,20 @@
 	          <ul class="dropdown-menu">
 	            <li id="nome">${utente.nome} ${utente.cognome}</li>
 	            <li id="email">${utente.email}</li>
+	            <li id="progBar">
+	            	<c:if test = "${(totByteFCond + totByteFReg < 1000)}"> <fmt:formatNumber value="${totByteFCond+totByteFReg}" maxFractionDigits="1" /> B </c:if>
+					<c:if test = "${(totByteFCond + totByteFReg >= 1000) && (totByteFCond + totByteFReg < 1000000)}"> <fmt:formatNumber value="${ (totByteFCond+totByteFReg)/1000}" maxFractionDigits="1" /> KB </c:if>
+					<c:if test = "${(totByteFCond + totByteFReg >= 1000000) && (totByteFCond + totByteFReg < 1000000000)}"> <fmt:formatNumber value="${(totByteFCond+totByteFReg)/1000000}" maxFractionDigits="1" /> MB </c:if> 
+					<c:if test = "${totByteFCond + totByteFReg >= 1000000000}"> <fmt:formatNumber value="${(totByteFCond+totByteFReg)/1000000000}" maxFractionDigits="1" /> GB </c:if>
+					di 5 MB in uso
+	            	<div class="progress">
+	            		<div class="progress-bar" role="progressbar" aria-valuenow="${(totByteFReg + totByteFCond)/50000}" aria-valuemin="0" aria-valuemax="100" style="width: ${(totByteFReg + totByteFCond)/50000}%;">
+    						<span class="sr-only">${(totByteFReg + totByteFCond)/50000}% Complete</span>
+  						</div>
+					</div>
+				</li>
 	            <li class="divider"></li>
+	            <li><a href="<c:url value='/resources/client/Polibox.exe' />">Installa</a></li>
 	            <li><a href="/ai/account">Profilo</a></li>
 	            <li><a href="/ai/logout">Logout</a></li>
 	          </ul>
@@ -54,6 +68,7 @@
 	
 	<div class="col-xs-3">
 		<h2>Ciao ${utente.nome}!</h2>
+		<a href="/ai/home">Home</a><br>
 		<a href="/ai/condivisioni">Condivisioni <c:if test="${fn:length(pending_sd_list) > 0}">(${fn:length(pending_sd_list)})</c:if></a><br>
 		<a href="/ai/events">Eventi</a>
 	</div>
@@ -91,7 +106,8 @@
 			<a data-toggle="modal" href="#divFormFileModal">Carica un file</a><br>
 			<a data-toggle="modal" href="#divFormCartellaModal">Crea cartella</a>
 		</p>
-		<% } %>
+		<div id="readOnly" style="display:none">0</div>
+		<% } else { %><div id="readOnly" style="display:none">1</div><%} %>
 		
 		<table class="sortable table-striped table-hover" id="list">
 			<thead>
@@ -118,7 +134,7 @@
 					for (int i=0; i<list.length; i++) {
 						file = new java.io.File(pathDir + "\\" + list[i]);
 				%>
-				<tr>
+				<tr class="draggable droppable">
 					<% if (!((Condivisione) session.getAttribute("condivisione")).getReadOnly()) { %>
 						<% if(file.isFile()) { %>
 							<td><span class="glyphicon glyphicon-file"></span></td>

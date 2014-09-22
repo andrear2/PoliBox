@@ -31,23 +31,19 @@ div.context-menu {
     
 }
 
-div.context-menu-hidden {
+table.context-menu-hidden {
     
     display: none;
 }
 
-div.context-menu a {
+table.context-menu a {
     
     color: black;
-    display: table-cell;
     text-decoration: none;
 }
 
-div.context-menu div {
-	display: row;
-}
 
-div.context-menu div:hover {background: #FFE4E1;}
+table.context-menu tr:hover {background: #FFE4E1;}
 
 .link_button {
 	background:none!important;

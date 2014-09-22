@@ -2,6 +2,7 @@ package it.polito.ai.polibox.controller;
 
 import javax.servlet.http.HttpSession;
 
+import it.polito.ai.polibox.dao.DispositivoDAO;
 import it.polito.ai.polibox.dao.UtenteDAO;
 import it.polito.ai.polibox.entity.Utente;
 
@@ -17,6 +18,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AccountController {
 	@Autowired
 	private UtenteDAO utenteDAO;
+	@Autowired
+	private DispositivoDAO dispositivoDAO;
 	
 	@RequestMapping(value = "/account", method = RequestMethod.GET)
 	public String showEditAccountForm(Model model, HttpSession session) {
@@ -24,6 +27,8 @@ public class AccountController {
 		if (utente == null || utente.getEmail() == null) {
 			return "index";
 		}
+		
+		model.addAttribute("numDisp", dispositivoDAO.getDispositivi(utente.getId()).size());
 		model.addAttribute("utente", utente);
 		return "account";
 	}
